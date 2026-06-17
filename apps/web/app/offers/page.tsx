@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import PortalShell from '@/components/PortalShell'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -58,16 +59,12 @@ export default async function OffersPage({
   ]
 
   return (
-    <main className="min-h-screen bg-cream p-8">
+    <PortalShell>
+    <main className="p-8">
       <div className="max-w-5xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <Link href="/dashboard" className="text-taupe text-sm mb-2 block hover:text-primary">
-              ← Dashboard
-            </Link>
-            <h1 className="text-3xl font-extrabold text-primary-dark">Send Offer</h1>
-            <p className="text-taupe mt-1">Send a personalised message to your customers</p>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-3xl font-extrabold text-primary-dark">Send Offer</h1>
+          <p className="text-taupe mt-1">Send a personalised message to your customers</p>
         </div>
 
         {searchParams.error && (
@@ -161,6 +158,7 @@ export default async function OffersPage({
         </div>
       </div>
     </main>
+    </PortalShell>
   )
 }
 
