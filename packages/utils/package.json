@@ -1,5 +1,5 @@
 {
-  "name": "@regulars/utils",
+  "name": "@rounds/utils",
   "version": "0.0.1",
   "private": true,
   "main": "./src/index.ts",
@@ -8,7 +8,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@regulars/types": "workspace:*"
+    "@rounds/types": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.7.3"

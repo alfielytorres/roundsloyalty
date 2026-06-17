@@ -41,8 +41,8 @@ export default function SignIn() {
           <View style={styles.logoCircle}>
             <Text style={styles.logoText}>R</Text>
           </View>
-          <Text style={styles.appName}>Regulars Loyalty</Text>
-          <Text style={styles.tagline}>Your regulars deserve rewards</Text>
+          <Text style={styles.appName}>Rounds Loyalty</Text>
+          <Text style={styles.tagline}>Built for your best customers</Text>
         </View>
 
         {/* Form */}

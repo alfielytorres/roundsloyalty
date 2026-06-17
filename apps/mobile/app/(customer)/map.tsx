@@ -4,7 +4,7 @@ import MapView, { Marker, Callout } from 'react-native-maps'
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { Colors } from '@/constants/colors'
-import type { Business } from '@regulars/types'
+import type { Business } from '@rounds/types'
 
 const INITIAL_REGION = {
   latitude: -33.8688,

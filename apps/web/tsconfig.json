@@ -14,8 +14,8 @@
     "jsx": "preserve",
     "incremental": true,
     "paths": {
-      "@regulars/types": ["../../packages/types/src/index.ts"],
-      "@regulars/utils": ["../../packages/utils/src/index.ts"]
+      "@rounds/types": ["../../packages/types/src/index.ts"],
+      "@rounds/utils": ["../../packages/utils/src/index.ts"]
     },
     "plugins": [{ "name": "next" }]
   },

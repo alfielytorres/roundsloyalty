@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth'
 import { Colors } from '@/constants/colors'
-import { formatRelativeTime } from '@regulars/utils'
+import { formatRelativeTime } from '@rounds/utils'
 
 interface DashboardStats {
   totalCustomers: number
@@ -107,7 +107,7 @@ export default function VendorDashboard() {
       <View style={styles.noBusinessContainer}>
         <Text style={styles.noBusinessTitle}>Set up your store</Text>
         <Text style={styles.noBusinessText}>
-          Complete your store profile to start rewarding your regulars.
+          Complete your store profile to start rewarding your customers.
         </Text>
         <TouchableOpacity
           style={styles.setupButton}

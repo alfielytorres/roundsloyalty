@@ -13,7 +13,7 @@ import {
 import { Link, useRouter } from 'expo-router'
 import { supabase } from '@/lib/supabase'
 import { Colors } from '@/constants/colors'
-import type { UserRole } from '@regulars/types'
+import type { UserRole } from '@rounds/types'
 
 export default function SignUp() {
   const router = useRouter()
@@ -61,7 +61,7 @@ export default function SignUp() {
     >
       <ScrollView contentContainerStyle={styles.inner} keyboardShouldPersistTaps="handled">
         <Text style={styles.title}>Create account</Text>
-        <Text style={styles.subtitle}>Join thousands of regulars</Text>
+        <Text style={styles.subtitle}>Join thousands of loyal customers</Text>
 
         {/* Role picker */}
         <View style={styles.roleContainer}>
@@ -84,7 +84,7 @@ export default function SignUp() {
             <Text style={[styles.roleTitle, role === 'vendor' && styles.roleTitleActive]}>
               I run a Business
             </Text>
-            <Text style={styles.roleDesc}>Reward your regulars</Text>
+            <Text style={styles.roleDesc}>Reward your customers</Text>
           </TouchableOpacity>
         </View>
 

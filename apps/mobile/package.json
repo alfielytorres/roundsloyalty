@@ -11,8 +11,8 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@regulars/types": "workspace:*",
-    "@regulars/utils": "workspace:*",
+    "@rounds/types": "workspace:*",
+    "@rounds/utils": "workspace:*",
     "@supabase/supabase-js": "^2.49.1",
     "@tanstack/react-query": "^5.75.7",
     "zustand": "^5.0.3",

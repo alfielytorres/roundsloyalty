@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth'
 import { Colors } from '@/constants/colors'
-import type { DataConsent, Business } from '@regulars/types'
+import type { DataConsent, Business } from '@rounds/types'
 
 interface ConsentWithBusiness extends DataConsent {
   businesses: Pick<Business, 'id' | 'name'>

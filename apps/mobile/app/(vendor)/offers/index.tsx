@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth'
 import { Colors } from '@/constants/colors'
-import { formatRelativeTime } from '@regulars/utils'
+import { formatRelativeTime } from '@rounds/utils'
 
 export default function VendorOffers() {
   const { user } = useAuthStore()

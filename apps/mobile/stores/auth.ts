@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { Session, User } from '@supabase/supabase-js'
-import type { Profile, UserRole } from '@regulars/types'
+import type { Profile, UserRole } from '@rounds/types'
 
 interface AuthState {
   session: Session | null

@@ -13,7 +13,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth'
 import { Colors } from '@/constants/colors'
-import type { LoyaltyProgramType, StampProgramConfig, PointsProgramConfig } from '@regulars/types'
+import type { LoyaltyProgramType, StampProgramConfig, PointsProgramConfig } from '@rounds/types'
 
 export default function VendorSettings() {
   const { user } = useAuthStore()
