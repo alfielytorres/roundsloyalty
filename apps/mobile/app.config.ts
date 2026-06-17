@@ -2,8 +2,8 @@ import { ExpoConfig, ConfigContext } from 'expo/config'
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'Regulars Loyalty',
-  slug: 'regulars-loyalty',
+  name: 'Rounds Loyalty',
+  slug: 'rounds-loyalty',
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/icon.png',
@@ -16,7 +16,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   assetBundlePatterns: ['**/*'],
   ios: {
     supportsTablet: false,
-    bundleIdentifier: 'com.regularsloyalty.app',
+    bundleIdentifier: 'com.roundsloyalty.app',
     entitlements: {
       'com.apple.developer.pass-type-identifiers': ['$(TeamIdentifierPrefix)*'],
     },
@@ -26,7 +26,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#7DB542',
     },
-    package: 'com.regularsloyalty.app',
+    package: 'com.roundsloyalty.app',
     permissions: [
       'android.permission.CAMERA',
       'android.permission.ACCESS_FINE_LOCATION',

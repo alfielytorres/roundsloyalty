@@ -14,13 +14,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth'
 import { Colors } from '@/constants/colors'
-import type { OfferSegment } from '@regulars/types'
+import type { OfferSegment } from '@rounds/types'
 
 const SEGMENTS: { key: OfferSegment; label: string; desc: string }[] = [
   { key: 'all', label: 'All customers', desc: 'Everyone with a card' },
   { key: 'returning', label: 'Returning', desc: 'Visited in last 30 days' },
   { key: 'at_risk', label: 'At risk', desc: 'No visit in 30+ days' },
-  { key: 'top', label: 'Top customers', desc: 'Most loyal regulars' },
+  { key: 'top', label: 'Top customers', desc: 'Your most loyal customers' },
 ]
 
 export default function ComposeOffer() {

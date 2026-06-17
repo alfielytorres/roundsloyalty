@@ -22,8 +22,8 @@ export default async function RootPage() {
           <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center mb-4 shadow-lg">
             <span className="text-4xl font-black text-cream leading-none">R</span>
           </div>
-          <h1 className="text-3xl font-extrabold text-primary-dark">Regulars Loyalty</h1>
-          <p className="text-taupe mt-2 text-center">Vendor portal — reward your regulars</p>
+          <h1 className="text-3xl font-extrabold text-primary-dark">Rounds Loyalty</h1>
+          <p className="text-taupe mt-2 text-center">Vendor portal — reward your customers</p>
         </div>
 
         {/* Sign in form */}
@@ -58,7 +58,7 @@ export default async function RootPage() {
 
         <p className="text-center text-sm text-taupe mt-6">
           Customers? Use the{' '}
-          <span className="font-semibold text-primary">Regulars Loyalty</span> mobile app.
+          <span className="font-semibold text-primary">Rounds Loyalty</span> mobile app.
         </p>
       </div>
     </main>

@@ -1,4 +1,4 @@
-import type { LoyaltyCard, LoyaltyProgram, StampProgramConfig, TieredProgramConfig } from '@regulars/types'
+import type { LoyaltyCard, LoyaltyProgram, StampProgramConfig, TieredProgramConfig } from '@rounds/types'
 
 export function getProgressLabel(card: LoyaltyCard, program: LoyaltyProgram): string {
   const config = program.config

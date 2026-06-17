@@ -4,8 +4,8 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth'
 import { Colors } from '@/constants/colors'
-import type { LoyaltyCard, LoyaltyProgram, Business } from '@regulars/types'
-import { getProgressLabel } from '@regulars/utils'
+import type { LoyaltyCard, LoyaltyProgram, Business } from '@rounds/types'
+import { getProgressLabel } from '@rounds/utils'
 
 interface CardWithDetails {
   card: LoyaltyCard

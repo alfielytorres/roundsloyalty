@@ -69,7 +69,7 @@ export default async function DashboardPage() {
             className="block bg-white rounded-3xl p-6 hover:shadow-md transition-shadow border border-transparent hover:border-primary"
           >
             <h2 className="text-xl font-bold text-primary-dark mb-2">Customers →</h2>
-            <p className="text-taupe">View and segment your regulars, export data</p>
+            <p className="text-taupe">View and segment your customers, export data</p>
           </a>
           <a
             href="/offers"

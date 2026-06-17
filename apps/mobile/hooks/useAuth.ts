@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth'
-import type { Profile } from '@regulars/types'
+import type { Profile } from '@rounds/types'
 
 export function useAuthListener() {
   const { setSession, setProfile, setLoading } = useAuthStore()
