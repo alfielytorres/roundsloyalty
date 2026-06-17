@@ -3,8 +3,9 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "mobile": "pnpm --filter mobile start",
     "web": "pnpm --filter web dev",
+    "ios": "open apps/ios/RoundsLoyalty.xcodeproj",
+    "android": "cd apps/android && ./gradlew assembleDebug",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
