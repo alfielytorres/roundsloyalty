@@ -89,7 +89,6 @@ struct LoyaltyCardRow: View {
                     .foregroundColor(.brandTaupe)
             }
 
-            // Stamp grid for stamp programs
             if program?.type == .stamp, let config = program?.config, let required = config.stampsRequired {
                 StampGrid(collected: card.stampsCollected, required: required)
             } else if program?.type == .points {
@@ -109,9 +108,7 @@ struct LoyaltyCardRow: View {
             }
         }
         .padding()
-        .background(Color.white)
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .glassCard()
     }
 }
 
@@ -127,6 +124,10 @@ struct StampGrid: View {
                 Circle()
                     .fill(index < collected ? Color.brandGreen : Color.brandLightGreen)
                     .frame(height: 28)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.brandGreen.opacity(index < collected ? 0 : 0.3), lineWidth: 1)
+                    )
                     .overlay(
                         Image(systemName: index < collected ? "checkmark" : "")
                             .font(.caption2.weight(.bold))

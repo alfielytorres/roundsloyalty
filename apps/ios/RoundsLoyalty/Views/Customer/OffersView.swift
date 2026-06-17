@@ -30,7 +30,7 @@ struct OffersView: View {
                     List {
                         ForEach(recipients) { recipient in
                             OfferRow(recipient: recipient)
-                                .listRowBackground(recipient.openedAt == nil ? Color.brandLightGreen.opacity(0.3) : Color.white)
+                                .listRowBackground(recipient.openedAt == nil ? Color.brandGreen.opacity(0.08) : Color.white.opacity(0.7))
                                 .onTapGesture {
                                     if recipient.openedAt == nil {
                                         Task { await markOpened(recipient: recipient) }
@@ -98,7 +98,7 @@ struct OfferRow: View {
         HStack(spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(Color.brandLightGreen)
+                    .fill(Color.brandGreen.opacity(0.2))
                     .frame(width: 44, height: 44)
                 Image(systemName: "tag.fill")
                     .foregroundColor(.brandGreen)
@@ -122,7 +122,7 @@ struct OfferRow: View {
                     .lineLimit(1)
                 Text(offer?.body ?? "")
                     .font(.caption)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.brandTaupe)
                     .lineLimit(2)
             }
 

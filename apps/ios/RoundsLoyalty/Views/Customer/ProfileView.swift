@@ -14,12 +14,11 @@ struct CustomerProfileView: View {
                 Color.brandCream.ignoresSafeArea()
 
                 List {
-                    // Profile header
                     Section {
                         HStack(spacing: 16) {
                             ZStack {
                                 Circle()
-                                    .fill(Color.brandLightGreen)
+                                    .fill(Color.brandGreen.opacity(0.2))
                                     .frame(width: 64, height: 64)
                                 Text(initials)
                                     .font(.title2.bold())
@@ -36,9 +35,8 @@ struct CustomerProfileView: View {
                         }
                         .padding(.vertical, 8)
                     }
-                    .listRowBackground(Color.white)
+                    .listRowBackground(Color.white.opacity(0.7))
 
-                    // Data consents
                     Section(header: Text("My Data").foregroundColor(.brandTaupe)) {
                         if isLoading {
                             HStack {
@@ -71,9 +69,8 @@ struct CustomerProfileView: View {
                             }
                         }
                     }
-                    .listRowBackground(Color.white)
+                    .listRowBackground(Color.white.opacity(0.7))
 
-                    // Sign out
                     Section {
                         Button(role: .destructive) {
                             Task { await signOut() }
@@ -87,7 +84,7 @@ struct CustomerProfileView: View {
                             }
                         }
                     }
-                    .listRowBackground(Color.white)
+                    .listRowBackground(Color.white.opacity(0.7))
                 }
                 .listStyle(.insetGrouped)
                 .scrollContentBackground(.hidden)
