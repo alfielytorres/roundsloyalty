@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   const password = formData.get('password') as string
   const businessName = formData.get('businessName') as string
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -41,10 +41,19 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // Sign them in immediately after sign-up
+  // If email confirmation is required, session will be null
+  if (!data.session) {
+    return NextResponse.redirect(
+      new URL('/sign-up?error=' + encodeURIComponent('Check your email to confirm your account, then sign in.'), req.url),
+    )
+  }
+
+  // Sign them in immediately (works when email confirmation is disabled)
   const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
   if (signInError) {
-    return NextResponse.redirect(new URL('/', req.url))
+    return NextResponse.redirect(
+      new URL(`/?error=${encodeURIComponent('Account created! Please sign in.')}`, req.url),
+    )
   }
 
   return NextResponse.redirect(new URL('/onboarding', req.url))
