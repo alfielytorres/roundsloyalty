@@ -55,9 +55,19 @@ export default async function DashboardPage() {
   return (
     <main className="min-h-screen bg-cream p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-extrabold text-primary-dark">{business.name}</h1>
-          <p className="text-taupe mt-1">Vendor Dashboard</p>
+        <div className="flex items-start justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-extrabold text-primary-dark">{business.name}</h1>
+            <p className="text-taupe mt-1">Vendor Dashboard</p>
+          </div>
+          <form action="/api/auth/sign-out" method="POST">
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-xl border-2 border-taupe text-taupe text-sm font-semibold hover:border-primary-dark hover:text-primary-dark transition-colors"
+            >
+              Sign out
+            </button>
+          </form>
         </div>
 
         {/* Stats */}
