@@ -57,6 +57,8 @@ export default function StampScanner() {
             placeholder="Scan or type the code from the customer's app"
             className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-primary-dark focus:outline-none focus:border-primary transition-colors font-mono"
             autoComplete="off"
+            data-1p-ignore
+            data-lpignore="true"
           />
         </div>
         <div>
