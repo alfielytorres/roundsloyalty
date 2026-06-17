@@ -28,15 +28,17 @@ async function getStats(businessId: string) {
 }
 
 export default async function DashboardPage() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  if (!supabaseUrl || !supabaseKey) redirect('/')
+
   const cookieStore = cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => cookieStore.getAll() } },
-  )
+  const supabase = createServerClient(supabaseUrl, supabaseKey, {
+    cookies: { getAll: () => cookieStore.getAll() },
+  })
 
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/(auth)/sign-in')
+  if (!user) redirect('/')
 
   const { data: business } = await supabase
     .from('businesses')
