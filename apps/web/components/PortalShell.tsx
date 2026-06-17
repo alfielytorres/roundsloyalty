@@ -1,9 +1,10 @@
+import { cache } from 'react'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import NavBar from './NavBar'
 
-export default async function PortalShell({ children }: { children: React.ReactNode }) {
+const getPortalData = cache(async () => {
   const cookieStore = cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -22,6 +23,12 @@ export default async function PortalShell({ children }: { children: React.ReactN
     .maybeSingle()
 
   if (!business) redirect('/onboarding')
+
+  return { user, business }
+})
+
+export default async function PortalShell({ children }: { children: React.ReactNode }) {
+  const { business } = await getPortalData()
 
   return (
     <div className="min-h-screen bg-cream flex flex-col">
