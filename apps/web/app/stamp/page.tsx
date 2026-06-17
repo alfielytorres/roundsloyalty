@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import PortalShell from '@/components/PortalShell'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -39,12 +39,10 @@ export default async function StampPage({
     .limit(10)
 
   return (
-    <main className="min-h-screen bg-cream p-8">
+    <PortalShell>
+    <main className="p-8">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
-          <Link href="/dashboard" className="text-taupe text-sm mb-2 block hover:text-primary">
-            ← Dashboard
-          </Link>
           <h1 className="text-3xl font-extrabold text-primary-dark">Stamp Card</h1>
           <p className="text-taupe mt-1">Scan or enter a customer&apos;s card code to add stamps</p>
         </div>
@@ -93,5 +91,6 @@ export default async function StampPage({
         </div>
       </div>
     </main>
+    </PortalShell>
   )
 }

@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import PortalShell from '@/components/PortalShell'
 
 export default async function CustomersPage({
   searchParams,
@@ -45,11 +46,11 @@ export default async function CustomersPage({
   const exportUrl = `/api/export?business_id=${business.id}&format=${searchParams.format ?? 'csv'}`
 
   return (
-    <main className="min-h-screen bg-cream p-8">
+    <PortalShell>
+    <main className="p-8">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <Link href="/dashboard" className="text-taupe text-sm mb-2 block hover:text-primary">← Dashboard</Link>
             <h1 className="text-3xl font-extrabold text-primary-dark">Customers</h1>
           </div>
           <div className="flex gap-3">
@@ -132,6 +133,7 @@ export default async function CustomersPage({
         </div>
       </div>
     </main>
+    </PortalShell>
   )
 }
 
