@@ -14,6 +14,7 @@ struct CustomerProfileView: View {
                 Color.brandCream.ignoresSafeArea()
 
                 List {
+                    // Profile header
                     Section {
                         HStack(spacing: 16) {
                             ZStack {
@@ -37,6 +38,7 @@ struct CustomerProfileView: View {
                     }
                     .listRowBackground(Color.white.opacity(0.7))
 
+                    // Data consents
                     Section(header: Text("My Data").foregroundColor(.brandTaupe)) {
                         if isLoading {
                             HStack {
@@ -71,6 +73,7 @@ struct CustomerProfileView: View {
                     }
                     .listRowBackground(Color.white.opacity(0.7))
 
+                    // Sign out
                     Section {
                         Button(role: .destructive) {
                             Task { await signOut() }

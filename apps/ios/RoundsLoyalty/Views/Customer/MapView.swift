@@ -31,7 +31,7 @@ struct DiscoverMapView: View {
                         ProgressView()
                             .tint(.brandGreen)
                             .padding()
-                            .background(.ultraThinMaterial)
+                            .background(Color.white.opacity(0.9))
                             .cornerRadius(16)
                             .padding()
                     } else if !businesses.isEmpty {
@@ -52,7 +52,7 @@ struct DiscoverMapView: View {
                             .padding(.horizontal, 16)
                             .padding(.vertical, 12)
                         }
-                        .background(.ultraThinMaterial)
+                        .background(Color.brandCream.opacity(0.95))
                         .cornerRadius(20, corners: [.topLeft, .topRight])
                     }
                 }
@@ -141,19 +141,17 @@ struct BusinessCard: View {
             if let description = business.description {
                 Text(description)
                     .font(.caption2)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.brandTaupe)
                     .lineLimit(2)
             }
         }
         .padding(12)
         .frame(width: 200)
-        .background(isSelected ? Color.brandLightGreen : Color.white)
-        .cornerRadius(12)
+        .glassCard(cornerRadius: 12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
                 .stroke(isSelected ? Color.brandGreen : Color.clear, lineWidth: 2)
         )
-        .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 2)
     }
 }
 

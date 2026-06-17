@@ -39,9 +39,9 @@ struct SignInView: View {
                                 .autocapitalization(.none)
                                 .autocorrectionDisabled()
                                 .padding()
-                                .background(Color.white)
+                                .background(Color.white.opacity(0.7))
                                 .cornerRadius(12)
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.brandTaupe, lineWidth: 1))
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.brandGreen.opacity(0.3), lineWidth: 1))
                         }
 
                         VStack(alignment: .leading, spacing: 6) {
@@ -50,9 +50,9 @@ struct SignInView: View {
                                 .foregroundColor(.brandDarkGreen)
                             SecureField("••••••••", text: $password)
                                 .padding()
-                                .background(Color.white)
+                                .background(Color.white.opacity(0.7))
                                 .cornerRadius(12)
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.brandTaupe, lineWidth: 1))
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.brandGreen.opacity(0.3), lineWidth: 1))
                         }
 
                         if let errorMessage {

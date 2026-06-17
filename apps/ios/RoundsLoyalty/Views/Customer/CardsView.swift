@@ -89,6 +89,7 @@ struct LoyaltyCardRow: View {
                     .foregroundColor(.brandTaupe)
             }
 
+            // Stamp grid for stamp programs
             if program?.type == .stamp, let config = program?.config, let required = config.stampsRequired {
                 StampGrid(collected: card.stampsCollected, required: required)
             } else if program?.type == .points {
