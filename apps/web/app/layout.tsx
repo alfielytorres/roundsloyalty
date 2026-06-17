@@ -4,6 +4,7 @@ import './globals.css'
 export const metadata: Metadata = {
   title: 'Rounds Loyalty — Vendor Portal',
   description: 'Manage your loyalty program and reward your customers',
+  icons: { icon: '/logo.svg', apple: '/logo.svg' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
