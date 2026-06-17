@@ -27,7 +27,9 @@ export default async function OnboardingPage({ searchParams }: { searchParams: {
     <main className="min-h-screen bg-cream flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-10">
-          <img src="/logo.svg" alt="Rounds Loyalty" className="w-24 h-24 mb-4" />
+          <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center mb-4 shadow-lg">
+            <span className="text-4xl font-black text-cream leading-none">R</span>
+          </div>
           <h1 className="text-3xl font-extrabold text-primary-dark">Set up your store</h1>
           <p className="text-taupe mt-2 text-center">Tell us about your business</p>
         </div>
