@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Verify the card belongs to a program for this business
-  const program = card.loyalty_programs as { business_id: string } | null
+  const program = (Array.isArray(card.loyalty_programs) ? card.loyalty_programs[0] : card.loyalty_programs) as { business_id: string } | null
   if (!program || program.business_id !== business.id) {
     return NextResponse.json({ error: 'This card is not for your business.' }, { status: 403 })
   }
@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
     points_added: 0,
   })
 
-  const profile = card.profiles as { display_name: string } | null
+  const profile = (Array.isArray(card.profiles) ? card.profiles[0] : card.profiles) as { display_name: string } | null
   return NextResponse.json({
     success: true,
     customer_name: profile?.display_name ?? 'Customer',
