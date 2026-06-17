@@ -60,14 +60,12 @@ export default async function DashboardPage() {
             <h1 className="text-3xl font-extrabold text-primary-dark">{business.name}</h1>
             <p className="text-taupe mt-1">Vendor Dashboard</p>
           </div>
-          <form action="/api/auth/sign-out" method="POST">
-            <button
-              type="submit"
-              className="px-4 py-2 rounded-xl border-2 border-taupe text-taupe text-sm font-semibold hover:border-primary-dark hover:text-primary-dark transition-colors"
-            >
-              Sign out
-            </button>
-          </form>
+          <Link
+            href="/settings"
+            className="px-4 py-2 rounded-xl border-2 border-taupe text-taupe text-sm font-semibold hover:border-primary-dark hover:text-primary-dark transition-colors"
+          >
+            Settings
+          </Link>
         </div>
 
         {/* Stats */}
