@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -67,20 +68,20 @@ export default async function DashboardPage() {
 
         {/* Quick links */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <a
+          <Link
             href="/customers"
             className="block bg-white rounded-3xl p-6 hover:shadow-md transition-shadow border border-transparent hover:border-primary"
           >
             <h2 className="text-xl font-bold text-primary-dark mb-2">Customers →</h2>
             <p className="text-taupe">View and segment your customers, export data</p>
-          </a>
-          <a
+          </Link>
+          <Link
             href="/offers"
             className="block bg-primary rounded-3xl p-6 hover:opacity-90 transition-opacity"
           >
             <h2 className="text-xl font-bold text-white mb-2">Send Offer →</h2>
             <p className="text-primary-light">Reach your customers with personalised messages</p>
-          </a>
+          </Link>
         </div>
       </div>
     </main>
