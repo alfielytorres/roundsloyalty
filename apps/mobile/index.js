@@ -1,8 +1,10 @@
-// Suppress Reanimated 3.16 bridgeless flag error in Expo Go before runtime boots
-const _originalConsoleError = console.error
-console.error = (...args) => {
+// Patch console.error before any modules load so Reanimated's
+// 'disableEventLoopOnBridgeless' warning never reaches the screen.
+// Must use require (not import) — ESM imports are hoisted and would run first.
+const originalError = console.error
+console.error = function (...args) {
   if (typeof args[0] === 'string' && args[0].includes('disableEventLoopOnBridgeless')) return
-  _originalConsoleError(...args)
+  return originalError.apply(this, args)
 }
 
-import 'expo-router/entry'
+require('expo-router/entry')
