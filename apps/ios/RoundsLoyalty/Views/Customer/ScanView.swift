@@ -1,8 +1,6 @@
 import SwiftUI
 import AVFoundation
 
-// MARK: - QR Scanner UIViewRepresentable
-
 final class QRScannerCoordinator: NSObject, AVCaptureMetadataOutputObjectsDelegate {
     var onScan: (String) -> Void
 
@@ -48,15 +46,10 @@ struct QRScannerView: UIViewRepresentable {
         let preview = AVCaptureVideoPreviewLayer(session: session)
         preview.videoGravity = .resizeAspectFill
         view.layer.addSublayer(preview)
-
-        // Store session reference for layout
         view.tag = 1
         (view as UIView).layer.setValue(preview, forKey: "previewLayer")
 
-        DispatchQueue.global(qos: .userInitiated).async {
-            session.startRunning()
-        }
-
+        DispatchQueue.global(qos: .userInitiated).async { session.startRunning() }
         return view
     }
 
@@ -66,8 +59,6 @@ struct QRScannerView: UIViewRepresentable {
         }
     }
 }
-
-// MARK: - Scan View
 
 enum ScanState {
     case idle
@@ -85,7 +76,6 @@ struct ScanView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Camera
                 QRScannerView { payload in
                     guard case .idle = scanState else { return }
                     guard payload != lastScannedPayload else { return }
@@ -94,7 +84,6 @@ struct ScanView: View {
                 }
                 .ignoresSafeArea()
 
-                // Overlay frame
                 VStack {
                     Spacer()
                     RoundedRectangle(cornerRadius: 16)
@@ -109,22 +98,13 @@ struct ScanView: View {
                     Spacer()
                 }
 
-                // State overlays
                 switch scanState {
-                case .processing:
-                    processingOverlay
-
-                case .success(let result):
-                    successOverlay(result: result)
-
+                case .processing: processingOverlay
+                case .success(let result): successOverlay(result: result)
                 case .requiresConsent(let businessId, let businessName, let qrPayload):
                     consentSheet(businessId: businessId, businessName: businessName, qrPayload: qrPayload)
-
-                case .error(let msg):
-                    errorOverlay(message: msg)
-
-                case .idle:
-                    EmptyView()
+                case .error(let msg): errorOverlay(message: msg)
+                case .idle: EmptyView()
                 }
             }
             .navigationTitle("Scan")
@@ -132,8 +112,6 @@ struct ScanView: View {
             .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
         }
     }
-
-    // MARK: - Overlays
 
     private var processingOverlay: some View {
         ZStack {
@@ -167,19 +145,17 @@ struct ScanView: View {
                     .foregroundColor(.brandGreen)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
-                    .background(Color.white)
+                    .background(Color.brandDarkGreen.opacity(0.85))
                     .cornerRadius(20)
                 }
-                Button("Scan Another") {
-                    reset()
-                }
-                .padding(.horizontal, 32)
-                .padding(.vertical, 12)
-                .background(Color.brandGreen)
-                .foregroundColor(.white)
-                .font(.headline)
-                .cornerRadius(12)
-                .padding(.top, 8)
+                Button("Scan Another") { reset() }
+                    .padding(.horizontal, 32)
+                    .padding(.vertical, 12)
+                    .background(Color.brandGreen)
+                    .foregroundColor(.white)
+                    .font(.headline)
+                    .cornerRadius(12)
+                    .padding(.top, 8)
             }
             .padding()
         }
@@ -194,34 +170,28 @@ struct ScanView: View {
                     .foregroundColor(.brandGreen)
                 Text("Share your data?")
                     .font(.title2.bold())
-                    .foregroundColor(.brandDarkGreen)
+                    .foregroundColor(.white)
                 Text("\(businessName) would like to track your visits and send you personalised offers. You can withdraw consent anytime from your profile.")
                     .font(.subheadline)
-                    .foregroundColor(.secondary)
+                    .foregroundColor(.white.opacity(0.8))
                     .multilineTextAlignment(.center)
-
                 HStack(spacing: 12) {
                     Button("Decline") { reset() }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.brandTaupe.opacity(0.2))
-                        .cornerRadius(12)
-                        .foregroundColor(.brandDarkGreen)
-
+                        .frame(maxWidth: .infinity).padding()
+                        .background(Color.brandDarkGreen.opacity(0.85))
+                        .cornerRadius(12).foregroundColor(.white)
                     Button("Allow") {
                         Task { await grantConsentAndStamp(businessId: businessId, qrPayload: qrPayload) }
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.brandGreen)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
+                    .frame(maxWidth: .infinity).padding()
+                    .background(Color.brandGreen).foregroundColor(.white).cornerRadius(12)
                 }
                 .font(.headline)
             }
             .padding(28)
-            .background(Color.white)
+            .background(Color.brandDarkGreen.opacity(0.85))
             .cornerRadius(24)
+            .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.brandGreen.opacity(0.18), lineWidth: 0.5))
             .padding(.horizontal, 24)
         }
     }
@@ -231,41 +201,26 @@ struct ScanView: View {
             Color.black.opacity(0.6).ignoresSafeArea()
             VStack(spacing: 16) {
                 Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: 56))
-                    .foregroundColor(.red)
-                Text("Scan Failed")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                Text(message)
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.8))
-                    .multilineTextAlignment(.center)
+                    .font(.system(size: 56)).foregroundColor(.red)
+                Text("Scan Failed").font(.headline).foregroundColor(.white)
+                Text(message).font(.subheadline).foregroundColor(.white.opacity(0.8)).multilineTextAlignment(.center)
                 Button("Try Again") { reset() }
-                    .padding(.horizontal, 32)
-                    .padding(.vertical, 12)
-                    .background(Color.white)
-                    .foregroundColor(.brandDarkGreen)
-                    .font(.headline)
-                    .cornerRadius(12)
+                    .padding(.horizontal, 32).padding(.vertical, 12)
+                    .background(Color.brandDarkGreen.opacity(0.85))
+                    .foregroundColor(.white).font(.headline).cornerRadius(12)
             }
             .padding()
         }
     }
 
-    // MARK: - Logic
-
     private func reset() {
         scanState = .idle
-        // Small delay before allowing another scan
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            lastScannedPayload = nil
-        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { lastScannedPayload = nil }
     }
 
     private func processQRPayload(_ payload: String) async {
         guard let session = sessionManager.session else { return }
         scanState = .processing
-
         do {
             struct StampResponse: Codable {
                 let card: LoyaltyCardScanInfo
@@ -275,7 +230,6 @@ struct ScanView: View {
                 let requiresConsent: Bool?
                 let businessId: String?
                 let businessName: String?
-
                 enum CodingKeys: String, CodingKey {
                     case card
                     case stampsAdded = "stamps_added"
@@ -286,7 +240,6 @@ struct ScanView: View {
                     case businessName = "business_name"
                 }
             }
-
             let response: StampResponse = try await supabase.functions
                 .invoke(
                     "stamp-card",
@@ -295,20 +248,18 @@ struct ScanView: View {
                         body: ["qr_payload": AnyJSON(payload)]
                     )
                 )
-
             if response.requiresConsent == true,
                let businessIdStr = response.businessId,
                let businessId = UUID(uuidString: businessIdStr),
                let businessName = response.businessName {
                 scanState = .requiresConsent(businessId: businessId, businessName: businessName, qrPayload: payload)
             } else {
-                let result = ScanResult(
+                scanState = .success(result: ScanResult(
                     card: response.card,
                     stampsAdded: response.stampsAdded,
                     rewardUnlocked: response.rewardUnlocked,
                     business: response.business
-                )
-                scanState = .success(result: result)
+                ))
             }
         } catch {
             scanState = .error(error.localizedDescription)
@@ -319,12 +270,9 @@ struct ScanView: View {
         guard let userId = sessionManager.session?.user.id else { return }
         scanState = .processing
         do {
-            // Insert consent
-            try await supabase
-                .from("data_consents")
+            try await supabase.from("data_consents")
                 .insert(["customer_id": userId.uuidString, "business_id": businessId.uuidString])
                 .execute()
-            // Re-run stamp
             await processQRPayload(qrPayload)
         } catch {
             scanState = .error(error.localizedDescription)
