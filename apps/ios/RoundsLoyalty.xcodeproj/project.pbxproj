@@ -1,0 +1,503 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA000001000000000000000A /* RoundsLoyaltyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000001000000000000001A /* RoundsLoyaltyApp.swift */; };
+		AA000002000000000000000A /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000002000000000000001A /* Config.swift */; };
+		AA000003000000000000000A /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000003000000000000001A /* SupabaseService.swift */; };
+		AA000004000000000000000A /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000004000000000000001A /* SessionManager.swift */; };
+		AA000005000000000000000A /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000005000000000000001A /* Profile.swift */; };
+		AA000006000000000000000A /* Business.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000006000000000000001A /* Business.swift */; };
+		AA000007000000000000000A /* LoyaltyProgram.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000007000000000000001A /* LoyaltyProgram.swift */; };
+		AA000008000000000000000A /* LoyaltyCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000008000000000000001A /* LoyaltyCard.swift */; };
+		AA000009000000000000000A /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000009000000000000001A /* Colors.swift */; };
+		AA00000A000000000000000A /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000A000000000000001A /* RootView.swift */; };
+		AA00000B000000000000000A /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000B000000000000001A /* AuthView.swift */; };
+		AA00000C000000000000000A /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000C000000000000001A /* SignInView.swift */; };
+		AA00000D000000000000000A /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000D000000000000001A /* SignUpView.swift */; };
+		AA00000E000000000000000A /* CustomerTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000E000000000000001A /* CustomerTabView.swift */; };
+		AA00000F000000000000000A /* CardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000F000000000000001A /* CardsView.swift */; };
+		AA000010000000000000000A /* ScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000010000000000000001A /* ScanView.swift */; };
+		AA000011000000000000000A /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000011000000000000001A /* MapView.swift */; };
+		AA000012000000000000000A /* OffersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000012000000000000001A /* OffersView.swift */; };
+		AA000013000000000000000A /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000013000000000000001A /* ProfileView.swift */; };
+		AA000014000000000000000A /* VendorTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000014000000000000001A /* VendorTabView.swift */; };
+		AA000015000000000000000A /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000015000000000000001A /* DashboardView.swift */; };
+		AA000016000000000000000A /* QRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000016000000000000001A /* QRView.swift */; };
+		AA000017000000000000000A /* CustomersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000017000000000000001A /* CustomersView.swift */; };
+		AA000018000000000000000A /* VendorOffersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000018000000000000001A /* VendorOffersView.swift */; };
+		AA000019000000000000000A /* ComposeOfferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000019000000000000001A /* ComposeOfferView.swift */; };
+		AA00001A000000000000000A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00001A000000000000001A /* SettingsView.swift */; };
+		AA00001B000000000000000A /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = AA00001B000000000000002A /* Supabase */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AA000001000000000000001A /* RoundsLoyaltyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundsLoyaltyApp.swift; sourceTree = "<group>"; };
+		AA000002000000000000001A /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		AA000003000000000000001A /* SupabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseService.swift; sourceTree = "<group>"; };
+		AA000004000000000000001A /* SessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionManager.swift; sourceTree = "<group>"; };
+		AA000005000000000000001A /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
+		AA000006000000000000001A /* Business.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Business.swift; sourceTree = "<group>"; };
+		AA000007000000000000001A /* LoyaltyProgram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoyaltyProgram.swift; sourceTree = "<group>"; };
+		AA000008000000000000001A /* LoyaltyCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoyaltyCard.swift; sourceTree = "<group>"; };
+		AA000009000000000000001A /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
+		AA00000A000000000000001A /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		AA00000B000000000000001A /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
+		AA00000C000000000000001A /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
+		AA00000D000000000000001A /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
+		AA00000E000000000000001A /* CustomerTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerTabView.swift; sourceTree = "<group>"; };
+		AA00000F000000000000001A /* CardsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsView.swift; sourceTree = "<group>"; };
+		AA000010000000000000001A /* ScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanView.swift; sourceTree = "<group>"; };
+		AA000011000000000000001A /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
+		AA000012000000000000001A /* OffersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OffersView.swift; sourceTree = "<group>"; };
+		AA000013000000000000001A /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		AA000014000000000000001A /* VendorTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VendorTabView.swift; sourceTree = "<group>"; };
+		AA000015000000000000001A /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		AA000016000000000000001A /* QRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRView.swift; sourceTree = "<group>"; };
+		AA000017000000000000001A /* CustomersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomersView.swift; sourceTree = "<group>"; };
+		AA000018000000000000001A /* VendorOffersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VendorOffersView.swift; sourceTree = "<group>"; };
+		AA000019000000000000001A /* ComposeOfferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeOfferView.swift; sourceTree = "<group>"; };
+		AA00001A000000000000001A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		AA00001C000000000000001A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AAFPRODUCT00000000000001A /* RoundsLoyalty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RoundsLoyalty.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AAFRAMEWORKS0000000000A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA00001B000000000000000A /* Supabase in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AAMAINGROUP000000000000A /* RoundsLoyalty */ = {
+			isa = PBXGroup;
+			children = (
+				AAPSOURCEGROUP0000000000A /* RoundsLoyalty */,
+				AAPRODUCTSGROUP000000000A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		AAPRODUCTSGROUP000000000A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AAFPRODUCT00000000000001A /* RoundsLoyalty.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AAPSOURCEGROUP0000000000A /* RoundsLoyalty */ = {
+			isa = PBXGroup;
+			children = (
+				AA000001000000000000001A /* RoundsLoyaltyApp.swift */,
+				AA000002000000000000001A /* Config.swift */,
+				AA00001C000000000000001A /* Info.plist */,
+				AASERVICESGROUP00000000A /* Services */,
+				AAMODELSGROUP000000000A /* Models */,
+				AAVIEWSGROUP0000000000A /* Views */,
+			);
+			path = RoundsLoyalty;
+			sourceTree = "<group>";
+		};
+		AASERVICESGROUP00000000A /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				AA000003000000000000001A /* SupabaseService.swift */,
+				AA000004000000000000001A /* SessionManager.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		AAMODELSGROUP000000000A /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				AA000005000000000000001A /* Profile.swift */,
+				AA000006000000000000001A /* Business.swift */,
+				AA000007000000000000001A /* LoyaltyProgram.swift */,
+				AA000008000000000000001A /* LoyaltyCard.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		AAVIEWSGROUP0000000000A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				AA00000A000000000000001A /* RootView.swift */,
+				AASHAREDGROUP000000000A /* Shared */,
+				AAAAUTHGROUP0000000000A /* Auth */,
+				AACUSTOMERGROUP00000000A /* Customer */,
+				AAVENDORGROUP000000000A /* Vendor */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		AASHAREDGROUP000000000A /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				AA000009000000000000001A /* Colors.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		AAAAUTHGROUP0000000000A /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				AA00000B000000000000001A /* AuthView.swift */,
+				AA00000C000000000000001A /* SignInView.swift */,
+				AA00000D000000000000001A /* SignUpView.swift */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		AACUSTOMERGROUP00000000A /* Customer */ = {
+			isa = PBXGroup;
+			children = (
+				AA00000E000000000000001A /* CustomerTabView.swift */,
+				AA00000F000000000000001A /* CardsView.swift */,
+				AA000010000000000000001A /* ScanView.swift */,
+				AA000011000000000000001A /* MapView.swift */,
+				AA000012000000000000001A /* OffersView.swift */,
+				AA000013000000000000001A /* ProfileView.swift */,
+			);
+			path = Customer;
+			sourceTree = "<group>";
+		};
+		AAVENDORGROUP000000000A /* Vendor */ = {
+			isa = PBXGroup;
+			children = (
+				AA000014000000000000001A /* VendorTabView.swift */,
+				AA000015000000000000001A /* DashboardView.swift */,
+				AA000016000000000000001A /* QRView.swift */,
+				AA000017000000000000001A /* CustomersView.swift */,
+				AA000018000000000000001A /* VendorOffersView.swift */,
+				AA000019000000000000001A /* ComposeOfferView.swift */,
+				AA00001A000000000000001A /* SettingsView.swift */,
+			);
+			path = Vendor;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AATARGET00000000000000A /* RoundsLoyalty */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AABUILDCONFIGLIST00000000A /* Build configuration list for PBXNativeTarget "RoundsLoyalty" */;
+			buildPhases = (
+				AAPSOURCESPHASE000000000A /* Sources */,
+				AAFRAMEWORKS0000000000A /* Frameworks */,
+				AARESOURCESPHASE00000000A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RoundsLoyalty;
+			packageProductDependencies = (
+				AA00001B000000000000002A /* Supabase */,
+			);
+			productName = RoundsLoyalty;
+			productReference = AAFPRODUCT00000000000001A /* RoundsLoyalty.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AAPROJECT00000000000000A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					AATARGET00000000000000A = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = AABUILDCONFIGLISTPROJ000A /* Build configuration list for PBXProject "RoundsLoyalty" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = AAMAINGROUP000000000000A;
+			packageReferences = (
+				AASPMREF0000000000000000A /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
+			productRefGroup = AAPRODUCTSGROUP000000000A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AATARGET00000000000000A /* RoundsLoyalty */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AARESOURCESPHASE00000000A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AAPSOURCESPHASE000000000A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA000001000000000000000A /* RoundsLoyaltyApp.swift in Sources */,
+				AA000002000000000000000A /* Config.swift in Sources */,
+				AA000003000000000000000A /* SupabaseService.swift in Sources */,
+				AA000004000000000000000A /* SessionManager.swift in Sources */,
+				AA000005000000000000000A /* Profile.swift in Sources */,
+				AA000006000000000000000A /* Business.swift in Sources */,
+				AA000007000000000000000A /* LoyaltyProgram.swift in Sources */,
+				AA000008000000000000000A /* LoyaltyCard.swift in Sources */,
+				AA000009000000000000000A /* Colors.swift in Sources */,
+				AA00000A000000000000000A /* RootView.swift in Sources */,
+				AA00000B000000000000000A /* AuthView.swift in Sources */,
+				AA00000C000000000000000A /* SignInView.swift in Sources */,
+				AA00000D000000000000000A /* SignUpView.swift in Sources */,
+				AA00000E000000000000000A /* CustomerTabView.swift in Sources */,
+				AA00000F000000000000000A /* CardsView.swift in Sources */,
+				AA000010000000000000000A /* ScanView.swift in Sources */,
+				AA000011000000000000000A /* MapView.swift in Sources */,
+				AA000012000000000000000A /* OffersView.swift in Sources */,
+				AA000013000000000000000A /* ProfileView.swift in Sources */,
+				AA000014000000000000000A /* VendorTabView.swift in Sources */,
+				AA000015000000000000000A /* DashboardView.swift in Sources */,
+				AA000016000000000000000A /* QRView.swift in Sources */,
+				AA000017000000000000000A /* CustomersView.swift in Sources */,
+				AA000018000000000000000A /* VendorOffersView.swift in Sources */,
+				AA000019000000000000000A /* ComposeOfferView.swift in Sources */,
+				AA00001A000000000000000A /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AABUILDCONFIGDEBUGPROJ0A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_CYCLE = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AABUILDCONFIGRELEASEPROJ0A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_CYCLE = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		AABUILDCONFIGDEBUGTGT0000A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = RoundsLoyalty/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = NO;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.roundsloyalty.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AABUILDCONFIGRELEASETGT000A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = RoundsLoyalty/Info.plist;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = NO;
+				INFOPLIST_KEY_UILaunchScreen_Generation = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.roundsloyalty.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.9;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AABUILDCONFIGLISTPROJ000A /* Build configuration list for PBXProject "RoundsLoyalty" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AABUILDCONFIGDEBUGPROJ0A /* Debug */,
+				AABUILDCONFIGRELEASEPROJ0A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AABUILDCONFIGLIST00000000A /* Build configuration list for PBXNativeTarget "RoundsLoyalty" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AABUILDCONFIGDEBUGTGT0000A /* Debug */,
+				AABUILDCONFIGRELEASETGT000A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		AASPMREF0000000000000000A /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		AA00001B000000000000002A /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AASPMREF0000000000000000A /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
+
+	};
+	rootObject = AAPROJECT00000000000000A /* Project object */;
+}
