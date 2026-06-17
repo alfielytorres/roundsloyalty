@@ -1,7 +1,11 @@
 import type { Config } from 'tailwindcss'
+import path from 'path'
 
 const config: Config = {
-  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}'],
+  content: [
+    path.join(__dirname, 'app/**/*.{ts,tsx,js,jsx}'),
+    path.join(__dirname, 'components/**/*.{ts,tsx,js,jsx}'),
+  ],
   theme: {
     extend: {
       colors: {
@@ -16,7 +20,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ['var(--font-dm-sans)', 'system-ui', 'sans-serif'],
+        sans: ['DM Sans', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         '4xl': '2rem',
