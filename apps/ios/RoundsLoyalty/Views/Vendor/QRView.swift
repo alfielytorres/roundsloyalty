@@ -7,28 +7,27 @@ struct QRView: View {
     @State private var business: Business?
     @State private var qrImage: UIImage?
     @State private var isLoading = true
-    @State private var secondsRemaining: Int = 240 // 4 minutes
+    @State private var secondsRemaining: Int = 240
     @State private var timer: Timer?
 
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.brandDarkGreen.ignoresSafeArea()
+                Color.brandCream.ignoresSafeArea()
 
                 if isLoading {
-                    ProgressView().tint(.white)
+                    ProgressView().tint(.brandGreen)
                 } else if let business = business {
                     VStack(spacing: 32) {
                         VStack(spacing: 8) {
                             Text(business.name)
                                 .font(.title2.bold())
-                                .foregroundColor(.white)
+                                .foregroundColor(.brandDarkGreen)
                             Text("Show this QR code to earn stamps")
                                 .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.7))
+                                .foregroundColor(.brandTaupe)
                         }
 
-                        // QR Code
                         if let qrImage {
                             Image(uiImage: qrImage)
                                 .interpolation(.none)
@@ -40,21 +39,17 @@ struct QRView: View {
                                 .cornerRadius(20)
                         } else {
                             RoundedRectangle(cornerRadius: 20)
-                                .fill(Color.white.opacity(0.2))
+                                .fill(Color.white.opacity(0.7))
                                 .frame(width: 260, height: 260)
-                                .overlay(ProgressView().tint(.white))
+                                .overlay(ProgressView().tint(.brandGreen))
                         }
 
-                        // Countdown
                         VStack(spacing: 8) {
                             Text("Refreshes in \(timeString)")
                                 .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.7))
-
-                            // Progress ring
+                                .foregroundColor(.brandTaupe)
                             ZStack {
-                                Circle()
-                                    .stroke(Color.white.opacity(0.2), lineWidth: 4)
+                                Circle().stroke(Color.brandLightGreen, lineWidth: 4)
                                 Circle()
                                     .trim(from: 0, to: CGFloat(secondsRemaining) / 240)
                                     .stroke(Color.brandGreen, style: StrokeStyle(lineWidth: 4, lineCap: .round))
@@ -64,16 +59,13 @@ struct QRView: View {
                             .frame(width: 48, height: 48)
                         }
 
-                        Button {
-                            refreshQR()
-                        } label: {
+                        Button { refreshQR() } label: {
                             Label("Refresh Now", systemImage: "arrow.clockwise")
                                 .font(.subheadline.weight(.semibold))
                                 .foregroundColor(.brandDarkGreen)
                                 .padding(.horizontal, 20)
                                 .padding(.vertical, 10)
-                                .background(Color.white)
-                                .cornerRadius(20)
+                                .glassCard(cornerRadius: 20)
                         }
                     }
                     .padding()
@@ -81,23 +73,19 @@ struct QRView: View {
                     VStack(spacing: 16) {
                         Image(systemName: "qrcode")
                             .font(.system(size: 56))
-                            .foregroundColor(.white.opacity(0.5))
+                            .foregroundColor(.brandTaupe)
                         Text("Set up your store first")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(.brandDarkGreen)
                         Text("Add your business details in Settings")
                             .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(.brandTaupe)
                     }
                 }
             }
             .navigationTitle("My QR Code")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarColorScheme(.dark, for: .navigationBar)
-            .task {
-                await loadBusiness()
-                startTimer()
-            }
+            .task { await loadBusiness(); startTimer() }
             .onDisappear { timer?.invalidate() }
         }
     }
@@ -112,11 +100,7 @@ struct QRView: View {
         timer?.invalidate()
         secondsRemaining = 240
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            if secondsRemaining > 0 {
-                secondsRemaining -= 1
-            } else {
-                refreshQR()
-            }
+            if secondsRemaining > 0 { secondsRemaining -= 1 } else { refreshQR() }
         }
     }
 
@@ -131,25 +115,19 @@ struct QRView: View {
         guard let userId = sessionManager.session?.user.id else { return }
         do {
             let biz: Business? = try await supabase
-                .from("businesses")
-                .select("id, name, qr_code_secret")
-                .eq("owner_id", value: userId)
-                .maybeSingle()
-                .execute()
-                .value
+                .from("businesses").select("id, name, qr_code_secret")
+                .eq("owner_id", value: userId).maybeSingle().execute().value
             business = biz
             if let biz, let secret = biz.qrCodeSecret {
                 let payload = generateQRPayload(businessId: biz.id, secret: secret)
                 qrImage = generateQRCode(from: payload)
             }
-        } catch {
-            print("Failed to load business: \(error)")
-        }
+        } catch { print("Failed to load business: \(error)") }
         isLoading = false
     }
 
     private func generateQRPayload(businessId: UUID, secret: String) -> String {
-        let timestamp = Int(Date().timeIntervalSince1970 / 240) // 4-minute bucket
+        let timestamp = Int(Date().timeIntervalSince1970 / 240)
         return "\(businessId.uuidString):\(secret):\(timestamp)"
     }
 
@@ -158,10 +136,8 @@ struct QRView: View {
         let filter = CIFilter.qrCodeGenerator()
         filter.message = Data(string.utf8)
         filter.correctionLevel = "M"
-
         guard let ciImage = filter.outputImage else { return nil }
         let scaled = ciImage.transformed(by: CGAffineTransform(scaleX: 10, y: 10))
-
         guard let cgImage = context.createCGImage(scaled, from: scaled.extent) else { return nil }
         return UIImage(cgImage: cgImage)
     }

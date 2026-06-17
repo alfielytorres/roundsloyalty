@@ -22,7 +22,6 @@ struct DashboardView: View {
                 if isLoading {
                     ProgressView().tint(.brandGreen)
                 } else if business == nil {
-                    // No business set up yet
                     VStack(spacing: 20) {
                         Image(systemName: "storefront")
                             .font(.system(size: 56))
@@ -39,7 +38,6 @@ struct DashboardView: View {
                 } else {
                     ScrollView {
                         VStack(spacing: 20) {
-                            // Business header
                             HStack {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(business!.name)
@@ -55,7 +53,6 @@ struct DashboardView: View {
                             }
                             .padding(.horizontal)
 
-                            // Stats cards
                             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                                 StatCard(title: "Customers", value: "\(stats.totalCustomers)", icon: "person.2.fill")
                                 StatCard(title: "This Week", value: "\(stats.visitsThisWeek)", icon: "calendar")
@@ -63,7 +60,6 @@ struct DashboardView: View {
                             }
                             .padding(.horizontal)
 
-                            // Quick action
                             Button {
                                 showComposeOffer = true
                             } label: {
@@ -77,7 +73,6 @@ struct DashboardView: View {
                             }
                             .padding(.horizontal)
 
-                            // Recent activity
                             VStack(alignment: .leading, spacing: 12) {
                                 Text("Recent Activity")
                                     .font(.headline)
@@ -114,7 +109,6 @@ struct DashboardView: View {
         guard let userId = sessionManager.session?.user.id else { return }
         isLoading = true
         do {
-            // Load business
             let biz: Business? = try await supabase
                 .from("businesses")
                 .select()
@@ -129,7 +123,6 @@ struct DashboardView: View {
                 return
             }
 
-            // Total customers
             let customerCount = try await supabase
                 .from("vendor_customer_segments")
                 .select("customer_id", head: true, count: .exact)
@@ -137,7 +130,6 @@ struct DashboardView: View {
                 .execute()
                 .count ?? 0
 
-            // Visits this week
             let weekAgo = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date())!
             let weekVisits = try await supabase
                 .from("visit_events")
@@ -147,7 +139,6 @@ struct DashboardView: View {
                 .execute()
                 .count ?? 0
 
-            // Total stamps
             struct StampRow: Codable { let stampsAdded: Int; enum CodingKeys: String, CodingKey { case stampsAdded = "stamps_added" } }
             let stampRows: [StampRow] = try await supabase
                 .from("visit_events")
@@ -163,7 +154,6 @@ struct DashboardView: View {
                 totalStampsGiven: totalStamps
             )
 
-            // Recent activity
             struct RawActivity: Codable {
                 let id: UUID
                 let createdAt: Date
@@ -174,9 +164,7 @@ struct DashboardView: View {
                     case loyaltyCards = "loyalty_cards"
                 }
             }
-            struct RawLoyaltyCard: Codable {
-                let profiles: RawProfile?
-            }
+            struct RawLoyaltyCard: Codable { let profiles: RawProfile? }
             struct RawProfile: Codable {
                 let displayName: String?
                 enum CodingKeys: String, CodingKey { case displayName = "display_name" }
@@ -225,9 +213,7 @@ struct StatCard: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color.white)
-        .cornerRadius(14)
-        .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
+        .glassCard(cornerRadius: 14)
     }
 }
 
@@ -238,7 +224,7 @@ struct ActivityRow: View {
         HStack(spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(Color.brandLightGreen)
+                    .fill(Color.brandGreen.opacity(0.2))
                     .frame(width: 40, height: 40)
                 Image(systemName: "star.fill")
                     .foregroundColor(.brandGreen)
@@ -258,7 +244,8 @@ struct ActivityRow: View {
                 .foregroundColor(.brandTaupe)
         }
         .padding(.horizontal)
-        .padding(.vertical, 6)
-        .background(Color.white)
+        .padding(.vertical, 8)
+        .glassCard(cornerRadius: 12)
+        .padding(.horizontal)
     }
 }

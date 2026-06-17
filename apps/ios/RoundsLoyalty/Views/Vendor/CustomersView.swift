@@ -34,7 +34,6 @@ struct CustomersView: View {
                 Color.brandCream.ignoresSafeArea()
 
                 VStack(spacing: 0) {
-                    // Segment filter pills
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             ForEach(CustomerSegmentFilter.allCases, id: \.self) { filter in
@@ -46,7 +45,7 @@ struct CustomersView: View {
                         .padding(.horizontal)
                         .padding(.vertical, 12)
                     }
-                    .background(Color.white)
+                    .background(Color.white.opacity(0.7))
 
                     if isLoading {
                         Spacer()
@@ -66,8 +65,8 @@ struct CustomersView: View {
                     } else {
                         List(filteredCustomers) { customer in
                             CustomerRow(customer: customer)
-                                .listRowBackground(Color.white)
-                                .listRowSeparatorTint(Color.brandTaupe.opacity(0.3))
+                                .listRowBackground(Color.white.opacity(0.7))
+                                .listRowSeparatorTint(Color.brandGreen.opacity(0.1))
                         }
                         .listStyle(.plain)
                         .scrollContentBackground(.hidden)
@@ -124,9 +123,13 @@ struct FilterPill: View {
                 .font(.subheadline.weight(isSelected ? .semibold : .regular))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(isSelected ? Color.brandGreen : Color.brandLightGreen.opacity(0.5))
-                .foregroundColor(isSelected ? .white : .brandDarkGreen)
+                .background(isSelected ? Color.brandGreen : Color.white.opacity(0.7))
+                .foregroundColor(isSelected ? .white : .brandTaupe)
                 .cornerRadius(20)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(isSelected ? Color.clear : Color.brandGreen.opacity(0.3), lineWidth: 1)
+                )
         }
     }
 }
@@ -154,8 +157,7 @@ struct CustomerRow: View {
                         .font(.caption)
                         .foregroundColor(.brandTaupe)
                     if let lastVisit = customer.lastVisit {
-                        Text("·")
-                            .foregroundColor(.brandTaupe)
+                        Text("·").foregroundColor(.brandTaupe)
                         Text(lastVisit.formatted(.relative(presentation: .named)))
                             .font(.caption)
                             .foregroundColor(.brandTaupe)
@@ -165,7 +167,6 @@ struct CustomerRow: View {
 
             Spacer()
 
-            // Segment badge
             Text(segmentLabel)
                 .font(.caption2.weight(.semibold))
                 .padding(.horizontal, 8)

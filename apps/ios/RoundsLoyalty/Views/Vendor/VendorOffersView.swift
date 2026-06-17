@@ -18,9 +18,7 @@ struct VendorOffersView: View {
 
         var recipientCount: Int { offerRecipients.first?.count ?? 0 }
 
-        struct RecipientCount: Codable {
-            let count: Int
-        }
+        struct RecipientCount: Codable { let count: Int }
 
         enum CodingKeys: String, CodingKey {
             case id; case businessId = "business_id"; case title; case body
@@ -53,8 +51,8 @@ struct VendorOffersView: View {
                 } else {
                     List(offers) { offer in
                         VendorOfferRow(offer: offer)
-                            .listRowBackground(Color.white)
-                            .listRowSeparatorTint(Color.brandTaupe.opacity(0.3))
+                            .listRowBackground(Color.white.opacity(0.7))
+                            .listRowSeparatorTint(Color.brandGreen.opacity(0.1))
                     }
                     .listStyle(.plain)
                     .scrollContentBackground(.hidden)
@@ -63,11 +61,8 @@ struct VendorOffersView: View {
             .navigationTitle("Offers")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button {
-                        showCompose = true
-                    } label: {
-                        Image(systemName: "plus")
-                            .foregroundColor(.brandGreen)
+                    Button { showCompose = true } label: {
+                        Image(systemName: "plus").foregroundColor(.brandGreen)
                     }
                 }
             }
@@ -93,10 +88,7 @@ struct VendorOffersView: View {
                 .value
             business = biz
 
-            guard let bizId = biz?.id else {
-                isLoading = false
-                return
-            }
+            guard let bizId = biz?.id else { isLoading = false; return }
 
             let fetched: [OfferWithCount] = try await supabase
                 .from("offers")
@@ -136,13 +128,11 @@ struct VendorOfferRow: View {
                 .foregroundColor(.brandDarkGreen)
             Text(offer.body)
                 .font(.caption)
-                .foregroundColor(.secondary)
+                .foregroundColor(.brandTaupe)
                 .lineLimit(2)
             HStack {
-                Image(systemName: "person.2")
-                    .font(.caption2)
-                Text("\(offer.recipientCount) recipients")
-                    .font(.caption2)
+                Image(systemName: "person.2").font(.caption2)
+                Text("\(offer.recipientCount) recipients").font(.caption2)
             }
             .foregroundColor(.brandTaupe)
         }
