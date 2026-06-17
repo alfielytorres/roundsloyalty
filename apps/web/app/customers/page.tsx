@@ -23,7 +23,8 @@ export default async function CustomersPage({
     .from('businesses')
     .select('id, name')
     .eq('owner_id', user.id)
-    .single()
+    .limit(1)
+    .maybeSingle()
 
   if (!business) redirect('/dashboard')
 
