@@ -66,8 +66,9 @@ export default async function StampPage({
           <h2 className="text-lg font-bold text-primary-dark mb-3">Recent stamps</h2>
           <div className="flex flex-col gap-2">
             {recentStamps?.length ? recentStamps.map((v) => {
-              const card = v.loyalty_cards as { customer_id: string; profiles: { display_name: string } | null } | null
-              const name = card?.profiles?.display_name ?? 'Customer'
+              const rawCard = Array.isArray(v.loyalty_cards) ? v.loyalty_cards[0] : v.loyalty_cards
+              const card = rawCard as { customer_id: string; profiles: { display_name: string }[] | null } | null
+              const name = card?.profiles?.[0]?.display_name ?? 'Customer'
               return (
                 <div key={v.id} className="bg-white rounded-2xl px-5 py-3 flex items-center justify-between shadow-sm">
                   <div className="flex items-center gap-3">
