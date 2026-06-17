@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -58,9 +59,9 @@ export default async function RootPage() {
 
         <p className="text-center text-sm text-taupe mt-4">
           No account?{' '}
-          <a href="/sign-up" className="font-semibold text-primary hover:underline">
+          <Link href="/sign-up" className="font-semibold text-primary hover:underline">
             Create one free
-          </a>
+          </Link>
         </p>
 
         <p className="text-center text-sm text-taupe mt-3">

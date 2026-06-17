@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
@@ -48,7 +49,7 @@ export default async function CustomersPage({
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <a href="/dashboard" className="text-taupe text-sm mb-2 block hover:text-primary">← Dashboard</a>
+            <Link href="/dashboard" className="text-taupe text-sm mb-2 block hover:text-primary">← Dashboard</Link>
             <h1 className="text-3xl font-extrabold text-primary-dark">Customers</h1>
           </div>
           <div className="flex gap-3">
@@ -70,7 +71,7 @@ export default async function CustomersPage({
         {/* Segment tabs */}
         <div className="flex gap-3 mb-6">
           {['all', 'top', 'returning', 'at_risk'].map((seg) => (
-            <a
+            <Link
               key={seg}
               href={`/customers?segment=${seg}`}
               className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
@@ -80,7 +81,7 @@ export default async function CustomersPage({
               }`}
             >
               {seg === 'at_risk' ? 'At risk' : seg.charAt(0).toUpperCase() + seg.slice(1)}
-            </a>
+            </Link>
           ))}
         </div>
 
