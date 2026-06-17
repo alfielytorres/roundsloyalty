@@ -1,5 +1,9 @@
 import '../global.css'
+import { LogBox } from 'react-native'
 import { useEffect } from 'react'
+
+// Reanimated 3.16 fires this console.error in Expo Go (non-fatal, bridgeless flag unavailable)
+LogBox.ignoreLogs(['disableEventLoopOnBridgeless'])
 import { Stack, useRouter, useSegments } from 'expo-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
