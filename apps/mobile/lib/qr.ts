@@ -1,5 +1,3 @@
-import * as Crypto from 'expo-crypto'
-
 export interface QRPayload {
   business_id: string
   timestamp: number
@@ -12,10 +10,8 @@ export async function generateQRPayload(
   secret: string,
 ): Promise<string> {
   const timestamp = Date.now()
-  const nonce = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    String(Math.random()),
-  )
+  const nonceBytes = crypto.getRandomValues(new Uint8Array(16))
+  const nonce = btoa(String.fromCharCode(...nonceBytes))
 
   const message = `${businessId}:${timestamp}:${nonce}`
   const hmac = await computeHmac(secret, message)
