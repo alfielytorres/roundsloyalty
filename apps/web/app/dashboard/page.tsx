@@ -75,7 +75,14 @@ export default async function DashboardPage() {
         </div>
 
         {/* Quick links */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link
+            href="/stamp"
+            className="block bg-primary rounded-3xl p-6 hover:opacity-90 transition-opacity"
+          >
+            <h2 className="text-xl font-bold text-white mb-2">Stamp Card →</h2>
+            <p className="text-primary-light">Scan a customer&apos;s card to add stamps</p>
+          </Link>
           <Link
             href="/customers"
             className="block bg-white rounded-3xl p-6 hover:shadow-md transition-shadow border border-transparent hover:border-primary"
@@ -85,10 +92,10 @@ export default async function DashboardPage() {
           </Link>
           <Link
             href="/offers"
-            className="block bg-primary rounded-3xl p-6 hover:opacity-90 transition-opacity"
+            className="block bg-white rounded-3xl p-6 hover:shadow-md transition-shadow border border-transparent hover:border-primary"
           >
-            <h2 className="text-xl font-bold text-white mb-2">Send Offer →</h2>
-            <p className="text-primary-light">Reach your customers with personalised messages</p>
+            <h2 className="text-xl font-bold text-primary-dark mb-2">Send Offer →</h2>
+            <p className="text-taupe">Reach your customers with personalised messages</p>
           </Link>
         </div>
       </div>
