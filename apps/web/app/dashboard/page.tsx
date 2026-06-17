@@ -1,10 +1,11 @@
+import { Suspense } from 'react'
 import Link from 'next/link'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
+import { getPortalData } from '@/lib/portal-data'
 import PortalShell from '@/components/PortalShell'
 
-async function getStats(businessId: string) {
+async function Stats({ businessId }: { businessId: string }) {
   const cookieStore = cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -13,45 +14,34 @@ async function getStats(businessId: string) {
   )
 
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-
   const [{ count: totalCustomers }, { count: weekVisits }] = await Promise.all([
-    supabase
-      .from('vendor_customer_segments')
-      .select('*', { count: 'exact', head: true })
-      .eq('business_id', businessId),
-    supabase
-      .from('visit_events')
-      .select('*', { count: 'exact', head: true })
-      .eq('business_id', businessId)
-      .gte('created_at', weekAgo),
+    supabase.from('vendor_customer_segments').select('*', { count: 'exact', head: true }).eq('business_id', businessId),
+    supabase.from('visit_events').select('*', { count: 'exact', head: true }).eq('business_id', businessId).gte('created_at', weekAgo),
   ])
 
-  return { totalCustomers: totalCustomers ?? 0, weekVisits: weekVisits ?? 0 }
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <StatCard label="Total customers" value={totalCustomers ?? 0} />
+      <StatCard label="Visits this week" value={weekVisits ?? 0} />
+    </div>
+  )
+}
+
+function StatsSkeleton() {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      {[...Array(2)].map((_, i) => (
+        <div key={i} className="bg-white rounded-3xl p-6 shadow-sm animate-pulse">
+          <div className="h-10 w-20 bg-gray-200 rounded-xl mb-2" />
+          <div className="h-4 w-32 bg-gray-100 rounded-lg" />
+        </div>
+      ))}
+    </div>
+  )
 }
 
 export default async function DashboardPage() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  if (!supabaseUrl || !supabaseKey) redirect('/')
-
-  const cookieStore = cookies()
-  const supabase = createServerClient(supabaseUrl, supabaseKey, {
-    cookies: { getAll: () => cookieStore.getAll() },
-  })
-
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/')
-
-  const { data: business } = await supabase
-    .from('businesses')
-    .select('*')
-    .eq('owner_id', user.id)
-    .limit(1)
-    .maybeSingle()
-
-  if (!business) redirect('/onboarding')
-
-  const stats = await getStats(business.id)
+  const { business } = await getPortalData()
 
   return (
     <PortalShell>
@@ -62,10 +52,9 @@ export default async function DashboardPage() {
             <p className="text-taupe mt-1">Welcome back</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <StatCard label="Total customers" value={stats.totalCustomers} />
-            <StatCard label="Visits this week" value={stats.weekVisits} />
-          </div>
+          <Suspense fallback={<StatsSkeleton />}>
+            <Stats businessId={business.id} />
+          </Suspense>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Link href="/stamp" className="block bg-primary rounded-3xl p-6 hover:opacity-90 transition-opacity">
