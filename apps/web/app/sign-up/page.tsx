@@ -8,9 +8,7 @@ export default function SignUpPage({
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex flex-col items-center mb-10">
-          <div className="w-20 h-20 rounded-full bg-primary flex items-center justify-center mb-4 shadow-lg">
-            <span className="text-4xl font-black text-cream leading-none">R</span>
-          </div>
+          <img src="/logo.svg" alt="Rounds Loyalty" className="w-24 h-24 mb-4" />
           <h1 className="text-3xl font-extrabold text-primary-dark">Create account</h1>
           <p className="text-taupe mt-2 text-center">Set up your vendor portal</p>
         </div>
