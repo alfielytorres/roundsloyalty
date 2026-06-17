@@ -17,6 +17,8 @@ import com.roundsloyalty.app.data.SupabaseClient
 import com.roundsloyalty.app.data.models.Business
 import com.roundsloyalty.app.data.models.Profile
 import com.roundsloyalty.app.ui.theme.Cream
+import com.roundsloyalty.app.ui.theme.GlassCard
+import com.roundsloyalty.app.ui.theme.Taupe
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -60,10 +62,9 @@ fun QRScreen(profile: Profile) {
             verticalArrangement = Arrangement.Center) {
             Text("Store QR Code", style = MaterialTheme.typography.headlineLarge)
             Spacer(Modifier.height(8.dp))
-            Text("Customers scan this to earn stamps", color = MaterialTheme.colorScheme.onSurface.copy(0.6f))
+            Text("Customers scan this to earn stamps", color = Taupe)
             Spacer(Modifier.height(32.dp))
-            Card(shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White)) {
+            GlassCard(cornerRadius = 24.dp) {
                 Box(modifier = Modifier.padding(24.dp).size(240.dp), contentAlignment = Alignment.Center) {
                     qrBitmap?.let {
                         Image(bitmap = it.asImageBitmap(), contentDescription = "Store QR code",
@@ -72,7 +73,7 @@ fun QRScreen(profile: Profile) {
                 }
             }
             Spacer(Modifier.height(16.dp))
-            Text("Refreshes every 4 minutes", color = MaterialTheme.colorScheme.onSurface.copy(0.4f),
+            Text("Refreshes every 4 minutes", color = Taupe,
                 style = MaterialTheme.typography.bodySmall)
         }
     }

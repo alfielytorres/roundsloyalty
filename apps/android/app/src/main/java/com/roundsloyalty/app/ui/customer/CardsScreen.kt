@@ -17,6 +17,7 @@ import com.roundsloyalty.app.data.SupabaseClient
 import com.roundsloyalty.app.data.models.LoyaltyCard
 import com.roundsloyalty.app.data.models.Profile
 import com.roundsloyalty.app.ui.theme.Cream
+import com.roundsloyalty.app.ui.theme.GlassCard
 import com.roundsloyalty.app.ui.theme.GreenLight
 import com.roundsloyalty.app.ui.theme.GreenPrimary
 import com.roundsloyalty.app.ui.theme.Taupe
@@ -61,8 +62,7 @@ fun CardsScreen(profile: Profile) {
 @Composable
 fun StampCard(card: LoyaltyCard) {
     val stampsRequired = 10
-    Card(shape = RoundedCornerShape(24.dp), modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.White)) {
+    GlassCard(modifier = Modifier.fillMaxWidth(), cornerRadius = 24.dp) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text("Loyalty Card", style = MaterialTheme.typography.headlineMedium)
             Spacer(Modifier.height(16.dp))

@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.roundsloyalty.app.data.models.Profile
 import com.roundsloyalty.app.ui.theme.Cream
+import com.roundsloyalty.app.ui.theme.GlassCard
 import com.roundsloyalty.app.ui.theme.Taupe
 
 @Composable
@@ -17,8 +18,7 @@ fun ProfileScreen(profile: Profile, onSignOut: () -> Unit) {
             Text("Profile", style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier.padding(vertical = 8.dp))
             Spacer(Modifier.height(16.dp))
-            Card(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White)) {
+            GlassCard(modifier = Modifier.fillMaxWidth(), cornerRadius = 20.dp) {
                 Column(Modifier.padding(20.dp)) {
                     Text(profile.displayName ?: "Customer", style = MaterialTheme.typography.headlineMedium)
                     Spacer(Modifier.height(4.dp))

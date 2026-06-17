@@ -12,6 +12,7 @@ import com.roundsloyalty.app.data.SupabaseClient
 import com.roundsloyalty.app.data.models.Business
 import com.roundsloyalty.app.data.models.Profile
 import com.roundsloyalty.app.ui.theme.Cream
+import com.roundsloyalty.app.ui.theme.GlassCard
 import com.roundsloyalty.app.ui.theme.GreenLight
 import com.roundsloyalty.app.ui.theme.GreenPrimary
 import com.roundsloyalty.app.ui.theme.Taupe
@@ -73,8 +74,7 @@ fun CustomersScreen(profile: Profile) {
                 Spacer(Modifier.height(8.dp))
             }
             items(customers) { c ->
-                Card(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White)) {
+                GlassCard(modifier = Modifier.fillMaxWidth(), cornerRadius = 16.dp) {
                     Row(modifier = Modifier.padding(16.dp), horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {

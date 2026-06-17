@@ -12,6 +12,7 @@ import com.roundsloyalty.app.data.SupabaseClient
 import com.roundsloyalty.app.data.models.Business
 import com.roundsloyalty.app.data.models.Profile
 import com.roundsloyalty.app.ui.theme.Cream
+import com.roundsloyalty.app.ui.theme.GlassCard
 import com.roundsloyalty.app.ui.theme.Taupe
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.launch
@@ -65,8 +66,7 @@ fun OffersScreen(profile: Profile) {
                 item { Text("No offers sent yet.", color = Taupe) }
             }
             items(offers) { offer ->
-                Card(shape = RoundedCornerShape(16.dp), modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White)) {
+                GlassCard(modifier = Modifier.fillMaxWidth(), cornerRadius = 16.dp) {
                     Column(Modifier.padding(16.dp)) {
                         Text(offer.title, style = MaterialTheme.typography.bodyLarge)
                         Spacer(Modifier.height(4.dp))

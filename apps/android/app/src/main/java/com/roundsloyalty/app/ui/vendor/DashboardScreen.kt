@@ -11,6 +11,7 @@ import com.roundsloyalty.app.data.SupabaseClient
 import com.roundsloyalty.app.data.models.Business
 import com.roundsloyalty.app.data.models.Profile
 import com.roundsloyalty.app.ui.theme.Cream
+import com.roundsloyalty.app.ui.theme.GlassCard
 import com.roundsloyalty.app.ui.theme.GreenLight
 import com.roundsloyalty.app.ui.theme.GreenPrimary
 import com.roundsloyalty.app.ui.theme.Taupe
@@ -64,8 +65,7 @@ fun DashboardScreen(profile: Profile) {
 
 @Composable
 fun StatCard(label: String, value: String, modifier: Modifier = Modifier) {
-    Card(shape = RoundedCornerShape(20.dp), modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White)) {
+    GlassCard(modifier = modifier, cornerRadius = 20.dp) {
         Column(Modifier.padding(16.dp)) {
             Text(value, style = MaterialTheme.typography.headlineLarge, color = GreenPrimary)
             Text(label, color = Taupe, style = MaterialTheme.typography.bodySmall)

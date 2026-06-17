@@ -10,6 +10,7 @@ import com.roundsloyalty.app.data.SupabaseClient
 import com.roundsloyalty.app.data.models.Business
 import com.roundsloyalty.app.data.models.Profile
 import com.roundsloyalty.app.ui.theme.Cream
+import com.roundsloyalty.app.ui.theme.GlassCard
 import com.roundsloyalty.app.ui.theme.Taupe
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.launch
@@ -46,8 +47,7 @@ fun SettingsScreen(profile: Profile, onSignOut: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Text("Settings", style = MaterialTheme.typography.headlineLarge)
 
-            Card(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White)) {
+            GlassCard(modifier = Modifier.fillMaxWidth(), cornerRadius = 20.dp) {
                 Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text("Business details", style = MaterialTheme.typography.headlineMedium)
                     OutlinedTextField(value = name, onValueChange = { name = it },
@@ -89,8 +89,7 @@ fun SettingsScreen(profile: Profile, onSignOut: () -> Unit) {
                 }
             }
 
-            Card(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = androidx.compose.ui.graphics.Color.White)) {
+            GlassCard(modifier = Modifier.fillMaxWidth(), cornerRadius = 20.dp) {
                 Column(Modifier.padding(20.dp)) {
                     Text("Account", style = MaterialTheme.typography.headlineMedium)
                     Spacer(Modifier.height(4.dp))
