@@ -3,15 +3,17 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
 export default async function RootPage() {
-  const cookieStore = cookies()
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { cookies: { getAll: () => cookieStore.getAll() } },
-  )
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  const { data: { user } } = await supabase.auth.getUser()
-  if (user) redirect('/dashboard')
+  if (supabaseUrl && supabaseKey) {
+    const cookieStore = cookies()
+    const supabase = createServerClient(supabaseUrl, supabaseKey, {
+      cookies: { getAll: () => cookieStore.getAll() },
+    })
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) redirect('/dashboard')
+  }
 
   // Landing / sign-in for unauthenticated users
   return (
