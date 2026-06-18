@@ -2,12 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  body {
-    background-color: #0D1F0D;
-    color: white;
-    letter-spacing: -0.025em;
-  }
+/* Outside @layer — takes priority over all Tailwind layers */
+body {
+  background-color: #0D1F0D;
+  color: #ffffff;
+  letter-spacing: -0.025em;
+}
+
+html {
+  background-color: #0D1F0D;
 }
 
 :root {
