@@ -2,6 +2,7 @@ import '../global.css'
 import { LogBox } from 'react-native'
 import { useEffect } from 'react'
 
+// Reanimated 3.16 fires this console.error in Expo Go (non-fatal, bridgeless flag unavailable)
 LogBox.ignoreLogs(['disableEventLoopOnBridgeless'])
 import { Stack, useRouter, useSegments } from 'expo-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -12,7 +13,9 @@ import { useAuthListener } from '@/hooks/useAuth'
 import { useAuthStore } from '@/stores/auth'
 
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { staleTime: 1000 * 60 * 2 } },
+  defaultOptions: {
+    queries: { staleTime: 1000 * 60 * 2 },
+  },
 })
 
 function AuthGate() {
@@ -22,7 +25,9 @@ function AuthGate() {
 
   useEffect(() => {
     if (isLoading) return
+
     const inAuthGroup = segments[0] === '(auth)'
+
     if (!session) {
       if (!inAuthGroup) router.replace('/(auth)/sign-in')
     } else if (profile) {
@@ -47,6 +52,7 @@ function AuthGate() {
 
 function RootLayout() {
   useAuthListener()
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
