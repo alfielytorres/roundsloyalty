@@ -16,19 +16,19 @@ export default function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full px-3 py-2.5 shadow-2xl">
+    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full px-2 py-2 shadow-2xl">
       {items.map(({ href, icon: Icon, label }) => {
         const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
         return (
           <Link
             key={href}
             href={href}
-            className={`flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-full transition-all ${
-              active ? 'bg-[#7DB542] text-white' : 'text-white/40 hover:text-white'
+            title={label}
+            className={`flex items-center justify-center w-11 h-11 rounded-full transition-all ${
+              active ? 'bg-[#7DB542] text-white shadow-lg' : 'text-white/40 hover:text-white hover:bg-white/10'
             }`}
           >
-            <Icon size={20} />
-            <span className="text-[10px] font-semibold">{label}</span>
+            <Icon size={20} strokeWidth={active ? 2.5 : 1.8} />
           </Link>
         )
       })}
