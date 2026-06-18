@@ -21,7 +21,7 @@ async function RecentStamps({ businessId }: { businessId: string }) {
     .limit(10)
 
   if (!recentStamps?.length) {
-    return <div className="bg-white rounded-2xl px-5 py-10 text-center text-taupe shadow-sm">No stamps given today.</div>
+    return <div className="glass-row px-5 py-10 text-center text-taupe">No stamps given today.</div>
   }
 
   return (
@@ -31,7 +31,7 @@ async function RecentStamps({ businessId }: { businessId: string }) {
         const card = rawCard as { customer_id: string; profiles: { display_name: string }[] | null } | null
         const name = card?.profiles?.[0]?.display_name ?? 'Customer'
         return (
-          <div key={v.id} className="bg-white rounded-2xl px-5 py-3 flex items-center justify-between shadow-sm">
+          <div key={v.id} className="glass-row px-5 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center font-bold text-primary-dark text-sm">
                 {name.charAt(0).toUpperCase()}
@@ -53,7 +53,7 @@ function RecentStampsSkeleton() {
   return (
     <div className="flex flex-col gap-2 animate-pulse">
       {[...Array(3)].map((_, i) => (
-        <div key={i} className="bg-white rounded-2xl px-5 py-3 flex items-center justify-between shadow-sm">
+        <div key={i} className="glass-row px-5 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-gray-200" />
             <div className="h-4 w-24 bg-gray-200 rounded" />

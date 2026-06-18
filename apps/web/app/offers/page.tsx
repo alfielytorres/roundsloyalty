@@ -30,13 +30,13 @@ async function PastOffers({ businessId }: { businessId: string }) {
   }
 
   if (!offers?.length) {
-    return <div className="bg-white rounded-2xl px-6 py-12 text-center text-taupe shadow-sm">No offers sent yet.</div>
+    return <div className="glass-row px-6 py-12 text-center text-taupe">No offers sent yet.</div>
   }
 
   return (
     <div className="flex flex-col gap-3">
       {offers.map((offer) => (
-        <div key={offer.id} className="bg-white rounded-2xl px-6 py-4 shadow-sm">
+        <div key={offer.id} className="glass-row px-6 py-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <p className="font-bold text-primary-dark truncate">{offer.title}</p>
@@ -62,7 +62,7 @@ function OffersSkeleton() {
   return (
     <div className="flex flex-col gap-3 animate-pulse">
       {[...Array(3)].map((_, i) => (
-        <div key={i} className="bg-white rounded-2xl px-6 py-4 shadow-sm">
+        <div key={i} className="glass-row px-6 py-4">
           <div className="h-5 w-48 bg-gray-200 rounded mb-2" />
           <div className="h-4 w-full bg-gray-100 rounded" />
         </div>
@@ -102,7 +102,7 @@ export default async function OffersPage({
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="bg-white rounded-3xl p-8 shadow-sm h-fit">
+            <div className="glass-card p-8 h-fit">
               <h2 className="text-xl font-bold text-primary-dark mb-6">New offer</h2>
               <form action="/api/offers/send" method="POST" className="flex flex-col gap-5">
                 <div>

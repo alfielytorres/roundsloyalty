@@ -27,7 +27,7 @@ export default async function PortalLayout({ children }: { children: React.React
 
   return (
     <div className="min-h-screen bg-cream flex flex-col">
-      <nav className="bg-white border-b border-gray-100 px-8 py-3 flex items-center justify-between sticky top-0 z-10">
+      <nav className="bg-cream/80 backdrop-blur-md border-b border-[#7DB542]/[.15] px-8 py-3 flex items-center justify-between sticky top-0 z-10">
         <div className="flex items-center gap-8">
           <Link href="/dashboard" className="font-extrabold text-primary-dark text-lg">
             {business.name}

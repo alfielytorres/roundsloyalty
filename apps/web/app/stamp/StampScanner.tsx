@@ -41,7 +41,7 @@ export default function StampScanner() {
   }
 
   return (
-    <div className="bg-white rounded-3xl p-8 shadow-sm">
+    <div className="glass-card p-8">
       <h2 className="text-xl font-bold text-primary-dark mb-2">Scan or enter card code</h2>
       <p className="text-taupe text-sm mb-6">
         Ask the customer to open their loyalty card in the Rounds app — the code shown there goes here.

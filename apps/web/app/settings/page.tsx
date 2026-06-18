@@ -24,7 +24,7 @@ export default async function SettingsPage({
             <div className="mb-6 p-4 bg-primary-light border border-primary rounded-2xl text-primary-dark text-sm font-semibold">{searchParams.success}</div>
           )}
 
-          <div className="bg-white rounded-3xl p-8 shadow-sm">
+          <div className="glass-card p-8">
             <h2 className="text-xl font-bold text-primary-dark mb-6">Business details</h2>
             <form action="/api/settings" method="POST" className="flex flex-col gap-5">
               <div>
@@ -50,7 +50,7 @@ export default async function SettingsPage({
             </form>
           </div>
 
-          <div className="bg-white rounded-3xl p-8 shadow-sm mt-6">
+          <div className="glass-card p-8 mt-6">
             <h2 className="text-xl font-bold text-primary-dark mb-2">Account</h2>
             <p className="text-taupe text-sm mb-5">{user.email}</p>
             <form action="/api/auth/sign-out" method="POST">

@@ -18,7 +18,7 @@ async function CustomerTable({ businessId, segment }: { businessId: string; segm
   const { data: customers } = await query.order('total_visits', { ascending: false })
 
   return (
-    <div className="bg-white rounded-3xl overflow-hidden shadow-sm">
+    <div className="bg-white/85 backdrop-blur-sm border border-[#7DB542]/[.28] rounded-3xl overflow-hidden">
       <table className="w-full">
         <thead>
           <tr className="border-b border-gray-100">
@@ -63,7 +63,7 @@ async function CustomerTable({ businessId, segment }: { businessId: string; segm
 
 function TableSkeleton() {
   return (
-    <div className="bg-white rounded-3xl overflow-hidden shadow-sm animate-pulse">
+    <div className="bg-white/85 backdrop-blur-sm border border-[#7DB542]/[.28] rounded-3xl overflow-hidden animate-pulse">
       <table className="w-full">
         <thead>
           <tr className="border-b border-gray-100">
@@ -118,7 +118,7 @@ export default async function CustomersPage({
             {['all', 'top', 'returning', 'at_risk'].map((seg) => (
               <Link key={seg} href={`/customers?segment=${seg}`}
                 className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
-                  segment === seg ? 'bg-primary text-white' : 'bg-white text-primary-dark hover:bg-primary-light'
+                  segment === seg ? 'bg-primary text-white' : 'bg-white/85 backdrop-blur-sm border border-[#7DB542]/[.28] text-primary-dark hover:bg-primary-light'
                 }`}>
                 {seg === 'at_risk' ? 'At risk' : seg.charAt(0).toUpperCase() + seg.slice(1)}
               </Link>

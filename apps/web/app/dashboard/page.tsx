@@ -31,7 +31,7 @@ function StatsSkeleton() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
       {[...Array(2)].map((_, i) => (
-        <div key={i} className="bg-white rounded-3xl p-6 shadow-sm animate-pulse">
+        <div key={i} className="glass-card p-6 animate-pulse">
           <div className="h-10 w-20 bg-gray-200 rounded-xl mb-2" />
           <div className="h-4 w-32 bg-gray-100 rounded-lg" />
         </div>
@@ -61,11 +61,11 @@ export default async function DashboardPage() {
               <h2 className="text-xl font-bold text-white mb-2">Stamp Card →</h2>
               <p className="text-primary-light">Scan a customer&apos;s card to add stamps</p>
             </Link>
-            <Link href="/customers" className="block bg-white rounded-3xl p-6 hover:shadow-md transition-shadow border border-transparent hover:border-primary">
+            <Link href="/customers" className="block glass-card p-6 hover:shadow-md transition-shadow">
               <h2 className="text-xl font-bold text-primary-dark mb-2">Customers →</h2>
               <p className="text-taupe">View and segment your customers, export data</p>
             </Link>
-            <Link href="/offers" className="block bg-white rounded-3xl p-6 hover:shadow-md transition-shadow border border-transparent hover:border-primary">
+            <Link href="/offers" className="block glass-card p-6 hover:shadow-md transition-shadow">
               <h2 className="text-xl font-bold text-primary-dark mb-2">Send Offer →</h2>
               <p className="text-taupe">Reach your customers with personalised messages</p>
             </Link>
@@ -78,7 +78,7 @@ export default async function DashboardPage() {
 
 function StatCard({ label, value }: { label: string; value: number }) {
   return (
-    <div className="bg-white rounded-3xl p-6 shadow-sm">
+    <div className="glass-card p-6">
       <p className="text-4xl font-black text-primary">{value.toLocaleString()}</p>
       <p className="text-taupe mt-1 font-medium">{label}</p>
     </div>
