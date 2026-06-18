@@ -1,7 +1,5 @@
 export type UserRole = 'customer' | 'vendor'
 
-export type LoyaltyProgramType = 'stamp' | 'points' | 'tiered'
-
 export interface Profile {
   id: string
   role: UserRole
@@ -11,124 +9,109 @@ export interface Profile {
   created_at: string
 }
 
-export interface Business {
+// New schema types
+export interface Vendor {
   id: string
   owner_id: string
-  name: string
+  business_name: string
   description: string | null
-  logo_url: string | null
-  address: string | null
-  lat: number | null
-  lng: number | null
-  qr_code_secret: string
+  category: string | null
+  status: 'active' | 'suspended' | 'pending'
+  brand_color: string | null
+  proof_of_purchase_enabled: boolean
+  proof_of_purchase_instructions: string | null
+  proof_of_purchase_max_claim_age_days: number | null
   created_at: string
 }
 
-export interface StampProgramConfig {
-  type: 'stamp'
-  stamps_required: number
-  reward: string
+export interface StoreLocation {
+  id: string
+  vendor_id: string
+  address: string | null
+  lat: number | null
+  lng: number | null
+  is_primary: boolean
 }
 
-export interface PointsProgramConfig {
-  type: 'points'
-  points_per_visit: number
-  rewards: Array<{ points: number; label: string }>
+export interface CustomerVendorMembership {
+  id: string
+  customer_id: string
+  vendor_id: string
+  membership_token: string
+  status: 'pending' | 'active' | 'inactive' | 'banned'
+  joined_at: string
+  activated_at: string | null
 }
 
-export interface Tier {
-  name: string
-  min_visits: number
-  reward?: string
+export interface LoyaltyBalance {
+  id: string
+  membership_id: string
+  stamps_collected: number
+  points_accumulated: number
+  tier: string | null
+  total_visits: number
+  last_active_at: string | null
 }
 
-export interface TieredProgramConfig {
-  type: 'tiered'
-  tiers: Tier[]
+export type LedgerEventType =
+  | 'stamp_added'
+  | 'points_added'
+  | 'reward_redeemed'
+  | 'transaction_voided'
+  | 'joined'
+  | 'activated'
+  | 'new_customer_reward'
+
+export interface LoyaltyLedgerEntry {
+  id: string
+  membership_id: string
+  vendor_id: string
+  event_type: LedgerEventType
+  delta: number
+  balance_after: number
+  notes: string | null
+  created_at: string
 }
 
-export type LoyaltyProgramConfig =
-  | StampProgramConfig
-  | PointsProgramConfig
-  | TieredProgramConfig
+export type ProgramType = 'stamp' | 'points' | 'tiered'
 
 export interface LoyaltyProgram {
   id: string
-  business_id: string
-  type: LoyaltyProgramType
-  config: LoyaltyProgramConfig
-  reward_description: string | null
+  vendor_id: string
+  name: string
+  program_type: ProgramType
+  config: Record<string, unknown>
   is_active: boolean
   created_at: string
 }
 
-export interface LoyaltyCard {
+export interface RewardRule {
   id: string
-  customer_id: string
   program_id: string
-  stamps_collected: number
-  points_accumulated: number
-  tier: string | null
-  wallet_pass_id: string | null
-  last_visit: string | null
-  created_at: string
+  name: string
+  description: string | null
+  stamp_threshold: number | null
+  points_threshold: number | null
+  reward_type: string
+  is_active: boolean
 }
 
-export interface VisitEvent {
+export interface RewardInstance {
   id: string
-  card_id: string
-  business_id: string
-  stamps_added: number
-  points_added: number
-  vendor_device_id: string | null
-  created_at: string
+  membership_id: string
+  reward_rule_id: string
+  status: 'pending' | 'redeemed' | 'expired' | 'voided'
+  issued_at: string
+  redeemed_at: string | null
 }
 
-export interface Redemption {
+export interface ProofOfPurchaseClaim {
   id: string
-  card_id: string
-  redeemed_at: string
+  customer_id: string
+  vendor_id: string
+  amount: number | null
+  description: string | null
+  status: 'pending' | 'approved' | 'rejected'
   notes: string | null
-}
-
-export type OfferSegment = 'all' | 'returning' | 'at_risk' | 'top'
-
-export interface Offer {
-  id: string
-  business_id: string
-  title: string
-  body: string
-  target_segment: OfferSegment
-  sent_at: string | null
   created_at: string
-}
-
-export interface OfferRecipient {
-  id: string
-  offer_id: string
-  customer_id: string
-  delivered_at: string | null
-  opened_at: string | null
-}
-
-export interface DataConsent {
-  id: string
-  customer_id: string
-  business_id: string
-  consented_at: string
-  withdrawn_at: string | null
-}
-
-export interface QRPayload {
-  business_id: string
-  timestamp: number
-  nonce: string
-  hmac: string
-}
-
-export interface StampCardResult {
-  card: LoyaltyCard
-  stamps_added: number
-  reward_unlocked: boolean
-  business: Pick<Business, 'id' | 'name' | 'logo_url'>
 }

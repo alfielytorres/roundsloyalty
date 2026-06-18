@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Outside @layer — takes priority over all Tailwind layers */
+/* Outside @layer — beats all Tailwind layers */
 body {
   background-color: #090B12;
   color: #F8FAFC;
@@ -14,13 +14,12 @@ html {
 }
 
 :root {
+  --color-bg: #090B12;
   --color-primary: #8B5CF6;
-  --color-primary-dark: #7C3AED;
   --color-secondary: #22D3EE;
   --color-success: #34D399;
   --color-warning: #FBBF24;
   --color-danger: #F87171;
-  --color-bg: #090B12;
   --color-text: #F8FAFC;
   --color-text-secondary: #94A3B8;
 }
@@ -33,12 +32,24 @@ html {
     @apply bg-white/[.06] backdrop-blur-xl border border-white/[.12] rounded-2xl;
   }
   .dark-input {
-    @apply bg-white/[.05] border border-white/[.12] rounded-2xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-[#8B5CF6] transition-colors;
+    @apply bg-white/[.05] border border-white/[.12] rounded-2xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-[#8B5CF6] transition-colors w-full;
+  }
+  .skeleton {
+    @apply bg-white/10 rounded-xl animate-pulse;
   }
   .btn-primary {
     @apply bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-semibold rounded-2xl px-6 py-3 transition-colors;
   }
-  .skeleton {
-    @apply bg-white/10 rounded-xl animate-pulse;
+  .btn-danger {
+    @apply border border-red-500/30 text-red-400 hover:bg-red-500/10 font-semibold rounded-2xl px-5 py-2.5 transition-colors;
+  }
+  .status-pending {
+    @apply bg-yellow-500/20 text-yellow-300 text-xs font-semibold px-2.5 py-1 rounded-full;
+  }
+  .status-active {
+    @apply bg-emerald-500/20 text-emerald-300 text-xs font-semibold px-2.5 py-1 rounded-full;
+  }
+  .status-inactive {
+    @apply bg-white/10 text-white/50 text-xs font-semibold px-2.5 py-1 rounded-full;
   }
 }
