@@ -15,7 +15,7 @@ export default function Loading() {
                 <div className="h-12 w-full bg-white/10 rounded-2xl" />
               </div>
             ))}
-            <div className="h-12 w-full bg-[#7DB542]/20 rounded-2xl mt-2" />
+            <div className="h-12 w-full bg-[#8B5CF6]/20 rounded-2xl mt-2" />
           </div>
           <div>
             <div className="h-5 w-28 bg-white/10 rounded-xl mb-4" />

@@ -3,8 +3,6 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
-// Shared per-request cache — any server component in the same render tree
-// that calls this gets the same promise, so Supabase is hit exactly once.
 export const getPortalData = cache(async () => {
   const cookieStore = cookies()
   const supabase = createServerClient(
@@ -13,18 +11,17 @@ export const getPortalData = cache(async () => {
     { cookies: { getAll: () => cookieStore.getAll() } },
   )
 
-  // Run auth + business lookup in parallel
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/')
 
-  const { data: business } = await supabase
-    .from('businesses')
-    .select('id, name, description, address')
+  const { data: vendor } = await supabase
+    .from('vendors')
+    .select('id, business_name, description, proof_of_purchase_enabled, proof_of_purchase_instructions, proof_of_purchase_max_claim_age_days, brand_color, category, status')
     .eq('owner_id', user.id)
     .limit(1)
     .maybeSingle()
 
-  if (!business) redirect('/onboarding')
+  if (!vendor) redirect('/onboarding')
 
-  return { user, business, supabase }
+  return { user, vendor, supabase }
 })

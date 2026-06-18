@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation'
 import BottomNav from './BottomNav'
 
-const PORTAL_ROUTES = ['/dashboard', '/stamp', '/customers', '/offers', '/settings']
+const PORTAL_ROUTES = ['/dashboard', '/stamp', '/customers', '/claims', '/settings', '/activity', '/programs']
 
 export default function ConditionalNav() {
   const pathname = usePathname()

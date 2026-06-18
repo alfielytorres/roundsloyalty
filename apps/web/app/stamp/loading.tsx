@@ -13,7 +13,7 @@ export default function Loading() {
           <div className="flex gap-2 mb-4">
             {[0,1,2,3].map((i) => <div key={i} className="w-12 h-12 bg-white/10 rounded-2xl" />)}
           </div>
-          <div className="h-12 w-full bg-[#7DB542]/20 rounded-2xl" />
+          <div className="h-12 w-full bg-[#8B5CF6]/20 rounded-2xl" />
         </div>
         <div className="mt-8">
           <div className="h-4 w-28 bg-white/10 rounded-xl mb-3" />

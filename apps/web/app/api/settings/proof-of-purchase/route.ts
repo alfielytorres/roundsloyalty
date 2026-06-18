@@ -21,20 +21,17 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.redirect(new URL('/', req.url))
 
   const formData = await req.formData()
-  const business_name = (formData.get('business_name') as string)?.trim()
-  const description = (formData.get('description') as string)?.trim()
-
-  if (!business_name) {
-    return NextResponse.redirect(
-      new URL('/settings?error=' + encodeURIComponent('Business name is required.'), req.url),
-    )
-  }
+  const enabled = formData.get('enabled') === 'true'
+  const instructions = (formData.get('instructions') as string)?.trim() || null
+  const max_days_raw = parseInt(formData.get('max_claim_age_days') as string)
+  const max_claim_age_days = isNaN(max_days_raw) ? 30 : Math.max(1, Math.min(365, max_days_raw))
 
   const { error } = await supabase
     .from('vendors')
     .update({
-      business_name,
-      description: description || null,
+      proof_of_purchase_enabled: enabled,
+      proof_of_purchase_instructions: instructions,
+      proof_of_purchase_max_claim_age_days: max_claim_age_days,
     })
     .eq('owner_id', user.id)
 
@@ -45,6 +42,6 @@ export async function POST(req: NextRequest) {
   }
 
   return NextResponse.redirect(
-    new URL('/settings?success=' + encodeURIComponent('Changes saved!'), req.url),
+    new URL('/settings?success=' + encodeURIComponent('Proof of purchase settings saved!'), req.url),
   )
 }

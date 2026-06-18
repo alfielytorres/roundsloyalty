@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
 import StampScanner from './StampScanner'
 
-async function RecentStamps({ businessId }: { businessId: string }) {
+async function RecentActivity({ vendorId }: { vendorId: string }) {
   const cookieStore = cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -12,34 +12,35 @@ async function RecentStamps({ businessId }: { businessId: string }) {
     { cookies: { getAll: () => cookieStore.getAll() } },
   )
 
-  const { data: recentStamps } = await supabase
-    .from('visit_events')
-    .select('id, stamps_added, created_at, loyalty_cards(customer_id, profiles(display_name))')
-    .eq('business_id', businessId)
+  const { data: entries } = await supabase
+    .from('loyalty_ledger')
+    .select('id, event_type, delta, created_at, profiles(display_name)')
+    .eq('vendor_id', vendorId)
+    .in('event_type', ['stamp_added', 'points_added', 'reward_redeemed'])
     .order('created_at', { ascending: false })
     .limit(10)
 
-  if (!recentStamps?.length) {
-    return <div className="glass-row px-5 py-10 text-center text-white/40">No stamps given today.</div>
+  if (!entries?.length) {
+    return <div className="glass-row px-5 py-10 text-center text-white/40">No recent activity.</div>
   }
 
   return (
     <div className="flex flex-col gap-2">
-      {recentStamps.map((v) => {
-        const rawCard = Array.isArray(v.loyalty_cards) ? v.loyalty_cards[0] : v.loyalty_cards
-        const card = rawCard as { customer_id: string; profiles: { display_name: string }[] | null } | null
-        const name = card?.profiles?.[0]?.display_name ?? 'Customer'
+      {entries.map((e) => {
+        const profile = Array.isArray(e.profiles) ? e.profiles[0] : e.profiles
+        const name = (profile as { display_name?: string | null } | null)?.display_name ?? 'Customer'
+        const label = eventLabel(e.event_type, e.delta)
         return (
-          <div key={v.id} className="glass-row px-5 py-3 flex items-center justify-between">
+          <div key={e.id} className="glass-row px-5 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-[#7DB542]/20 flex items-center justify-center font-bold text-[#7DB542] text-sm">
+              <div className="w-8 h-8 rounded-full bg-[#8B5CF6]/20 flex items-center justify-center font-bold text-[#8B5CF6] text-sm">
                 {name.charAt(0).toUpperCase()}
               </div>
               <span className="font-semibold text-white">{name}</span>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-[#7DB542] font-bold">+{v.stamps_added} stamp{v.stamps_added !== 1 ? 's' : ''}</span>
-              <span className="text-white/40 text-xs">{new Date(v.created_at).toLocaleTimeString()}</span>
+              <span className="text-[#8B5CF6] font-bold text-sm">{label}</span>
+              <span className="text-white/40 text-xs">{new Date(e.created_at).toLocaleTimeString()}</span>
             </div>
           </div>
         )
@@ -48,13 +49,22 @@ async function RecentStamps({ businessId }: { businessId: string }) {
   )
 }
 
-function RecentStampsSkeleton() {
+function eventLabel(type: string, delta: number) {
+  switch (type) {
+    case 'stamp_added': return `+${delta} stamp${delta !== 1 ? 's' : ''}`
+    case 'points_added': return `+${delta} pts`
+    case 'reward_redeemed': return 'Reward redeemed'
+    default: return type
+  }
+}
+
+function RecentActivitySkeleton() {
   return (
     <div className="flex flex-col gap-2 animate-pulse">
       {[...Array(3)].map((_, i) => (
         <div key={i} className="glass-row px-5 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-white/10" />
+            <div className="w-8 h-8 rounded-full bg-white/10" />
             <div className="h-4 w-24 bg-white/10 rounded" />
           </div>
           <div className="h-4 w-20 bg-white/5 rounded" />
@@ -69,30 +79,30 @@ export default async function StampPage({
 }: {
   searchParams: { error?: string; success?: string }
 }) {
-  const { business } = await getPortalData()
+  const { vendor } = await getPortalData()
 
   return (
     <main className="px-6 pt-10 pb-32">
       <div className="max-w-lg mx-auto">
         <div className="mb-8">
-          <p className="text-white/40 text-xs font-semibold tracking-widest uppercase mb-1">{business.name}</p>
-          <h1 className="text-3xl font-extrabold text-white">Stamp Card</h1>
-          <p className="text-white/50 mt-1">Scan or enter a customer’s card code</p>
+          <p className="text-white/40 text-xs font-semibold tracking-widest uppercase mb-1">{vendor.business_name}</p>
+          <h1 className="text-3xl font-extrabold text-white">Scan Card</h1>
+          <p className="text-white/50 mt-1">Scan or enter a customer's membership token</p>
         </div>
 
         {searchParams.error && (
           <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-2xl text-red-300 text-sm">{searchParams.error}</div>
         )}
         {searchParams.success && (
-          <div className="mb-6 p-4 bg-[#7DB542]/20 border border-[#7DB542]/30 rounded-2xl text-[#D4EDBE] font-semibold">{searchParams.success}</div>
+          <div className="mb-6 p-4 bg-[#8B5CF6]/20 border border-[#8B5CF6]/30 rounded-2xl text-white font-semibold">{searchParams.success}</div>
         )}
 
         <StampScanner />
 
         <div className="mt-8">
-          <h2 className="text-base font-bold text-white mb-3">Recent stamps</h2>
-          <Suspense fallback={<RecentStampsSkeleton />}>
-            <RecentStamps businessId={business.id} />
+          <h2 className="text-base font-bold text-white mb-3">Recent activity</h2>
+          <Suspense fallback={<RecentActivitySkeleton />}>
+            <RecentActivity vendorId={vendor.id} />
           </Suspense>
         </div>
       </div>

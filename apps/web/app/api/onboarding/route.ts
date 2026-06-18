@@ -23,22 +23,39 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.redirect(new URL('/', req.url))
 
   const formData = await req.formData()
-  const name = formData.get('name') as string
-  const description = formData.get('description') as string
-  const address = formData.get('address') as string
+  const business_name = (formData.get('business_name') as string)?.trim()
+  const description = (formData.get('description') as string)?.trim()
+  const category = (formData.get('category') as string)?.trim() || null
 
-  const { error } = await supabase.from('businesses').insert({
-    owner_id: user.id,
-    name,
-    description: description || null,
-    address: address || null,
-  })
+  if (!business_name) {
+    return NextResponse.redirect(
+      new URL(`/onboarding?error=${encodeURIComponent('Business name is required.')}`, req.url),
+    )
+  }
+
+  const { data: vendor, error } = await supabase
+    .from('vendors')
+    .insert({
+      owner_id: user.id,
+      business_name,
+      description: description || null,
+      category,
+      status: 'active',
+    })
+    .select('id')
+    .single()
 
   if (error) {
     return NextResponse.redirect(
       new URL(`/onboarding?error=${encodeURIComponent(error.message)}`, req.url),
     )
   }
+
+  await supabase.from('vendor_staff').insert({
+    vendor_id: vendor.id,
+    user_id: user.id,
+    role: 'owner',
+  })
 
   return NextResponse.redirect(new URL('/dashboard', req.url))
 }

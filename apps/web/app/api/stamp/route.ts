@@ -20,62 +20,67 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: business } = await supabase
-    .from('businesses')
-    .select('id')
+  const { data: vendor } = await supabase
+    .from('vendors')
+    .select('id, business_name')
     .eq('owner_id', user.id)
     .limit(1)
     .maybeSingle()
 
-  if (!business) return NextResponse.json({ error: 'Business not found' }, { status: 404 })
+  if (!vendor) return NextResponse.json({ error: 'Vendor account not found' }, { status: 404 })
 
   const body = await req.json()
-  const card_code: string = body.card_code?.trim()
-  const stamps: number = Math.max(1, Math.min(10, parseInt(body.stamps) || 1))
+  const token: string = body.token?.trim()
+  const action: 'stamp' | 'points' = body.action ?? 'stamp'
 
-  if (!card_code) return NextResponse.json({ error: 'Card code is required' }, { status: 400 })
+  if (!token) return NextResponse.json({ error: 'Token is required' }, { status: 400 })
 
-  // Look up the loyalty card by its code (UUID or short code)
-  const { data: card } = await supabase
-    .from('loyalty_cards')
-    .select('id, customer_id, stamps_collected, program_id, profiles(display_name), loyalty_programs(business_id, stamps_required:config->stamps_required)')
-    .eq('id', card_code)
-    .maybeSingle()
+  if (action === 'stamp') {
+    const { data, error } = await supabase.rpc('add_stamp', {
+      p_membership_token: token,
+      p_staff_user_id: user.id,
+    })
 
-  if (!card) {
-    return NextResponse.json({ error: 'Card not found. Make sure the customer shows their card code from the Rounds app.' }, { status: 404 })
+    if (error) {
+      const msg = error.message.includes('Rate limit')
+        ? 'A stamp was already given in the last 15 minutes.'
+        : error.message.includes('not active')
+        ? 'This membership is not active yet. Ask the customer to activate it in the Rounds app.'
+        : error.message.includes('Staff user')
+        ? 'This card does not belong to your store.'
+        : error.message.includes('token not found')
+        ? 'Token not found. Make sure the customer shows the correct QR code.'
+        : error.message
+      return NextResponse.json({ error: msg }, { status: 400 })
+    }
+
+    const balance = data as { stamps: number } | null
+    return NextResponse.json({
+      success: true,
+      message: `Stamp added! Customer now has ${balance?.stamps ?? '?'} stamp${(balance?.stamps ?? 0) !== 1 ? 's' : ''}.`,
+    })
   }
 
-  // Verify the card belongs to a program for this business
-  const program = (Array.isArray(card.loyalty_programs) ? card.loyalty_programs[0] : card.loyalty_programs) as { business_id: string } | null
-  if (!program || program.business_id !== business.id) {
-    return NextResponse.json({ error: 'This card is not for your business.' }, { status: 403 })
+  if (action === 'points') {
+    const spend_amount: number = parseFloat(body.amount) || 0
+    if (spend_amount <= 0) return NextResponse.json({ error: 'Amount must be greater than 0' }, { status: 400 })
+
+    const { data, error } = await supabase.rpc('add_points_from_spend', {
+      p_membership_token: token,
+      p_staff_user_id: user.id,
+      p_spend_amount: spend_amount,
+    })
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 })
+    }
+
+    const balance = data as { points: number } | null
+    return NextResponse.json({
+      success: true,
+      message: `Points added! Customer now has ${balance?.points ?? '?'} points.`,
+    })
   }
 
-  const newTotal = (card.stamps_collected ?? 0) + stamps
-
-  // Update stamp count
-  const { error: updateError } = await supabase
-    .from('loyalty_cards')
-    .update({ stamps_collected: newTotal, last_visit: new Date().toISOString() })
-    .eq('id', card.id)
-
-  if (updateError) {
-    return NextResponse.json({ error: updateError.message }, { status: 500 })
-  }
-
-  // Log the visit event
-  await supabase.from('visit_events').insert({
-    card_id: card.id,
-    business_id: business.id,
-    stamps_added: stamps,
-    points_added: 0,
-  })
-
-  const profile = (Array.isArray(card.profiles) ? card.profiles[0] : card.profiles) as { display_name: string } | null
-  return NextResponse.json({
-    success: true,
-    customer_name: profile?.display_name ?? 'Customer',
-    new_total: newTotal,
-  })
+  return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
 }
