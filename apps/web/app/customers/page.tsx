@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
-import PortalShell from '@/components/PortalShell'
 import { Download } from 'lucide-react'
 
 async function CustomerTable({ businessId, segment }: { businessId: string; segment: string }) {
@@ -100,44 +99,45 @@ export default async function CustomersPage({
   const segment = searchParams.segment ?? 'all'
 
   return (
-    <PortalShell>
-      <main className="p-8">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
+    <main className="px-6 pt-10 pb-32">
+      <div className="max-w-5xl mx-auto">
+        <div className="flex items-start justify-between mb-8">
+          <div>
+            <p className="text-white/40 text-xs font-semibold tracking-widest uppercase mb-1">{business.name}</p>
             <h1 className="text-3xl font-extrabold text-white">Customers</h1>
-            <div className="flex gap-3">
-              <a href={`/api/export?business_id=${business.id}&format=csv`} className="flex items-center gap-1.5 px-4 py-2 rounded-xl border-2 border-white/20 text-white/70 text-sm font-semibold hover:border-[#7DB542] hover:text-white transition-colors">
-                <Download size={14} />Export CSV
-              </a>
-              <a href={`/api/export?business_id=${business.id}&format=json`} className="flex items-center gap-1.5 px-4 py-2 rounded-xl border-2 border-white/20 text-white/70 text-sm font-semibold hover:border-[#7DB542] hover:text-white transition-colors">
-                <Download size={14} />Export JSON
-              </a>
-            </div>
           </div>
-
-          <div className="flex gap-3 mb-6">
-            {['all', 'top', 'returning', 'at_risk'].map((seg) => (
-              <Link key={seg} href={`/customers?segment=${seg}`}
-                className={`px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
-                  segment === seg ? 'bg-[#7DB542] text-white' : 'bg-white/[.07] backdrop-blur-sm border border-white/10 text-white/60 hover:text-white'
-                }`}>
-                {seg === 'at_risk' ? 'At risk' : seg.charAt(0).toUpperCase() + seg.slice(1)}
-              </Link>
-            ))}
+          <div className="flex gap-2 mt-1">
+            <a href={`/api/export?business_id=${business.id}&format=csv`} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/20 text-white/60 text-sm font-semibold hover:border-[#7DB542] hover:text-white transition-colors">
+              <Download size={13} />CSV
+            </a>
+            <a href={`/api/export?business_id=${business.id}&format=json`} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/20 text-white/60 text-sm font-semibold hover:border-[#7DB542] hover:text-white transition-colors">
+              <Download size={13} />JSON
+            </a>
           </div>
-
-          <Suspense fallback={<TableSkeleton />}>
-            <CustomerTable businessId={business.id} segment={segment} />
-          </Suspense>
         </div>
-      </main>
-    </PortalShell>
+
+        <div className="flex gap-2 mb-6">
+          {['all', 'top', 'returning', 'at_risk'].map((seg) => (
+            <Link key={seg} href={`/customers?segment=${seg}`}
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
+                segment === seg ? 'bg-[#7DB542] text-white' : 'bg-white/[.07] border border-white/10 text-white/50 hover:text-white'
+              }`}>
+              {seg === 'at_risk' ? 'At risk' : seg.charAt(0).toUpperCase() + seg.slice(1)}
+            </Link>
+          ))}
+        </div>
+
+        <Suspense fallback={<TableSkeleton />}>
+          <CustomerTable businessId={business.id} segment={segment} />
+        </Suspense>
+      </div>
+    </main>
   )
 }
 
 function segmentClass(seg: string) {
   switch (seg) {
-    case 'top': return 'bg-primary text-white'
+    case 'top': return 'bg-[#7DB542] text-white'
     case 'returning': return 'bg-[#7DB542]/20 text-[#D4EDBE]'
     case 'at_risk': return 'bg-red-500/20 text-red-300'
     default: return 'bg-white/10 text-white/50'

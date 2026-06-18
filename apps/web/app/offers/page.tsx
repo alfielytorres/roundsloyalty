@@ -2,7 +2,6 @@ import { Suspense } from 'react'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
-import PortalShell from '@/components/PortalShell'
 import { Send } from 'lucide-react'
 
 async function PastOffers({ businessId }: { businessId: string }) {
@@ -87,58 +86,56 @@ export default async function OffersPage({
   const { business } = await getPortalData()
 
   return (
-    <PortalShell>
-      <main className="p-8">
-        <div className="max-w-5xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-extrabold text-white">Send Offer</h1>
-            <p className="text-white/50 mt-1">Send a personalised message to your customers</p>
+    <main className="px-6 pt-10 pb-32">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8">
+          <p className="text-white/40 text-xs font-semibold tracking-widest uppercase mb-1">{business.name}</p>
+          <h1 className="text-3xl font-extrabold text-white">Send Offer</h1>
+          <p className="text-white/50 mt-1">Send a personalised message to your customers</p>
+        </div>
+
+        {searchParams.error && (
+          <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-2xl text-red-300 text-sm">{searchParams.error}</div>
+        )}
+        {searchParams.success && (
+          <div className="mb-6 p-4 bg-[#7DB542]/20 border border-[#7DB542]/30 rounded-2xl text-[#D4EDBE] text-sm font-semibold">{searchParams.success}</div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="glass-card p-6 h-fit">
+            <h2 className="text-lg font-bold text-white mb-5">New offer</h2>
+            <form action="/api/offers/send" method="POST" className="flex flex-col gap-4">
+              <div>
+                <label className="block text-sm font-semibold text-white mb-2">Title</label>
+                <input name="title" required placeholder="e.g. Free coffee this weekend!"
+                  className="w-full dark-input" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-white mb-2">Message</label>
+                <textarea name="body" required rows={4} placeholder="Write your message here..."
+                  className="w-full dark-input resize-none" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-white mb-2">Send to</label>
+                <select name="target_segment" className="w-full dark-input bg-[#0D1F0D]">
+                  {segments.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                </select>
+              </div>
+              <button type="submit" className="flex items-center justify-center gap-2 w-full bg-[#7DB542] text-white font-bold py-3 rounded-2xl hover:opacity-90 transition-opacity">
+                <Send size={16} />Send offer
+              </button>
+            </form>
           </div>
 
-          {searchParams.error && (
-            <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-2xl text-red-300 text-sm">{searchParams.error}</div>
-          )}
-          {searchParams.success && (
-            <div className="mb-6 p-4 bg-[#7DB542]/20 border border-[#7DB542]/30 rounded-2xl text-[#D4EDBE] text-sm font-semibold">{searchParams.success}</div>
-          )}
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="glass-card p-8 h-fit">
-              <h2 className="text-xl font-bold text-white mb-6">New offer</h2>
-              <form action="/api/offers/send" method="POST" className="flex flex-col gap-5">
-                <div>
-                  <label className="block text-sm font-semibold text-white mb-2">Title</label>
-                  <input name="title" required placeholder="e.g. Free coffee this weekend!"
-                    className="w-full dark-input" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-white mb-2">Message</label>
-                  <textarea name="body" required rows={4} placeholder="Write your message here..."
-                    className="w-full dark-input resize-none" />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-white mb-2">Send to</label>
-                  <select name="target_segment"
-                    className="w-full dark-input bg-[#0D1F0D]">
-                    {segments.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-                  </select>
-                </div>
-                <button type="submit" className="flex items-center justify-center gap-2 w-full bg-[#7DB542] text-white font-bold py-3 rounded-2xl hover:opacity-90 transition-opacity">
-                  <Send size={16} />Send offer
-                </button>
-              </form>
-            </div>
-
-            <div>
-              <h2 className="text-xl font-bold text-white mb-4">Past offers</h2>
-              <Suspense fallback={<OffersSkeleton />}>
-                <PastOffers businessId={business.id} />
-              </Suspense>
-            </div>
+          <div>
+            <h2 className="text-lg font-bold text-white mb-4">Past offers</h2>
+            <Suspense fallback={<OffersSkeleton />}>
+              <PastOffers businessId={business.id} />
+            </Suspense>
           </div>
         </div>
-      </main>
-    </PortalShell>
+      </div>
+    </main>
   )
 }
 

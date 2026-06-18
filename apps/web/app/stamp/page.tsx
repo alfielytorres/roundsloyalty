@@ -2,7 +2,6 @@ import { Suspense } from 'react'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
-import PortalShell from '@/components/PortalShell'
 import StampScanner from './StampScanner'
 
 async function RecentStamps({ businessId }: { businessId: string }) {
@@ -73,31 +72,30 @@ export default async function StampPage({
   const { business } = await getPortalData()
 
   return (
-    <PortalShell>
-      <main className="p-8">
-        <div className="max-w-2xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-extrabold text-white">Stamp Card</h1>
-            <p className="text-white/50 mt-1">Scan or enter a customer&apos;s card code to add stamps</p>
-          </div>
-
-          {searchParams.error && (
-            <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-2xl text-red-300 text-sm">{searchParams.error}</div>
-          )}
-          {searchParams.success && (
-            <div className="mb-6 p-4 bg-[#7DB542]/20 border border-[#7DB542]/30 rounded-2xl text-[#D4EDBE] font-semibold">{searchParams.success}</div>
-          )}
-
-          <StampScanner />
-
-          <div className="mt-10">
-            <h2 className="text-lg font-bold text-white mb-3">Recent stamps</h2>
-            <Suspense fallback={<RecentStampsSkeleton />}>
-              <RecentStamps businessId={business.id} />
-            </Suspense>
-          </div>
+    <main className="px-6 pt-10 pb-32">
+      <div className="max-w-lg mx-auto">
+        <div className="mb-8">
+          <p className="text-white/40 text-xs font-semibold tracking-widest uppercase mb-1">{business.name}</p>
+          <h1 className="text-3xl font-extrabold text-white">Stamp Card</h1>
+          <p className="text-white/50 mt-1">Scan or enter a customer’s card code</p>
         </div>
-      </main>
-    </PortalShell>
+
+        {searchParams.error && (
+          <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-2xl text-red-300 text-sm">{searchParams.error}</div>
+        )}
+        {searchParams.success && (
+          <div className="mb-6 p-4 bg-[#7DB542]/20 border border-[#7DB542]/30 rounded-2xl text-[#D4EDBE] font-semibold">{searchParams.success}</div>
+        )}
+
+        <StampScanner />
+
+        <div className="mt-8">
+          <h2 className="text-base font-bold text-white mb-3">Recent stamps</h2>
+          <Suspense fallback={<RecentStampsSkeleton />}>
+            <RecentStamps businessId={business.id} />
+          </Suspense>
+        </div>
+      </div>
+    </main>
   )
 }
