@@ -1,6 +1,1 @@
-{
-  "buildCommand": "pnpm build",
-  "outputDirectory": ".next",
-  "installCommand": "pnpm install",
-  "devCommand": "pnpm dev"
-}
+ewogICJidWlsZENvbW1hbmQiOiAicG5wbSBidWlsZCIsCiAgIm91dHB1dERpcmVjdG9yeSI6ICIubmV4dCIsCiAgImluc3RhbGxDb21tYW5kIjogImNvcmVwYWNrIGVuYWJsZSAmJiBwbnBtIGluc3RhbGwiLAogICJkZXZDb21tYW5kIjogInBucG0gZGV2Igp9Cg==
