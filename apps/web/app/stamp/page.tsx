@@ -21,7 +21,7 @@ async function RecentStamps({ businessId }: { businessId: string }) {
     .limit(10)
 
   if (!recentStamps?.length) {
-    return <div className="glass-row px-5 py-10 text-center text-taupe">No stamps given today.</div>
+    return <div className="glass-row px-5 py-10 text-center text-white/40">No stamps given today.</div>
   }
 
   return (
@@ -33,14 +33,14 @@ async function RecentStamps({ businessId }: { businessId: string }) {
         return (
           <div key={v.id} className="glass-row px-5 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center font-bold text-primary-dark text-sm">
+              <div className="w-8 h-8 rounded-xl bg-[#7DB542]/20 flex items-center justify-center font-bold text-[#7DB542] text-sm">
                 {name.charAt(0).toUpperCase()}
               </div>
-              <span className="font-semibold text-primary-dark">{name}</span>
+              <span className="font-semibold text-white">{name}</span>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-primary font-bold">+{v.stamps_added} stamp{v.stamps_added !== 1 ? 's' : ''}</span>
-              <span className="text-taupe text-xs">{new Date(v.created_at).toLocaleTimeString()}</span>
+              <span className="text-[#7DB542] font-bold">+{v.stamps_added} stamp{v.stamps_added !== 1 ? 's' : ''}</span>
+              <span className="text-white/40 text-xs">{new Date(v.created_at).toLocaleTimeString()}</span>
             </div>
           </div>
         )
@@ -55,10 +55,10 @@ function RecentStampsSkeleton() {
       {[...Array(3)].map((_, i) => (
         <div key={i} className="glass-row px-5 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-gray-200" />
-            <div className="h-4 w-24 bg-gray-200 rounded" />
+            <div className="w-8 h-8 rounded-xl bg-white/10" />
+            <div className="h-4 w-24 bg-white/10 rounded" />
           </div>
-          <div className="h-4 w-20 bg-gray-100 rounded" />
+          <div className="h-4 w-20 bg-white/5 rounded" />
         </div>
       ))}
     </div>
@@ -77,21 +77,21 @@ export default async function StampPage({
       <main className="p-8">
         <div className="max-w-2xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-extrabold text-primary-dark">Stamp Card</h1>
-            <p className="text-taupe mt-1">Scan or enter a customer&apos;s card code to add stamps</p>
+            <h1 className="text-3xl font-extrabold text-white">Stamp Card</h1>
+            <p className="text-white/50 mt-1">Scan or enter a customer&apos;s card code to add stamps</p>
           </div>
 
           {searchParams.error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-sm">{searchParams.error}</div>
+            <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-2xl text-red-300 text-sm">{searchParams.error}</div>
           )}
           {searchParams.success && (
-            <div className="mb-6 p-4 bg-primary-light border border-primary rounded-2xl text-primary-dark font-semibold">{searchParams.success}</div>
+            <div className="mb-6 p-4 bg-[#7DB542]/20 border border-[#7DB542]/30 rounded-2xl text-[#D4EDBE] font-semibold">{searchParams.success}</div>
           )}
 
           <StampScanner />
 
           <div className="mt-10">
-            <h2 className="text-lg font-bold text-primary-dark mb-3">Recent stamps</h2>
+            <h2 className="text-lg font-bold text-white mb-3">Recent stamps</h2>
             <Suspense fallback={<RecentStampsSkeleton />}>
               <RecentStamps businessId={business.id} />
             </Suspense>

@@ -22,8 +22,8 @@ async function Stats({ businessId }: { businessId: string }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-      <StatCard label="Total customers" value={totalCustomers ?? 0} icon={<Users size={16} className="text-taupe" />} />
-      <StatCard label="Visits this week" value={weekVisits ?? 0} icon={<TrendingUp size={16} className="text-taupe" />} />
+      <StatCard label="Total customers" value={totalCustomers ?? 0} icon={<Users size={16} className="text-white/40" />} />
+      <StatCard label="Visits this week" value={weekVisits ?? 0} icon={<TrendingUp size={16} className="text-white/40" />} />
     </div>
   )
 }
@@ -33,8 +33,8 @@ function StatsSkeleton() {
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
       {[...Array(2)].map((_, i) => (
         <div key={i} className="glass-card p-6 animate-pulse">
-          <div className="h-10 w-20 bg-gray-200 rounded-xl mb-2" />
-          <div className="h-4 w-32 bg-gray-100 rounded-lg" />
+          <div className="h-10 w-20 bg-white/10 rounded-xl mb-2" />
+          <div className="h-4 w-32 bg-white/5 rounded-lg" />
         </div>
       ))}
     </div>
@@ -49,8 +49,8 @@ export default async function DashboardPage() {
       <main className="p-8">
         <div className="max-w-6xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-extrabold text-primary-dark">Dashboard</h1>
-            <p className="text-taupe mt-1">Welcome back</p>
+            <h1 className="text-3xl font-extrabold text-white">Dashboard</h1>
+            <p className="text-white/50 mt-1">Welcome back</p>
           </div>
 
           <Suspense fallback={<StatsSkeleton />}>
@@ -63,15 +63,15 @@ export default async function DashboardPage() {
               <h2 className="text-xl font-bold text-white mb-2">Stamp Card →</h2>
               <p className="text-primary-light">Scan a customer&apos;s card to add stamps</p>
             </Link>
-            <Link href="/customers" className="block glass-card p-6 hover:shadow-md transition-shadow">
-              <Users size={22} className="text-primary mb-3" />
-              <h2 className="text-xl font-bold text-primary-dark mb-2">Customers →</h2>
-              <p className="text-taupe">View and segment your customers, export data</p>
+            <Link href="/customers" className="block glass-card p-6 hover:bg-white/10 transition-colors">
+              <Users size={22} className="text-[#7DB542] mb-3" />
+              <h2 className="text-xl font-bold text-white mb-2">Customers →</h2>
+              <p className="text-white/50">View and segment your customers, export data</p>
             </Link>
-            <Link href="/offers" className="block glass-card p-6 hover:shadow-md transition-shadow">
-              <Send size={22} className="text-primary mb-3" />
-              <h2 className="text-xl font-bold text-primary-dark mb-2">Send Offer →</h2>
-              <p className="text-taupe">Reach your customers with personalised messages</p>
+            <Link href="/offers" className="block glass-card p-6 hover:bg-white/10 transition-colors">
+              <Send size={22} className="text-[#7DB542] mb-3" />
+              <h2 className="text-xl font-bold text-white mb-2">Send Offer →</h2>
+              <p className="text-white/50">Reach your customers with personalised messages</p>
             </Link>
           </div>
         </div>
@@ -83,8 +83,8 @@ export default async function DashboardPage() {
 function StatCard({ label, value, icon }: { label: string; value: number; icon?: React.ReactNode }) {
   return (
     <div className="glass-card p-6">
-      <p className="text-4xl font-black text-primary">{value.toLocaleString()}</p>
-      <p className="flex items-center gap-1.5 text-taupe mt-1 font-medium">{icon}{label}</p>
+      <p className="text-4xl font-black text-[#7DB542]">{value.toLocaleString()}</p>
+      <p className="flex items-center gap-1.5 text-white/50 mt-1 font-medium">{icon}{label}</p>
     </div>
   )
 }

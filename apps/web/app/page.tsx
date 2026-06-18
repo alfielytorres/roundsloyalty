@@ -18,53 +18,53 @@ export default async function RootPage() {
   }
 
   return (
-    <main className="min-h-screen bg-cream flex flex-col items-center justify-center px-6">
+    <main className="min-h-screen bg-[#0D1F0D] flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-10">
           <img src="/logo.svg" alt="Rounds Loyalty" className="w-24 h-24 mb-4" />
-          <h1 className="text-3xl font-extrabold text-primary-dark">Rounds Loyalty</h1>
-          <p className="text-taupe mt-2 text-center">Vendor portal — reward your customers</p>
+          <h1 className="text-3xl font-extrabold text-white">Rounds Loyalty</h1>
+          <p className="text-white/50 mt-2 text-center">Vendor portal — reward your customers</p>
         </div>
 
         <form action="/api/auth/sign-in" method="POST" className="flex flex-col gap-4">
           <div>
-            <label className="block text-sm font-semibold text-primary-dark mb-1">Email</label>
+            <label className="block text-sm font-semibold text-white mb-1">Email</label>
             <input
               type="email"
               name="email"
               required
               placeholder="you@example.com"
-              className="w-full rounded-2xl border-2 border-gray-200 px-4 py-3 text-primary-dark placeholder-taupe focus:outline-none focus:border-primary transition-colors"
+              className="w-full dark-input"
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-primary-dark mb-1">Password</label>
+            <label className="block text-sm font-semibold text-white mb-1">Password</label>
             <input
               type="password"
               name="password"
               required
               placeholder="Your password"
-              className="w-full rounded-2xl border-2 border-gray-200 px-4 py-3 text-primary-dark placeholder-taupe focus:outline-none focus:border-primary transition-colors"
+              className="w-full dark-input"
             />
           </div>
           <button
             type="submit"
-            className="flex items-center justify-center gap-2 w-full bg-primary text-white font-bold py-3 rounded-2xl mt-2 hover:opacity-90 transition-opacity"
+            className="flex items-center justify-center gap-2 w-full bg-[#7DB542] text-white font-bold py-3 rounded-2xl mt-2 hover:opacity-90 transition-opacity"
           >
             <LogIn size={16} />Sign in
           </button>
         </form>
 
-        <p className="text-center text-sm text-taupe mt-4">
+        <p className="text-center text-sm text-white/50 mt-4">
           No account?{' '}
-          <Link href="/sign-up" className="font-semibold text-primary hover:underline">
+          <Link href="/sign-up" className="font-semibold text-[#7DB542] hover:underline">
             Create one free
           </Link>
         </p>
 
-        <p className="text-center text-sm text-taupe mt-3">
+        <p className="text-center text-sm text-white/50 mt-3">
           Customers? Use the{' '}
-          <span className="font-semibold text-primary">Rounds Loyalty</span> mobile app.
+          <span className="font-semibold text-[#7DB542]">Rounds Loyalty</span> mobile app.
         </p>
       </div>
     </main>

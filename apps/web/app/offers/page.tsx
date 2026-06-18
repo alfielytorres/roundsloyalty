@@ -31,7 +31,7 @@ async function PastOffers({ businessId }: { businessId: string }) {
   }
 
   if (!offers?.length) {
-    return <div className="glass-row px-6 py-12 text-center text-taupe">No offers sent yet.</div>
+    return <div className="glass-row px-6 py-12 text-center text-white/40">No offers sent yet.</div>
   }
 
   return (
@@ -40,10 +40,10 @@ async function PastOffers({ businessId }: { businessId: string }) {
         <div key={offer.id} className="glass-row px-6 py-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-primary-dark truncate">{offer.title}</p>
-              <p className="text-taupe text-sm mt-1 line-clamp-2">{offer.body}</p>
+              <p className="font-bold text-white truncate">{offer.title}</p>
+              <p className="text-white/50 text-sm mt-1 line-clamp-2">{offer.body}</p>
             </div>
-            <span className="shrink-0 text-xs font-bold text-primary bg-primary-light px-3 py-1 rounded-full">
+            <span className="shrink-0 text-xs font-bold text-[#7DB542] bg-[#7DB542]/20 px-3 py-1 rounded-full">
               {countByOffer[offer.id] ?? 0} sent
             </span>
           </div>
@@ -51,7 +51,7 @@ async function PastOffers({ businessId }: { businessId: string }) {
             <span className={`text-xs font-semibold px-2 py-0.5 rounded-md capitalize ${segmentClass(offer.target_segment)}`}>
               {offer.target_segment === 'at_risk' ? 'At risk' : offer.target_segment}
             </span>
-            {offer.sent_at && <span className="text-xs text-taupe">{new Date(offer.sent_at).toLocaleDateString()}</span>}
+            {offer.sent_at && <span className="text-xs text-white/40">{new Date(offer.sent_at).toLocaleDateString()}</span>}
           </div>
         </div>
       ))}
@@ -64,8 +64,8 @@ function OffersSkeleton() {
     <div className="flex flex-col gap-3 animate-pulse">
       {[...Array(3)].map((_, i) => (
         <div key={i} className="glass-row px-6 py-4">
-          <div className="h-5 w-48 bg-gray-200 rounded mb-2" />
-          <div className="h-4 w-full bg-gray-100 rounded" />
+          <div className="h-5 w-48 bg-white/10 rounded mb-2" />
+          <div className="h-4 w-full bg-white/5 rounded" />
         </div>
       ))}
     </div>
@@ -91,46 +91,46 @@ export default async function OffersPage({
       <main className="p-8">
         <div className="max-w-5xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-extrabold text-primary-dark">Send Offer</h1>
-            <p className="text-taupe mt-1">Send a personalised message to your customers</p>
+            <h1 className="text-3xl font-extrabold text-white">Send Offer</h1>
+            <p className="text-white/50 mt-1">Send a personalised message to your customers</p>
           </div>
 
           {searchParams.error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-sm">{searchParams.error}</div>
+            <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-2xl text-red-300 text-sm">{searchParams.error}</div>
           )}
           {searchParams.success && (
-            <div className="mb-6 p-4 bg-primary-light border border-primary rounded-2xl text-primary-dark text-sm font-semibold">{searchParams.success}</div>
+            <div className="mb-6 p-4 bg-[#7DB542]/20 border border-[#7DB542]/30 rounded-2xl text-[#D4EDBE] text-sm font-semibold">{searchParams.success}</div>
           )}
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="glass-card p-8 h-fit">
-              <h2 className="text-xl font-bold text-primary-dark mb-6">New offer</h2>
+              <h2 className="text-xl font-bold text-white mb-6">New offer</h2>
               <form action="/api/offers/send" method="POST" className="flex flex-col gap-5">
                 <div>
-                  <label className="block text-sm font-semibold text-primary-dark mb-2">Title</label>
+                  <label className="block text-sm font-semibold text-white mb-2">Title</label>
                   <input name="title" required placeholder="e.g. Free coffee this weekend!"
-                    className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-primary-dark focus:outline-none focus:border-primary transition-colors" />
+                    className="w-full dark-input" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-primary-dark mb-2">Message</label>
+                  <label className="block text-sm font-semibold text-white mb-2">Message</label>
                   <textarea name="body" required rows={4} placeholder="Write your message here..."
-                    className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-primary-dark focus:outline-none focus:border-primary transition-colors resize-none" />
+                    className="w-full dark-input resize-none" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-primary-dark mb-2">Send to</label>
+                  <label className="block text-sm font-semibold text-white mb-2">Send to</label>
                   <select name="target_segment"
-                    className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-primary-dark focus:outline-none focus:border-primary transition-colors bg-white">
+                    className="w-full dark-input bg-[#0D1F0D]">
                     {segments.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
                   </select>
                 </div>
-                <button type="submit" className="flex items-center justify-center gap-2 w-full bg-primary text-white font-bold py-3 rounded-2xl hover:opacity-90 transition-opacity">
+                <button type="submit" className="flex items-center justify-center gap-2 w-full bg-[#7DB542] text-white font-bold py-3 rounded-2xl hover:opacity-90 transition-opacity">
                   <Send size={16} />Send offer
                 </button>
               </form>
             </div>
 
             <div>
-              <h2 className="text-xl font-bold text-primary-dark mb-4">Past offers</h2>
+              <h2 className="text-xl font-bold text-white mb-4">Past offers</h2>
               <Suspense fallback={<OffersSkeleton />}>
                 <PastOffers businessId={business.id} />
               </Suspense>
@@ -144,9 +144,9 @@ export default async function OffersPage({
 
 function segmentClass(seg: string) {
   switch (seg) {
-    case 'top': return 'bg-primary text-white'
-    case 'returning': return 'bg-primary-light text-primary-dark'
-    case 'at_risk': return 'bg-red-100 text-red-700'
-    default: return 'bg-cream text-taupe'
+    case 'top': return 'bg-[#7DB542] text-white'
+    case 'returning': return 'bg-[#7DB542]/20 text-[#D4EDBE]'
+    case 'at_risk': return 'bg-red-500/20 text-red-300'
+    default: return 'bg-white/10 text-white/50'
   }
 }

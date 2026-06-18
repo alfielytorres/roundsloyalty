@@ -11,6 +11,7 @@ export default function StampScanner() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
+  // Autofocus so a USB/Bluetooth QR scanner types straight into the field
   useEffect(() => {
     inputRef.current?.focus()
   }, [])
@@ -42,29 +43,27 @@ export default function StampScanner() {
 
   return (
     <div className="glass-card p-8">
-      <h2 className="flex items-center gap-2 text-xl font-bold text-primary-dark mb-2">
-        <QrCode size={20} className="text-primary" />Scan or enter card code
-      </h2>
-      <p className="text-taupe text-sm mb-6">
+      <h2 className="flex items-center gap-2 text-xl font-bold text-white mb-2"><QrCode size={20} className="text-[#7DB542]" />Scan or enter card code</h2>
+      <p className="text-white/50 text-sm mb-6">
         Ask the customer to open their loyalty card in the Rounds app — the code shown there goes here.
         A USB/Bluetooth QR scanner will fill this automatically.
       </p>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
-          <label className="block text-sm font-semibold text-primary-dark mb-2">Card code</label>
+          <label className="block text-sm font-semibold text-white mb-2">Card code</label>
           <input
             ref={inputRef}
             value={cardCode}
             onChange={(e) => setCardCode(e.target.value)}
             placeholder="Scan or type the code from the customer's app"
-            className="w-full border-2 border-gray-200 rounded-2xl px-4 py-3 text-primary-dark focus:outline-none focus:border-primary transition-colors font-mono"
+            className="w-full dark-input font-mono"
             autoComplete="off"
             data-1p-ignore
             data-lpignore="true"
           />
         </div>
         <div>
-          <label className="block text-sm font-semibold text-primary-dark mb-2">Stamps to add</label>
+          <label className="block text-sm font-semibold text-white mb-2">Stamps to add</label>
           <div className="flex gap-2">
             {[1, 2, 3, 5].map((n) => (
               <button
@@ -73,8 +72,8 @@ export default function StampScanner() {
                 onClick={() => setStamps(n)}
                 className={`w-12 h-12 rounded-2xl font-bold text-sm transition-colors ${
                   stamps === n
-                    ? 'bg-primary text-white'
-                    : 'bg-cream text-primary-dark hover:bg-primary-light'
+                    ? 'bg-[#7DB542] text-white'
+                    : 'bg-white/10 text-white/70 hover:bg-white/20'
                 }`}
               >
                 {n}
