@@ -6,7 +6,7 @@ export default function SignUpPage({
   searchParams: { error?: string }
 }) {
   return (
-    <main className="min-h-screen bg-[#0D1F0D] flex flex-col items-center justify-center px-6">
+    <main className="min-h-screen flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-10">
           <img src="/logo.svg" alt="Rounds Loyalty" className="w-24 h-24 mb-4" />
@@ -56,7 +56,7 @@ export default function SignUpPage({
           </div>
           <button
             type="submit"
-            className="flex items-center justify-center gap-2 w-full bg-[#7DB542] text-white font-bold py-3 rounded-2xl mt-2 hover:opacity-90 transition-opacity"
+            className="flex items-center justify-center gap-2 w-full bg-[#8B5CF6] text-white font-bold py-3 rounded-2xl mt-2 hover:opacity-90 transition-opacity"
           >
             <UserPlus size={16} />Create account
           </button>
@@ -64,7 +64,7 @@ export default function SignUpPage({
 
         <p className="text-center text-sm text-white/50 mt-6">
           Already have an account?{' '}
-          <a href="/" className="font-semibold text-[#7DB542] hover:underline">
+          <a href="/" className="font-semibold text-[#8B5CF6] hover:underline">
             Sign in
           </a>
         </p>

@@ -15,7 +15,7 @@ export default function Loading() {
           ))}
         </div>
         <div className="flex flex-col gap-3">
-          <div className="h-20 rounded-3xl bg-[#7DB542]/20" />
+          <div className="h-20 rounded-3xl bg-[#8B5CF6]/20" />
           <div className="h-20 rounded-3xl bg-white/[.07] border border-white/10" />
           <div className="h-20 rounded-3xl bg-white/[.07] border border-white/10" />
         </div>

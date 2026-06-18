@@ -15,14 +15,14 @@ export default async function PortalLayout({ children }: { children: React.React
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/')
 
-  const { data: business } = await supabase
-    .from('businesses')
-    .select('name')
+  const { data: vendor } = await supabase
+    .from('vendors')
+    .select('id')
     .eq('owner_id', user.id)
     .limit(1)
     .maybeSingle()
 
-  if (!business) redirect('/onboarding')
+  if (!vendor) redirect('/onboarding')
 
   return <>{children}</>
 }

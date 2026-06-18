@@ -11,7 +11,7 @@ export default function Loading() {
         </div>
         <div className="flex gap-2 mb-6">
           {[0,1,2,3].map((i) => (
-            <div key={i} className={`h-9 w-24 rounded-full ${i === 0 ? 'bg-[#7DB542]/20' : 'bg-white/[.07]'}`} />
+            <div key={i} className={`h-9 w-24 rounded-full ${i === 0 ? 'bg-[#8B5CF6]/20' : 'bg-white/[.07]'}`} />
           ))}
         </div>
         <div className="bg-white/[.07] border border-white/10 rounded-3xl overflow-hidden">

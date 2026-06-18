@@ -17,19 +17,21 @@ export default async function OnboardingPage({ searchParams }: { searchParams: {
   if (!user) redirect('/')
 
   const { data: existing } = await supabase
-    .from('businesses')
+    .from('vendors')
     .select('id')
     .eq('owner_id', user.id)
-    .single()
+    .maybeSingle()
   if (existing) redirect('/dashboard')
 
   return (
-    <main className="min-h-screen bg-[#0D1F0D] flex flex-col items-center justify-center px-6">
+    <main className="min-h-screen flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-10">
-          <img src="/logo.svg" alt="Rounds Loyalty" className="w-24 h-24 mb-4" />
-          <h1 className="text-3xl font-extrabold text-white">Set up your store</h1>
-          <p className="text-white/50 mt-2 text-center">Tell us about your business</p>
+          <div className="w-20 h-20 rounded-3xl bg-[#8B5CF6] flex items-center justify-center mb-6 shadow-[0_0_32px_rgba(139,92,246,0.4)]">
+            <Store size={36} className="text-white" />
+          </div>
+          <h1 className="text-3xl font-extrabold text-white text-center">Set up your store</h1>
+          <p className="text-white/50 mt-2 text-center">Tell us about your business to get started</p>
         </div>
 
         {searchParams.error && (
@@ -43,7 +45,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: {
             <label className="block text-sm font-semibold text-white mb-1">Business name</label>
             <input
               type="text"
-              name="name"
+              name="business_name"
               required
               placeholder="e.g. The Coffee Corner"
               className="w-full dark-input"
@@ -59,17 +61,20 @@ export default async function OnboardingPage({ searchParams }: { searchParams: {
             />
           </div>
           <div>
-            <label className="block text-sm font-semibold text-white mb-1">Address</label>
-            <input
-              type="text"
-              name="address"
-              placeholder="123 Main St, City"
-              className="w-full dark-input"
-            />
+            <label className="block text-sm font-semibold text-white mb-1">Category</label>
+            <select name="category" className="w-full dark-input">
+              <option value="">Select a category</option>
+              <option value="cafe">Cafe</option>
+              <option value="restaurant">Restaurant</option>
+              <option value="retail">Retail</option>
+              <option value="beauty">Beauty &amp; Wellness</option>
+              <option value="fitness">Fitness</option>
+              <option value="other">Other</option>
+            </select>
           </div>
           <button
             type="submit"
-            className="flex items-center justify-center gap-2 w-full bg-[#7DB542] text-white font-bold py-3 rounded-2xl mt-2 hover:opacity-90 transition-opacity"
+            className="flex items-center justify-center gap-2 w-full btn-primary py-3 mt-2"
           >
             <Store size={16} />Launch my store
           </button>
