@@ -4,32 +4,39 @@
 
 /* Outside @layer — takes priority over all Tailwind layers */
 body {
-  background-color: #0D1F0D;
-  color: #ffffff;
+  background-color: #090B12;
+  color: #F8FAFC;
   letter-spacing: -0.025em;
 }
 
 html {
-  background-color: #0D1F0D;
+  background-color: #090B12;
 }
 
 :root {
-  --color-primary: #7DB542;
-  --color-primary-light: #D4EDBE;
-  --color-primary-dark: #0D1F0D;
-  --color-cream: #EDE9DF;
-  --color-taupe: #C4BAA8;
+  --color-primary: #8B5CF6;
+  --color-primary-dark: #7C3AED;
+  --color-secondary: #22D3EE;
+  --color-success: #34D399;
+  --color-warning: #FBBF24;
+  --color-danger: #F87171;
+  --color-bg: #090B12;
+  --color-text: #F8FAFC;
+  --color-text-secondary: #94A3B8;
 }
 
 @layer components {
   .glass-card {
-    @apply bg-white/[.07] backdrop-blur-md border border-white/10 rounded-3xl;
+    @apply bg-white/[.06] backdrop-blur-xl border border-white/[.12] rounded-3xl;
   }
   .glass-row {
-    @apply bg-white/[.07] backdrop-blur-md border border-white/10 rounded-2xl;
+    @apply bg-white/[.06] backdrop-blur-xl border border-white/[.12] rounded-2xl;
   }
   .dark-input {
-    @apply bg-white/[.05] border-2 border-white/20 rounded-2xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-[#7DB542] transition-colors;
+    @apply bg-white/[.05] border border-white/[.12] rounded-2xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-[#8B5CF6] transition-colors;
+  }
+  .btn-primary {
+    @apply bg-[#8B5CF6] hover:bg-[#7C3AED] text-white font-semibold rounded-2xl px-6 py-3 transition-colors;
   }
   .skeleton {
     @apply bg-white/10 rounded-xl animate-pulse;
