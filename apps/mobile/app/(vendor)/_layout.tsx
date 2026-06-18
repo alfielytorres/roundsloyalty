@@ -19,19 +19,65 @@ export default function VendorLayout() {
         tabBarLabelStyle: styles.tabLabel,
       }}
     >
-      <Tabs.Screen name="dashboard" options={{ title: 'Dashboard', tabBarIcon: ({ focused }) => <Dot focused={focused} /> }} />
-      <Tabs.Screen name="qr" options={{ title: 'Stamp', tabBarIcon: ({ focused }) => <Dot focused={focused} /> }} />
-      <Tabs.Screen name="customers" options={{ title: 'Customers', tabBarIcon: ({ focused }) => <Dot focused={focused} /> }} />
-      <Tabs.Screen name="offers/index" options={{ title: 'Claims', tabBarIcon: ({ focused }) => <Dot focused={focused} /> }} />
-      <Tabs.Screen name="settings" options={{ title: 'Settings', tabBarIcon: ({ focused }) => <Dot focused={focused} /> }} />
+      <Tabs.Screen
+        name="dashboard"
+        options={{
+          title: 'Dashboard',
+          tabBarIcon: ({ focused }) => <Dot focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="qr"
+        options={{
+          title: 'Stamp',
+          tabBarIcon: ({ focused }) => <Dot focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="customers"
+        options={{
+          title: 'Customers',
+          tabBarIcon: ({ focused }) => <Dot focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="offers/index"
+        options={{
+          title: 'Claims',
+          tabBarIcon: ({ focused }) => <Dot focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Settings',
+          tabBarIcon: ({ focused }) => <Dot focused={focused} />,
+        }}
+      />
       <Tabs.Screen name="offers/compose" options={{ href: null }} />
     </Tabs>
   )
 }
 
 const styles = StyleSheet.create({
-  tabBar: { backgroundColor: Colors.primaryDark, borderTopWidth: 0, height: 84, paddingBottom: 20, paddingTop: 8 },
-  tabLabel: { fontSize: 11, fontWeight: '600' },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.taupe },
-  dotActive: { backgroundColor: Colors.primary },
+  tabBar: {
+    backgroundColor: Colors.primaryDark,
+    borderTopWidth: 0,
+    height: 84,
+    paddingBottom: 20,
+    paddingTop: 8,
+  },
+  tabLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: Colors.taupe,
+  },
+  dotActive: {
+    backgroundColor: Colors.primary,
+  },
 })

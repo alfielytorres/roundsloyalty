@@ -3,6 +3,8 @@ import { useEffect } from 'react'
 
 export default function ComposeRedirect() {
   const router = useRouter()
-  useEffect(() => { router.replace('/(vendor)/offers') }, [router])
+  useEffect(() => {
+    router.replace('/(vendor)/offers')
+  }, [router])
   return null
 }

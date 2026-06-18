@@ -36,6 +36,7 @@ export default function SignIn() {
       style={styles.container}
     >
       <View style={styles.inner}>
+        {/* Logo area */}
         <View style={styles.logoArea}>
           <View style={styles.logoCircle}>
             <Text style={styles.logoText}>R</Text>
@@ -44,6 +45,7 @@ export default function SignIn() {
           <Text style={styles.tagline}>Built for your best customers</Text>
         </View>
 
+        {/* Form */}
         <View style={styles.form}>
           <Text style={styles.label}>Email</Text>
           <TextInput
@@ -87,20 +89,93 @@ export default function SignIn() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  inner: { flex: 1, justifyContent: 'center', paddingHorizontal: 28, paddingBottom: 40 },
-  logoArea: { alignItems: 'center', marginBottom: 48 },
-  logoCircle: { width: 80, height: 80, borderRadius: 40, backgroundColor: Colors.primary, justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
-  logoText: { fontSize: 40, fontWeight: '900', color: Colors.cream },
-  appName: { fontSize: 26, fontWeight: '800', color: Colors.primaryDark, marginBottom: 6 },
-  tagline: { fontSize: 15, color: Colors.taupe, textAlign: 'center' },
-  form: { gap: 8, marginBottom: 24 },
-  label: { fontSize: 13, fontWeight: '600', color: Colors.primaryDark, marginTop: 12, marginBottom: 4 },
-  input: { backgroundColor: Colors.white, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, fontSize: 16, color: Colors.primaryDark, borderWidth: 1.5, borderColor: Colors.border },
-  button: { backgroundColor: Colors.primary, borderRadius: 16, paddingVertical: 16, alignItems: 'center', marginTop: 16 },
-  buttonDisabled: { opacity: 0.6 },
-  buttonText: { color: Colors.white, fontSize: 17, fontWeight: '700' },
-  footer: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
-  footerText: { color: Colors.textSecondary, fontSize: 15 },
-  footerLink: { color: Colors.primary, fontSize: 15, fontWeight: '700' },
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  inner: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 28,
+    paddingBottom: 40,
+  },
+  logoArea: {
+    alignItems: 'center',
+    marginBottom: 48,
+  },
+  logoCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: Colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  logoText: {
+    fontSize: 40,
+    fontWeight: '900',
+    color: Colors.cream,
+  },
+  appName: {
+    fontSize: 26,
+    fontWeight: '800',
+    color: Colors.primaryDark,
+    marginBottom: 6,
+  },
+  tagline: {
+    fontSize: 15,
+    color: Colors.taupe,
+    textAlign: 'center',
+  },
+  form: {
+    gap: 8,
+    marginBottom: 24,
+  },
+  label: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: Colors.primaryDark,
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  input: {
+    backgroundColor: Colors.white,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: Colors.primaryDark,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+  },
+  button: {
+    backgroundColor: Colors.primary,
+    borderRadius: 16,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  buttonText: {
+    color: Colors.white,
+    fontSize: 17,
+    fontWeight: '700',
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  footerText: {
+    color: Colors.textSecondary,
+    fontSize: 15,
+  },
+  footerLink: {
+    color: Colors.primary,
+    fontSize: 15,
+    fontWeight: '700',
+  },
 })
