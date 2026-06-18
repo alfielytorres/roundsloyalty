@@ -32,7 +32,12 @@ export function useAuthListener() {
   }, [])
 
   async function fetchProfile(userId: string) {
-    const { data } = await supabase.from('profiles').select('*').eq('id', userId).single()
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+
     setProfile(data as Profile | null)
     setLoading(false)
   }

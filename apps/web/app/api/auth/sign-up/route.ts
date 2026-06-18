@@ -41,12 +41,14 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  // If email confirmation is required, session will be null
   if (!data.session) {
     return NextResponse.redirect(
       new URL('/sign-up?error=' + encodeURIComponent('Check your email to confirm your account, then sign in.'), req.url),
     )
   }
 
+  // Sign them in immediately (works when email confirmation is disabled)
   const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
   if (signInError) {
     return NextResponse.redirect(

@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     },
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser()  
   if (!user) return NextResponse.redirect(new URL('/', req.url))
 
   const formData = await req.formData()

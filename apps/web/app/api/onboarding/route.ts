@@ -51,6 +51,7 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  // Create owner staff record
   await supabase.from('vendor_staff').insert({
     vendor_id: vendor.id,
     user_id: user.id,

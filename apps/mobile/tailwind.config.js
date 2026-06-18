@@ -18,7 +18,9 @@ module.exports = {
         'sans-bold': ['DMSans-Bold'],
         'sans-extrabold': ['DMSans-ExtraBold'],
       },
-      borderRadius: { '4xl': '2rem' },
+      borderRadius: {
+        '4xl': '2rem',
+      },
     },
   },
   plugins: [],

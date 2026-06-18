@@ -90,6 +90,7 @@ async function ProgramView({ vendorId }: { vendorId: string }) {
             </form>
           </div>
 
+          {/* Config summary */}
           {program.config && (
             <div className="bg-white/5 rounded-2xl px-4 py-3 mb-4">
               <pre className="text-white/50 text-xs font-mono whitespace-pre-wrap">
@@ -98,6 +99,7 @@ async function ProgramView({ vendorId }: { vendorId: string }) {
             </div>
           )}
 
+          {/* Reward rules */}
           <div>
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-semibold text-white/60 uppercase tracking-wide flex items-center gap-2">
