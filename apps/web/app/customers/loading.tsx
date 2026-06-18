@@ -1,62 +1,37 @@
 export default function Loading() {
   return (
-    <div className="min-h-screen bg-cream flex flex-col">
-      {/* Fake nav */}
-      <div className="bg-white border-b border-gray-100 px-8 py-3 flex items-center justify-between sticky top-0 z-10">
-        <div className="flex items-center gap-6">
-          <div className="h-6 w-28 bg-gray-200 rounded-xl animate-pulse" />
-          <div className="flex items-center gap-1">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-8 w-20 bg-gray-100 rounded-xl animate-pulse" />
-            ))}
+    <main className="px-6 pt-10 pb-32 animate-pulse">
+      <div className="max-w-3xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <div className="h-8 w-36 bg-white/10 rounded-2xl" />
+          <div className="flex gap-2">
+            <div className="h-9 w-24 bg-white/10 rounded-xl" />
+            <div className="h-9 w-24 bg-white/10 rounded-xl" />
           </div>
         </div>
-        <div className="h-8 w-20 bg-gray-100 rounded-xl animate-pulse" />
-      </div>
-
-      {/* Content skeleton */}
-      <main className="p-8 animate-pulse">
-        <div className="max-w-5xl mx-auto">
-          {/* Title row */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="h-9 w-40 bg-gray-200 rounded-xl" />
-            <div className="flex gap-3">
-              <div className="h-9 w-28 bg-gray-200 rounded-xl" />
-              <div className="h-9 w-28 bg-gray-200 rounded-xl" />
-            </div>
+        <div className="flex gap-2 mb-6">
+          {[0,1,2,3].map((i) => (
+            <div key={i} className={`h-9 w-24 rounded-full ${i === 0 ? 'bg-[#7DB542]/20' : 'bg-white/[.07]'}`} />
+          ))}
+        </div>
+        <div className="bg-white/[.07] border border-white/10 rounded-3xl overflow-hidden">
+          <div className="border-b border-white/10 px-6 py-4 flex gap-6">
+            {[140,60,60,80,80].map((w, i) => <div key={i} className="h-3 bg-white/10 rounded-lg" style={{width: w}} />)}
           </div>
-
-          {/* Segment tabs */}
-          <div className="flex gap-3 mb-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className={`h-9 w-24 rounded-full animate-pulse ${i === 0 ? 'bg-gray-300' : 'bg-white'}`} />
-            ))}
-          </div>
-
-          {/* Table */}
-          <div className="bg-white rounded-3xl overflow-hidden shadow-sm">
-            {/* Table header */}
-            <div className="border-b border-gray-100 grid grid-cols-5 px-6 py-4 gap-4">
-              {['Customer', 'Visits', 'Stamps', 'Last visit', 'Segment'].map((col) => (
-                <div key={col} className="h-4 w-16 bg-gray-100 rounded-lg" />
-              ))}
-            </div>
-            {/* Table rows */}
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="border-b border-gray-50 grid grid-cols-5 px-6 py-4 gap-4 items-center">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-gray-100 shrink-0" />
-                  <div className="h-4 w-24 bg-gray-100 rounded-lg" />
-                </div>
-                <div className="h-4 w-8 bg-gray-100 rounded-lg" />
-                <div className="h-4 w-8 bg-gray-100 rounded-lg" />
-                <div className="h-4 w-20 bg-gray-100 rounded-lg" />
-                <div className="h-5 w-16 bg-gray-100 rounded-lg" />
+          {[0,1,2,3,4].map((i) => (
+            <div key={i} className="border-b border-white/5 px-6 py-4 flex items-center gap-6">
+              <div className="flex items-center gap-3 w-36">
+                <div className="w-9 h-9 rounded-full bg-white/10 shrink-0" />
+                <div className="h-4 w-20 bg-white/10 rounded-lg" />
               </div>
-            ))}
-          </div>
+              <div className="h-4 w-8 bg-white/10 rounded-lg" />
+              <div className="h-4 w-8 bg-white/10 rounded-lg" />
+              <div className="h-4 w-20 bg-white/10 rounded-lg" />
+              <div className="h-5 w-16 bg-white/10 rounded-full" />
+            </div>
+          ))}
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   )
 }
