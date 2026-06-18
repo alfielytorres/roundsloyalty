@@ -4,6 +4,7 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
 import PortalShell from '@/components/PortalShell'
+import { Download } from 'lucide-react'
 
 async function CustomerTable({ businessId, segment }: { businessId: string; segment: string }) {
   const cookieStore = cookies()
@@ -105,11 +106,11 @@ export default async function CustomersPage({
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-3xl font-extrabold text-primary-dark">Customers</h1>
             <div className="flex gap-3">
-              <a href={`/api/export?business_id=${business.id}&format=csv`} className="px-4 py-2 rounded-xl border-2 border-taupe text-primary-dark text-sm font-semibold hover:border-primary transition-colors">
-                Export CSV
+              <a href={`/api/export?business_id=${business.id}&format=csv`} className="flex items-center gap-1.5 px-4 py-2 rounded-xl border-2 border-taupe text-primary-dark text-sm font-semibold hover:border-primary transition-colors">
+                <Download size={14} />Export CSV
               </a>
-              <a href={`/api/export?business_id=${business.id}&format=json`} className="px-4 py-2 rounded-xl border-2 border-taupe text-primary-dark text-sm font-semibold hover:border-primary transition-colors">
-                Export JSON
+              <a href={`/api/export?business_id=${business.id}&format=json`} className="flex items-center gap-1.5 px-4 py-2 rounded-xl border-2 border-taupe text-primary-dark text-sm font-semibold hover:border-primary transition-colors">
+                <Download size={14} />Export JSON
               </a>
             </div>
           </div>

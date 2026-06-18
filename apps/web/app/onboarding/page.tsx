@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { Store } from 'lucide-react'
 
 export default async function OnboardingPage({ searchParams }: { searchParams: { error?: string } }) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -15,7 +16,6 @@ export default async function OnboardingPage({ searchParams }: { searchParams: {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/')
 
-  // If they already have a business, go to dashboard
   const { data: existing } = await supabase
     .from('businesses')
     .select('id')
@@ -69,9 +69,9 @@ export default async function OnboardingPage({ searchParams }: { searchParams: {
           </div>
           <button
             type="submit"
-            className="w-full bg-primary text-white font-bold py-3 rounded-2xl mt-2 hover:opacity-90 transition-opacity"
+            className="flex items-center justify-center gap-2 w-full bg-primary text-white font-bold py-3 rounded-2xl mt-2 hover:opacity-90 transition-opacity"
           >
-            Launch my store →
+            <Store size={16} />Launch my store
           </button>
         </form>
       </div>

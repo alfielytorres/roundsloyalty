@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { QrCode } from 'lucide-react'
 
 export default function StampScanner() {
   const inputRef = useRef<HTMLInputElement>(null)
@@ -10,7 +11,6 @@ export default function StampScanner() {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
-  // Autofocus so a USB/Bluetooth QR scanner types straight into the field
   useEffect(() => {
     inputRef.current?.focus()
   }, [])
@@ -42,7 +42,9 @@ export default function StampScanner() {
 
   return (
     <div className="glass-card p-8">
-      <h2 className="text-xl font-bold text-primary-dark mb-2">Scan or enter card code</h2>
+      <h2 className="flex items-center gap-2 text-xl font-bold text-primary-dark mb-2">
+        <QrCode size={20} className="text-primary" />Scan or enter card code
+      </h2>
       <p className="text-taupe text-sm mb-6">
         Ask the customer to open their loyalty card in the Rounds app — the code shown there goes here.
         A USB/Bluetooth QR scanner will fill this automatically.

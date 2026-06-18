@@ -1,3 +1,5 @@
+import { UserPlus } from 'lucide-react'
+
 export default function SignUpPage({
   searchParams,
 }: {
@@ -6,7 +8,6 @@ export default function SignUpPage({
   return (
     <main className="min-h-screen bg-cream flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm">
-        {/* Logo */}
         <div className="flex flex-col items-center mb-10">
           <img src="/logo.svg" alt="Rounds Loyalty" className="w-24 h-24 mb-4" />
           <h1 className="text-3xl font-extrabold text-primary-dark">Create account</h1>
@@ -55,9 +56,9 @@ export default function SignUpPage({
           </div>
           <button
             type="submit"
-            className="w-full bg-primary text-white font-bold py-3 rounded-2xl mt-2 hover:opacity-90 transition-opacity"
+            className="flex items-center justify-center gap-2 w-full bg-primary text-white font-bold py-3 rounded-2xl mt-2 hover:opacity-90 transition-opacity"
           >
-            Create account
+            <UserPlus size={16} />Create account
           </button>
         </form>
 

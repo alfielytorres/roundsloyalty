@@ -1,5 +1,6 @@
 import { getPortalData } from '@/lib/portal-data'
 import PortalShell from '@/components/PortalShell'
+import { LogOut } from 'lucide-react'
 
 export default async function SettingsPage({
   searchParams,
@@ -54,8 +55,8 @@ export default async function SettingsPage({
             <h2 className="text-xl font-bold text-primary-dark mb-2">Account</h2>
             <p className="text-taupe text-sm mb-5">{user.email}</p>
             <form action="/api/auth/sign-out" method="POST">
-              <button type="submit" className="px-6 py-2.5 rounded-xl border-2 border-red-200 text-red-600 text-sm font-semibold hover:bg-red-50 transition-colors">
-                Sign out
+              <button type="submit" className="flex items-center gap-2 px-6 py-2.5 rounded-xl border-2 border-red-200 text-red-600 text-sm font-semibold hover:bg-red-50 transition-colors">
+                <LogOut size={14} />Sign out
               </button>
             </form>
           </div>

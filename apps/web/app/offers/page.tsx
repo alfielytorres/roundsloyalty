@@ -3,6 +3,7 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
 import PortalShell from '@/components/PortalShell'
+import { Send } from 'lucide-react'
 
 async function PastOffers({ businessId }: { businessId: string }) {
   const cookieStore = cookies()
@@ -122,8 +123,8 @@ export default async function OffersPage({
                     {segments.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
                   </select>
                 </div>
-                <button type="submit" className="w-full bg-primary text-white font-bold py-3 rounded-2xl hover:opacity-90 transition-opacity">
-                  Send offer
+                <button type="submit" className="flex items-center justify-center gap-2 w-full bg-primary text-white font-bold py-3 rounded-2xl hover:opacity-90 transition-opacity">
+                  <Send size={16} />Send offer
                 </button>
               </form>
             </div>

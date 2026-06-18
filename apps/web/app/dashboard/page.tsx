@@ -4,6 +4,7 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
 import PortalShell from '@/components/PortalShell'
+import { Users, TrendingUp, Stamp, Send } from 'lucide-react'
 
 async function Stats({ businessId }: { businessId: string }) {
   const cookieStore = cookies()
@@ -21,8 +22,8 @@ async function Stats({ businessId }: { businessId: string }) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-      <StatCard label="Total customers" value={totalCustomers ?? 0} />
-      <StatCard label="Visits this week" value={weekVisits ?? 0} />
+      <StatCard label="Total customers" value={totalCustomers ?? 0} icon={<Users size={16} className="text-taupe" />} />
+      <StatCard label="Visits this week" value={weekVisits ?? 0} icon={<TrendingUp size={16} className="text-taupe" />} />
     </div>
   )
 }
@@ -58,14 +59,17 @@ export default async function DashboardPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Link href="/stamp" className="block bg-primary rounded-3xl p-6 hover:opacity-90 transition-opacity">
+              <Stamp size={22} className="text-white mb-3" />
               <h2 className="text-xl font-bold text-white mb-2">Stamp Card →</h2>
               <p className="text-primary-light">Scan a customer&apos;s card to add stamps</p>
             </Link>
             <Link href="/customers" className="block glass-card p-6 hover:shadow-md transition-shadow">
+              <Users size={22} className="text-primary mb-3" />
               <h2 className="text-xl font-bold text-primary-dark mb-2">Customers →</h2>
               <p className="text-taupe">View and segment your customers, export data</p>
             </Link>
             <Link href="/offers" className="block glass-card p-6 hover:shadow-md transition-shadow">
+              <Send size={22} className="text-primary mb-3" />
               <h2 className="text-xl font-bold text-primary-dark mb-2">Send Offer →</h2>
               <p className="text-taupe">Reach your customers with personalised messages</p>
             </Link>
@@ -76,11 +80,11 @@ export default async function DashboardPage() {
   )
 }
 
-function StatCard({ label, value }: { label: string; value: number }) {
+function StatCard({ label, value, icon }: { label: string; value: number; icon?: React.ReactNode }) {
   return (
     <div className="glass-card p-6">
       <p className="text-4xl font-black text-primary">{value.toLocaleString()}</p>
-      <p className="text-taupe mt-1 font-medium">{label}</p>
+      <p className="flex items-center gap-1.5 text-taupe mt-1 font-medium">{icon}{label}</p>
     </div>
   )
 }

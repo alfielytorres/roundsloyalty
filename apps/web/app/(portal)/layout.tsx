@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { Stamp, Users, Send, Settings2 } from 'lucide-react'
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -33,12 +34,12 @@ export default async function PortalLayout({ children }: { children: React.React
             {business.name}
           </Link>
           <div className="flex items-center gap-1">
-            <NavLink href="/stamp">Stamp</NavLink>
-            <NavLink href="/customers">Customers</NavLink>
-            <NavLink href="/offers">Offers</NavLink>
+            <NavLink href="/stamp" icon={<Stamp size={15} />}>Stamp</NavLink>
+            <NavLink href="/customers" icon={<Users size={15} />}>Customers</NavLink>
+            <NavLink href="/offers" icon={<Send size={15} />}>Offers</NavLink>
           </div>
         </div>
-        <NavLink href="/settings">Settings</NavLink>
+        <NavLink href="/settings" icon={<Settings2 size={15} />}>Settings</NavLink>
       </nav>
       <div className="flex-1">
         {children}
@@ -47,12 +48,13 @@ export default async function PortalLayout({ children }: { children: React.React
   )
 }
 
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+function NavLink({ href, icon, children }: { href: string; icon?: React.ReactNode; children: React.ReactNode }) {
   return (
     <Link
       href={href}
-      className="px-4 py-2 rounded-xl text-sm font-semibold text-taupe hover:text-primary-dark hover:bg-cream transition-colors"
+      className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-taupe hover:text-primary-dark hover:bg-cream transition-colors"
     >
+      {icon}
       {children}
     </Link>
   )

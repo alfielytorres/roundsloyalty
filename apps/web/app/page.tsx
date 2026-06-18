@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import { LogIn } from 'lucide-react'
 
 export default async function RootPage() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -16,18 +17,15 @@ export default async function RootPage() {
     if (user) redirect('/dashboard')
   }
 
-  // Landing / sign-in for unauthenticated users
   return (
     <main className="min-h-screen bg-cream flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm">
-        {/* Logo */}
         <div className="flex flex-col items-center mb-10">
           <img src="/logo.svg" alt="Rounds Loyalty" className="w-24 h-24 mb-4" />
           <h1 className="text-3xl font-extrabold text-primary-dark">Rounds Loyalty</h1>
           <p className="text-taupe mt-2 text-center">Vendor portal — reward your customers</p>
         </div>
 
-        {/* Sign in form */}
         <form action="/api/auth/sign-in" method="POST" className="flex flex-col gap-4">
           <div>
             <label className="block text-sm font-semibold text-primary-dark mb-1">Email</label>
@@ -51,9 +49,9 @@ export default async function RootPage() {
           </div>
           <button
             type="submit"
-            className="w-full bg-primary text-white font-bold py-3 rounded-2xl mt-2 hover:opacity-90 transition-opacity"
+            className="flex items-center justify-center gap-2 w-full bg-primary text-white font-bold py-3 rounded-2xl mt-2 hover:opacity-90 transition-opacity"
           >
-            Sign in
+            <LogIn size={16} />Sign in
           </button>
         </form>
 
