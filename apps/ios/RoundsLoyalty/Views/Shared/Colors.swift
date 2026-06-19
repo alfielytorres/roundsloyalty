@@ -93,3 +93,21 @@ extension View {
         modifier(GlassCardStyle(cornerRadius: cornerRadius))
     }
 }
+
+// MARK: - Card gradient presets
+
+extension LinearGradient {
+    /// Cycles through a palette of rich gradient card colours.
+    /// Index 0 = rose/red, 1 = teal/dark, 2 = coral/orange, 3 = blue/navy, 4 = purple
+    static func cardGradient(index: Int) -> LinearGradient {
+        let presets: [[Color]] = [
+            [Color(hex: "#C96B6B"), Color(hex: "#7A2A2A")],  // rose/dark red
+            [Color(hex: "#2A5A6B"), Color(hex: "#0A1A2A")],  // teal/dark
+            [Color(hex: "#E8805A"), Color(hex: "#8B3A1A")],  // coral/orange
+            [Color(hex: "#4A6FA5"), Color(hex: "#1A2A50")],  // blue/navy
+            [Color(hex: "#6B5EA8"), Color(hex: "#2A1A50")],  // purple
+        ]
+        let colors = presets[index % presets.count]
+        return LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+}

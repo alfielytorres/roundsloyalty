@@ -10,6 +10,11 @@ struct VendorDetailView: View {
         Color.vendorAccent(membership.vendor?.brandColor)
     }
 
+    /// Stable gradient index based on vendor ID so each vendor gets a consistent card colour.
+    private var gradientIndex: Int {
+        abs(membership.vendorId.hashValue) % 5
+    }
+
     private var required: Int {
         membership.program?.roundsRequired ?? 10
     }
@@ -28,12 +33,8 @@ struct VendorDetailView: View {
                     VStack(spacing: 0) {
                         // Hero header
                         ZStack(alignment: .bottomLeading) {
-                            LinearGradient(
-                                colors: [accent.opacity(0.6), Color.appBackground],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                            .frame(height: 200)
+                            LinearGradient.cardGradient(index: gradientIndex)
+                                .frame(height: 220)
 
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(membership.vendor?.businessName ?? "Store")
