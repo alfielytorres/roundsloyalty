@@ -49,11 +49,11 @@ async function Stats({ vendorId }: { vendorId: string }) {
 
 function StatsSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-4 mb-8">
+    <div className="grid grid-cols-2 gap-4 mb-8 animate-pulse">
       {[...Array(2)].map((_, i) => (
-        <div key={i} className="bg-white border border-[#E8E2D9] rounded-3xl p-5 animate-pulse">
-          <div className="h-9 w-16 bg-[#E8E2D9] rounded-xl mb-2" />
-          <div className="h-3 w-24 bg-[#F0EDE8] rounded-lg" />
+        <div key={i} className="bg-white border border-[#E8E2D9] rounded-3xl p-5 shadow-sm">
+          <div className="h-9 w-16 bg-[#C8C0B4] rounded-xl mb-3" />
+          <div className="h-3 w-24 bg-[#D8D0C8] rounded-lg" />
         </div>
       ))}
     </div>

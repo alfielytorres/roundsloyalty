@@ -21,7 +21,7 @@ async function RecentActivity({ vendorId }: { vendorId: string }) {
     .limit(10)
 
   if (!entries?.length) {
-    return <div className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-10 text-center text-[#9CA3AF] shadow-sm">No recent activity.</div>
+    return <div className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-10 text-center text-[#6B7280] shadow-sm">No recent activity.</div>
   }
 
   return (
@@ -63,12 +63,12 @@ function RecentActivitySkeleton() {
   return (
     <div className="flex flex-col gap-2 animate-pulse">
       {[...Array(3)].map((_, i) => (
-        <div key={i} className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-3 flex items-center justify-between">
+        <div key={i} className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-3 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[#E8E2D9]" />
-            <div className="h-4 w-24 bg-[#E8E2D9] rounded" />
+            <div className="w-9 h-9 rounded-full bg-[#C8C0B4]" />
+            <div className="h-4 w-28 bg-[#C8C0B4] rounded" />
           </div>
-          <div className="h-4 w-20 bg-[#F0EDE6] rounded" />
+          <div className="h-4 w-20 bg-[#D8D0C8] rounded" />
         </div>
       ))}
     </div>

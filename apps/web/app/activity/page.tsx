@@ -54,7 +54,7 @@ async function LedgerFeed({ vendorId }: { vendorId: string }) {
 
   if (!entries?.length) {
     return (
-      <div className="bg-white border border-[#E8E2D9] rounded-3xl px-6 py-16 text-center text-[#9CA3AF] shadow-sm">
+      <div className="bg-white border border-[#E8E2D9] rounded-3xl px-6 py-16 text-center text-[#6B7280] shadow-sm">
         No activity yet. Start scanning customer cards!
       </div>
     )
@@ -95,12 +95,12 @@ function LedgerSkeleton() {
     <div className="flex flex-col gap-2 animate-pulse">
       {[...Array(8)].map((_, i) => (
         <div key={i} className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-4 flex items-center gap-4 shadow-sm">
-          <div className="w-10 h-10 rounded-full bg-[#F0EDE8] shrink-0" />
+          <div className="w-10 h-10 rounded-full bg-[#C8C0B4] shrink-0" />
           <div className="flex-1">
-            <div className="h-4 w-28 bg-[#E8E2D9] rounded mb-2" />
-            <div className="h-3 w-20 bg-[#F0EDE8] rounded" />
+            <div className="h-4 w-32 bg-[#C8C0B4] rounded mb-2" />
+            <div className="h-3 w-24 bg-[#D8D0C8] rounded" />
           </div>
-          <div className="h-4 w-16 bg-[#E8E2D9] rounded" />
+          <div className="h-4 w-16 bg-[#C8C0B4] rounded" />
         </div>
       ))}
     </div>

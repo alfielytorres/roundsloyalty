@@ -44,12 +44,12 @@ async function CustomerTable({ vendorId, segment }: { vendorId: string; segment:
               <tr key={m.id} className="border-b border-[#F8F5F1] hover:bg-[#FAFAF8] transition-colors">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-[#F0EDE6] flex items-center justify-center font-bold text-[#374151] text-sm">
+                    <div className="w-9 h-9 rounded-full bg-[#E8E2D9] flex items-center justify-center font-bold text-[#374151] text-sm">
                       {name.charAt(0).toUpperCase()}
                     </div>
                     <span className="font-semibold text-[#111111]">{name}</span>
                   </div>
-                </td>
+          </td>
                 <td className="px-6 py-4">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${statusClass(m.status)}`}>{m.status}</span>
                 </td>
@@ -75,16 +75,20 @@ function TableSkeleton() {
         <thead>
           <tr className="border-b border-[#F0EDE6]">
             {['Customer', 'Status', 'Visits', 'Stamps', 'Last visit'].map((h) => (
-              <th key={h} className="text-left px-6 py-4"><div className="h-4 w-16 bg-[#E8E2D9] rounded" /></th>
+              <th key={h} className="text-left px-6 py-4">
+                <div className="h-4 w-16 bg-[#C8C0B4] rounded" />
+              </th>
             ))}
           </tr>
         </thead>
         <tbody>
           {[...Array(5)].map((_, i) => (
             <tr key={i} className="border-b border-[#F8F5F1]">
-              {[32, 16, 8, 8, 24].map((w, j) => (
-                <td key={j} className="px-6 py-4"><div className={`h-5 w-${w} bg-[#E8E2D9] rounded`} /></td>
-              ))}
+              <td className="px-6 py-4"><div className="h-5 w-32 bg-[#C8C0B4] rounded" /></td>
+              <td className="px-6 py-4"><div className="h-5 w-16 bg-[#D8D0C8] rounded" /></td>
+              <td className="px-6 py-4"><div className="h-5 w-8 bg-[#D8D0C8] rounded" /></td>
+              <td className="px-6 py-4"><div className="h-5 w-8 bg-[#D8D0C8] rounded" /></td>
+              <td className="px-6 py-4"><div className="h-5 w-24 bg-[#D8D0C8] rounded" /></td>
             </tr>
           ))}
         </tbody>
