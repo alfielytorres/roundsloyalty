@@ -20,7 +20,7 @@ struct SignUpView: View {
                         RoundsLogoMark(size: 56)
                         Text("Create Account")
                             .font(.largeTitle.bold())
-                            .foregroundColor(.brandDarkGreen)
+                            .foregroundColor(.black)
                         Text("Join your favourite loyalty programs")
                             .font(.subheadline)
                             .foregroundColor(.brandTaupe)
@@ -31,7 +31,7 @@ struct SignUpView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Name")
                                 .font(.caption.weight(.semibold))
-                                .foregroundColor(.brandDarkGreen)
+                                .foregroundColor(.black)
                             TextField("Your name", text: $displayName)
                                 .autocorrectionDisabled()
                                 .padding()
@@ -43,7 +43,7 @@ struct SignUpView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Email")
                                 .font(.caption.weight(.semibold))
-                                .foregroundColor(.brandDarkGreen)
+                                .foregroundColor(.black)
                             TextField("you@example.com", text: $email)
                                 .keyboardType(.emailAddress)
                                 .autocapitalization(.none)
@@ -57,7 +57,7 @@ struct SignUpView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Password")
                                 .font(.caption.weight(.semibold))
-                                .foregroundColor(.brandDarkGreen)
+                                .foregroundColor(.black)
                             SecureField("At least 6 characters", text: $password)
                                 .padding()
                                 .background(Color.white.opacity(0.7))
@@ -120,10 +120,9 @@ struct SignUpView: View {
         successMessage = nil
         do {
             let response = try await supabase.auth.signUp(email: email, password: password)
-            // Update display_name in profiles (DB trigger creates the row with role='customer')
             let user = response.user
             struct ProfileUpdate: Encodable { let display_name: String }
-            try? await supabase.database
+            try await supabase.database
                 .from("profiles")
                 .update(ProfileUpdate(display_name: displayName))
                 .eq("id", value: user.id.uuidString)

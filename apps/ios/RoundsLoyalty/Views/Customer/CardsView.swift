@@ -1,12 +1,17 @@
 import SwiftUI
 
+struct BalanceSummary: Codable {
+    let stamps: Int
+    let points: Int
+}
+
 struct VendorMembership: Codable, Identifiable {
     let id: UUID
     let vendorId: UUID
     let status: String
     let activatedAt: Date?
     var vendor: VendorInfo?
-    var balance: LoyaltyBalance?
+    var balance: BalanceSummary?
 
     enum CodingKeys: String, CodingKey {
         case id
