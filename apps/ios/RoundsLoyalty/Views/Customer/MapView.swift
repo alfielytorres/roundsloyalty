@@ -67,8 +67,11 @@ struct DiscoverMapView: View {
         NavigationStack {
             ZStack(alignment: .bottom) {
                 mapLayer
-                recenterButton
-                bottomSheet
+                VStack(spacing: 0) {
+                    Spacer()
+                    recenterButton
+                    bottomSheet
+                }
             }
             .navigationTitle("Discover")
             .navigationBarTitleDisplayMode(.inline)
@@ -98,22 +101,19 @@ struct DiscoverMapView: View {
     }
 
     private var recenterButton: some View {
-        VStack {
+        HStack {
             Spacer()
-            HStack {
-                Spacer()
-                Button(action: recenterMap) {
-                    Image(systemName: "location.fill")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.brandGreen)
-                        .frame(width: 44, height: 44)
-                        .background(Color.white)
-                        .clipShape(Circle())
-                        .shadow(color: .black.opacity(0.15), radius: 6, x: 0, y: 2)
-                }
-                .padding(.trailing, 16)
-                .padding(.bottom, vendors.isEmpty ? 20 : 190)
+            Button(action: recenterMap) {
+                Image(systemName: "location.fill")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.brandGreen)
+                    .frame(width: 44, height: 44)
+                    .background(Color.white)
+                    .clipShape(Circle())
+                    .shadow(color: .black.opacity(0.15), radius: 6, x: 0, y: 2)
             }
+            .padding(.trailing, 16)
+            .padding(.bottom, 12)
         }
     }
 
@@ -139,10 +139,12 @@ struct DiscoverMapView: View {
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.top, 12)
+            .padding(.bottom, 20)
         }
-        .background(Color.brandCream.opacity(0.95))
+        .background(Color.brandCream.opacity(0.97))
         .cornerRadius(20, corners: [.topLeft, .topRight])
+        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: -2)
     }
 
     private func selectVendor(_ vendor: VendorPin) {
@@ -252,9 +254,9 @@ struct VendorCard: View {
                     .lineLimit(2)
             }
         }
-        .padding(12)
-        .frame(width: 200)
-        .glassCard(cornerRadius: 12)
+        .padding(14)
+        .frame(width: 220, alignment: .leading)
+        .glassCard(cornerRadius: 14)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
                 .stroke(isSelected ? Color.brandGreen : Color.clear, lineWidth: 2)
