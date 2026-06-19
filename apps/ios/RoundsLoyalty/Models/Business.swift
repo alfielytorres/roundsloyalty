@@ -2,7 +2,7 @@ import Foundation
 
 struct Business: Codable, Identifiable {
     let id: UUID
-    let ownerId: UUID
+    let ownerId: UUID?
     var name: String
     var description: String?
     var logoUrl: String?

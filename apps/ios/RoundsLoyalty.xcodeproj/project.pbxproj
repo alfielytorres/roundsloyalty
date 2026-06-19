@@ -16,6 +16,7 @@
 		AA000007000000000000000A /* LoyaltyProgram.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000007000000000000001A /* LoyaltyProgram.swift */; };
 		AA000008000000000000000A /* LoyaltyCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000008000000000000001A /* LoyaltyCard.swift */; };
 		AA000009000000000000000A /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000009000000000000001A /* Colors.swift */; };
+		AA000022000000000000000A /* RoundsLogoMark.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000022000000000000001A /* RoundsLogoMark.swift */; };
 		AA00000A000000000000000A /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000A000000000000001A /* RootView.swift */; };
 		AA00000B000000000000000A /* AuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000B000000000000001A /* AuthView.swift */; };
 		AA00000C000000000000000A /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000C000000000000001A /* SignInView.swift */; };
@@ -41,6 +42,7 @@
 		AA000007000000000000001A /* LoyaltyProgram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoyaltyProgram.swift; sourceTree = "<group>"; };
 		AA000008000000000000001A /* LoyaltyCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoyaltyCard.swift; sourceTree = "<group>"; };
 		AA000009000000000000001A /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
+		AA000022000000000000001A /* RoundsLogoMark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundsLogoMark.swift; sourceTree = "<group>"; };
 		AA00000A000000000000001A /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		AA00000B000000000000001A /* AuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthView.swift; sourceTree = "<group>"; };
 		AA00000C000000000000001A /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
@@ -133,6 +135,7 @@
 			isa = PBXGroup;
 			children = (
 				AA000009000000000000001A /* Colors.swift */,
+				AA000022000000000000001A /* RoundsLogoMark.swift */,
 			);
 			path = Shared;
 			sourceTree = "<group>";
@@ -245,6 +248,7 @@
 				AA000007000000000000000A /* LoyaltyProgram.swift in Sources */,
 				AA000008000000000000000A /* LoyaltyCard.swift in Sources */,
 				AA000009000000000000000A /* Colors.swift in Sources */,
+				AA000022000000000000000A /* RoundsLogoMark.swift in Sources */,
 				AA00000A000000000000000A /* RootView.swift in Sources */,
 				AA00000B000000000000000A /* AuthView.swift in Sources */,
 				AA00000C000000000000000A /* SignInView.swift in Sources */,

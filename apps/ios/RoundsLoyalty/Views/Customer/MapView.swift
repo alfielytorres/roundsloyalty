@@ -1,31 +1,60 @@
 import SwiftUI
 import MapKit
+import CoreLocation
+
+final class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
+    private let manager = CLLocationManager()
+    @Published var userLocation: CLLocationCoordinate2D?
+
+    override init() {
+        super.init()
+        manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
+        manager.requestWhenInUseAuthorization()
+        manager.startUpdatingLocation()
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let loc = locations.last else { return }
+        if userLocation == nil {
+            userLocation = loc.coordinate
+        }
+        manager.stopUpdatingLocation()
+    }
+
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        if manager.authorizationStatus == .authorizedWhenInUse ||
+           manager.authorizationStatus == .authorizedAlways {
+            manager.startUpdatingLocation()
+        }
+    }
+}
 
 struct DiscoverMapView: View {
+    @StateObject private var locationManager = LocationManager()
     @State private var businesses: [Business] = []
     @State private var selectedBusiness: Business?
     @State private var isLoading = true
-
-    // Default to Sydney
     @State private var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: -33.8688, longitude: 151.2093),
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
+    @State private var didCenterOnUser = false
 
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
-                Map(coordinateRegion: $region, annotationItems: businesses.filter { $0.lat != nil && $0.lng != nil }) { biz in
+                Map(coordinateRegion: $region,
+                    showsUserLocation: true,
+                    annotationItems: businesses.filter { $0.lat != nil && $0.lng != nil }) { biz in
                     MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: biz.lat ?? 0, longitude: biz.lng ?? 0)) {
                         BusinessMapPin(business: biz, isSelected: selectedBusiness?.id == biz.id)
-                            .onTapGesture {
-                                withAnimation { selectedBusiness = biz }
-                            }
+                            .onTapGesture { withAnimation { selectedBusiness = biz } }
                     }
                 }
+                .colorScheme(.light)
                 .ignoresSafeArea(edges: .top)
 
-                // Bottom sheet with horizontal scroll of businesses
                 VStack(spacing: 0) {
                     if isLoading {
                         ProgressView()
@@ -61,6 +90,11 @@ struct DiscoverMapView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { CustomerToolbarItems() }
             .task { await loadBusinesses() }
+            .onChange(of: locationManager.userLocation) { coord in
+                guard let coord = coord, !didCenterOnUser else { return }
+                didCenterOnUser = true
+                region.center = coord
+            }
         }
     }
 
@@ -71,12 +105,7 @@ struct DiscoverMapView: View {
                 .select("id, name, description, logo_url, address, lat, lng")
                 .execute()
                 .value
-            let fetched = all.filter { $0.lat != nil && $0.lng != nil }
-            businesses = fetched
-            if let first = fetched.first(where: { $0.lat != nil && $0.lng != nil }),
-               let lat = first.lat, let lng = first.lng {
-                region.center = CLLocationCoordinate2D(latitude: lat, longitude: lng)
-            }
+            businesses = all.filter { $0.lat != nil && $0.lng != nil }
         } catch {
             print("Failed to load businesses: \(error)")
         }
@@ -95,9 +124,7 @@ struct BusinessMapPin: View {
                     .fill(isSelected ? Color.brandGreen : Color.white)
                     .frame(width: 40, height: 40)
                     .shadow(radius: 3)
-                Image(systemName: "cup.and.saucer.fill")
-                    .foregroundColor(isSelected ? .white : .brandGreen)
-                    .font(.system(size: 18))
+                RoundsLogoMark(size: 22, color: isSelected ? .white : .brandGreen)
             }
             Triangle()
                 .fill(isSelected ? Color.brandGreen : Color.white)
@@ -156,7 +183,6 @@ struct BusinessCard: View {
     }
 }
 
-// Helper: round specific corners
 extension View {
     func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
         clipShape(RoundedCorner(radius: radius, corners: corners))

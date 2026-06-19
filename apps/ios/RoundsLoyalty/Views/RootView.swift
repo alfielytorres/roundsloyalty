@@ -9,9 +9,7 @@ struct RootView: View {
                 ZStack {
                     Color.brandCream.ignoresSafeArea()
                     VStack(spacing: 16) {
-                        Image(systemName: "cup.and.saucer.fill")
-                            .font(.system(size: 48))
-                            .foregroundColor(.brandGreen)
+                        RoundsLogoMark(size: 48)
                         ProgressView()
                             .tint(.brandGreen)
                     }

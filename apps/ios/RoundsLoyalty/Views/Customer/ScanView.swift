@@ -3,6 +3,8 @@ import AVFoundation
 
 final class QRScannerCoordinator: NSObject, AVCaptureMetadataOutputObjectsDelegate {
     var onScan: (String) -> Void
+    var session: AVCaptureSession?
+    var previewLayer: AVCaptureVideoPreviewLayer?
 
     init(onScan: @escaping (String) -> Void) {
         self.onScan = onScan
@@ -30,32 +32,41 @@ struct QRScannerView: UIViewRepresentable {
         let view = UIView(frame: .zero)
         view.backgroundColor = .black
 
-        guard let device = AVCaptureDevice.default(for: .video),
-              let input = try? AVCaptureDeviceInput(device: device) else {
-            return view
+        let coordinator = context.coordinator
+
+        AVCaptureDevice.requestAccess(for: .video) { granted in
+            guard granted else { return }
+            DispatchQueue.main.async {
+                guard let device = AVCaptureDevice.default(for: .video),
+                      let input = try? AVCaptureDeviceInput(device: device) else { return }
+
+                let session = AVCaptureSession()
+                session.addInput(input)
+
+                let metadataOutput = AVCaptureMetadataOutput()
+                session.addOutput(metadataOutput)
+                metadataOutput.setMetadataObjectsDelegate(coordinator, queue: .main)
+                metadataOutput.metadataObjectTypes = [.qr]
+
+                let preview = AVCaptureVideoPreviewLayer(session: session)
+                preview.videoGravity = .resizeAspectFill
+                preview.frame = view.bounds
+                view.layer.addSublayer(preview)
+
+                // Retain on coordinator so they aren't deallocated
+                coordinator.session = session
+                coordinator.previewLayer = preview
+
+                DispatchQueue.global(qos: .userInitiated).async { session.startRunning() }
+            }
         }
 
-        let session = AVCaptureSession()
-        session.addInput(input)
-
-        let metadataOutput = AVCaptureMetadataOutput()
-        session.addOutput(metadataOutput)
-        metadataOutput.setMetadataObjectsDelegate(context.coordinator, queue: .main)
-        metadataOutput.metadataObjectTypes = [.qr]
-
-        let preview = AVCaptureVideoPreviewLayer(session: session)
-        preview.videoGravity = .resizeAspectFill
-        view.layer.addSublayer(preview)
-        view.tag = 1
-        (view as UIView).layer.setValue(preview, forKey: "previewLayer")
-
-        DispatchQueue.global(qos: .userInitiated).async { session.startRunning() }
         return view
     }
 
     func updateUIView(_ uiView: UIView, context: Context) {
-        if let preview = uiView.layer.value(forKey: "previewLayer") as? AVCaptureVideoPreviewLayer {
-            preview.frame = uiView.bounds
+        DispatchQueue.main.async {
+            context.coordinator.previewLayer?.frame = uiView.bounds
         }
     }
 }

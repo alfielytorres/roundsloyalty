@@ -16,9 +16,7 @@ struct SignInView: View {
                 VStack(spacing: 32) {
                     // Header
                     VStack(spacing: 8) {
-                        Image(systemName: "cup.and.saucer.fill")
-                            .font(.system(size: 56))
-                            .foregroundColor(.brandGreen)
+                        RoundsLogoMark(size: 56)
                         Text("Rounds Loyalty")
                             .font(.largeTitle.bold())
                             .foregroundColor(.brandDarkGreen)
