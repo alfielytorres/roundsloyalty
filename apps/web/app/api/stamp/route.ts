@@ -84,8 +84,7 @@ export async function POST(req: NextRequest) {
       // Initialise loyalty balance
       await supabase
         .from('loyalty_balances')
-        .insert({ customer_id: customerId, vendor_id: vendor.id, stamps: 0, points: 0 })
-        .onConflict('customer_id,vendor_id')
+        .upsert({ customer_id: customerId, vendor_id: vendor.id, stamps: 0, points: 0 }, { onConflict: 'customer_id,vendor_id', ignoreDuplicates: true })
 
       // Ledger: joined + activated
       await supabase.from('loyalty_ledger').insert([
