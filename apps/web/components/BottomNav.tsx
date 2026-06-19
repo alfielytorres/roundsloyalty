@@ -2,13 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, QrCode, PackageCheck, Users, Settings2 } from 'lucide-react'
+import { LayoutDashboard, QrCode, PackageCheck, Megaphone, Settings2 } from 'lucide-react'
 
 const items = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Home' },
   { href: '/collections', icon: PackageCheck, label: 'Collections' },
   { href: '/stamp', icon: QrCode, label: 'Stamp', primary: true },
-  { href: '/customers', icon: Users, label: 'Customers' },
+  { href: '/campaigns', icon: Megaphone, label: 'Campaigns' },
   { href: '/settings', icon: Settings2, label: 'Settings' },
 ]
 

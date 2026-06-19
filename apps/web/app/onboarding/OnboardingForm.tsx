@@ -27,32 +27,32 @@ export default function OnboardingForm({ error: initialError, defaultBusinessNam
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-6 bg-[#F8F5F1]">
+    <main className="min-h-screen flex flex-col items-center justify-center px-6 bg-black/5">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
           <div className="w-16 h-16 rounded-2xl bg-[#111] flex items-center justify-center mb-4 shadow-lg">
             <Store size={28} className="text-white" />
           </div>
-          <h1 className="text-3xl font-extrabold text-[#111111] text-center">Set up your store</h1>
-          <p className="text-[#6B7280] mt-1 text-center">A few more details to get started</p>
+          <h1 className="text-2xl font-bold text-[#1D1D1F] text-center">Set up your store</h1>
+          <p className="text-black/40 mt-1 text-center">A few more details to get started</p>
         </div>
 
         {error && (
           <div className="mb-4 rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">{error}</div>
         )}
 
-        <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/80 shadow-sm p-6">
+        <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/80  p-6">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className="block text-sm font-semibold text-[#374151] mb-1.5">Business name</label>
+              <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Business name</label>
               <input type="text" name="business_name" required defaultValue={defaultBusinessName} placeholder="e.g. The Coffee Corner" className="w-full dark-input" disabled={loading} />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-[#374151] mb-1.5">Description</label>
+              <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Description</label>
               <input type="text" name="description" placeholder="Short description of your business" className="w-full dark-input" disabled={loading} />
             </div>
             <div>
-              <label className="block text-sm font-semibold text-[#374151] mb-1.5">Category</label>
+              <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Category</label>
               <select name="category" className="w-full dark-input" disabled={loading}>
                 <option value="">Select a category</option>
                 <option value="cafe">Cafe</option>

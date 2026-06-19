@@ -27,14 +27,14 @@ export default function QRDisplay() {
 
   return (
     <div className="flex flex-col items-center gap-8">
-      <p className="text-[#6B7280] text-sm text-center">
+      <p className="text-black/40 text-sm text-center">
         Show this QR code to customers so they can earn stamps on the Rounds app
       </p>
 
-      <div className="bg-white rounded-3xl p-8 shadow-sm border border-[#E8E2D9] flex items-center justify-center min-h-[300px]">
+      <div className="bg-white rounded-3xl p-8  border border-black/10 flex items-center justify-center min-h-[300px]">
         {loading ? (
           <div className="w-[260px] h-[260px] flex items-center justify-center">
-            <div className="animate-spin w-8 h-8 border-2 border-[#16A34A] border-t-transparent rounded-full" />
+            <div className="animate-spin w-8 h-8 border-2 border-[] border-t-transparent rounded-full" />
           </div>
         ) : error ? (
           <div className="text-center text-[#DC2626] text-sm max-w-[260px]">{error}</div>

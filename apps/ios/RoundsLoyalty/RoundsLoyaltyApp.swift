@@ -7,6 +7,8 @@ struct RoundsLoyaltyApp: App {
     init() {
         configureNavigationBar()
         configureTabBar()
+        // Force black system accent — removes coral/orange from ProgressView, links, etc.
+        UIView.appearance().tintColor = UIColor.black
     }
 
     var body: some Scene {

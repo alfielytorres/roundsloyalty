@@ -21,7 +21,7 @@ async function RecentActivity({ vendorId }: { vendorId: string }) {
     .limit(10)
 
   if (!txns?.length) {
-    return <div className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-10 text-center text-[#6B7280] shadow-sm">No recent activity.</div>
+    return <div className="glass px-5 py-10 text-center text-black/40">No recent activity.</div>
   }
 
   return (
@@ -30,16 +30,16 @@ async function RecentActivity({ vendorId }: { vendorId: string }) {
         const profile = Array.isArray(t.profiles) ? t.profiles[0] : t.profiles
         const name = (profile as { display_name?: string | null } | null)?.display_name ?? 'Customer'
         return (
-          <div key={t.id} className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-3 flex items-center justify-between shadow-sm">
+          <div key={t.id} className="glass px-5 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-[#F0EDE6] flex items-center justify-center font-bold text-[#374151] text-sm">
+              <div className="w-9 h-9 rounded-full bg-black/5 flex items-center justify-center font-bold text-[#1D1D1F] text-sm">
                 {name.charAt(0).toUpperCase()}
               </div>
-              <span className="font-semibold text-[#111111]">{name}</span>
+              <span className="font-semibold text-[#1D1D1F]">{name}</span>
             </div>
             <div className="flex items-center gap-4">
-              <span className="font-bold text-sm text-[#E8805A]">+{t.rounds_awarded} round{t.rounds_awarded !== 1 ? 's' : ''}</span>
-              <span className="text-[#9CA3AF] text-xs">{new Date(t.created_at).toLocaleTimeString()}</span>
+              <span className="font-bold text-sm text-black/70">+{t.rounds_awarded} round{t.rounds_awarded !== 1 ? 's' : ''}</span>
+              <span className="text-black/35 text-xs">{new Date(t.created_at).toLocaleTimeString()}</span>
             </div>
           </div>
         )
@@ -70,7 +70,7 @@ async function CampaignBanner({ vendorId }: { vendorId: string }) {
   if (!campaign) return null
 
   return (
-    <div className="mb-5 p-4 bg-[#E8805A] rounded-2xl text-white flex items-center gap-3">
+    <div className="mb-5 p-4 bg-[#1D1D1F] rounded-2xl text-white flex items-center gap-3">
       <Zap size={20} className="text-white shrink-0" />
       <div>
         <p className="font-black text-sm uppercase tracking-wide">Campaign Live: {campaign.name}</p>
@@ -88,16 +88,16 @@ export default async function StampPage({ searchParams }: { searchParams: Promis
     <main className="px-5 pt-10 pb-32">
       <div className="max-w-lg mx-auto">
         <div className="mb-7">
-          <p className="text-[#9CA3AF] text-xs font-semibold tracking-widest uppercase mb-0.5">{vendor.business_name}</p>
-          <h1 className="text-3xl font-extrabold text-[#111111]">Award Round</h1>
-          <p className="text-[#6B7280] mt-1">Scan customer QR to award rounds</p>
+          <p className="text-black/35 text-xs font-semibold tracking-widest uppercase mb-0.5">{vendor.business_name}</p>
+          <h1 className="text-3xl font-extrabold text-[#1D1D1F]">Award Round</h1>
+          <p className="text-black/40 mt-1">Scan customer QR to award rounds</p>
         </div>
 
         {query.error && (
-          <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm">{query.error}</div>
+          <div className="mb-5 p-4 bg-black/5 border border-black/10 rounded-2xl text-black/60 text-sm">{query.error}</div>
         )}
         {query.success && (
-          <div className="mb-5 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 font-semibold">{query.success}</div>
+          <div className="mb-5 p-4 bg-black/5 border border-black/15 rounded-2xl text-black/70 font-semibold">{query.success}</div>
         )}
 
         <Suspense fallback={null}>
@@ -107,16 +107,16 @@ export default async function StampPage({ searchParams }: { searchParams: Promis
         <StampScanner vendorId={vendor.id} />
 
         <div className="mt-7">
-          <h2 className="text-base font-bold text-[#111111] mb-3">Recent activity</h2>
+          <h2 className="text-base font-bold text-[#1D1D1F] mb-3">Recent activity</h2>
           <Suspense fallback={
             <div className="flex flex-col gap-2 animate-pulse">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-3 flex items-center justify-between shadow-sm">
+                <div key={i} className="glass px-5 py-3 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-[#C8C0B4]" />
-                    <div className="h-4 w-28 bg-[#C8C0B4] rounded" />
+                    <div className="w-9 h-9 rounded-full bg-black/15" />
+                    <div className="h-4 w-28 bg-black/15 rounded" />
                   </div>
-                  <div className="h-4 w-20 bg-[#D8D0C8] rounded" />
+                  <div className="h-4 w-20 bg-black/10 rounded" />
                 </div>
               ))}
             </div>

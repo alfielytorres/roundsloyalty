@@ -68,7 +68,7 @@ export default function AddressAutocomplete({ defaultValue = '' }: Props) {
   return (
     <div ref={containerRef} className="relative">
       <div className="relative">
-        <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9CA3AF]" />
+        <MapPin size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-black/35" />
         <input
           name="address"
           value={value}
@@ -78,18 +78,18 @@ export default function AddressAutocomplete({ defaultValue = '' }: Props) {
           autoComplete="off"
           className="w-full dark-input pl-9"
         />
-        {loading && <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#9CA3AF] animate-spin" />}
+        {loading && <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-black/35 animate-spin" />}
       </div>
       <input type="hidden" name="lat" value={lat} />
       <input type="hidden" name="lng" value={lng} />
       {open && (
-        <ul className="absolute z-50 w-full mt-1 bg-white border border-[#E8E2D9] rounded-2xl shadow-lg overflow-hidden">
+        <ul className="absolute z-50 w-full mt-1 bg-white border border-black/10 rounded-2xl shadow-lg overflow-hidden">
           {suggestions.map((s, i) => (
             <li key={i}>
               <button
                 type="button"
                 onClick={() => select(s)}
-                className="w-full text-left px-4 py-3 text-sm text-[#374151] hover:bg-[#F8F5F1] border-b border-[#F0EDE6] last:border-0 leading-snug"
+                className="w-full text-left px-4 py-3 text-sm text-[#1D1D1F] hover:bg-black/5 border-b border-black/5 last:border-0 leading-snug"
               >
                 {s.display_name}
               </button>

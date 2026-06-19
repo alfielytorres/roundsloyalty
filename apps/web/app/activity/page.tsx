@@ -22,11 +22,11 @@ const EVENT_LABELS: Record<string, (delta: number) => string> = {
 }
 
 function eventColor(type: string) {
-  if (type === 'stamp_added') return '#16A34A'
-  if (type === 'points_added') return '#2563EB'
-  if (type === 'reward_redeemed') return '#D97706'
+  if (type === 'stamp_added') return ''
+  if (type === 'points_added') return ''
+  if (type === 'reward_redeemed') return ''
   if (type === 'transaction_voided') return '#DC2626'
-  return '#6B7280'
+  return 'text-black/40'
 }
 
 function eventBg(type: string) {
@@ -54,7 +54,7 @@ async function LedgerFeed({ vendorId }: { vendorId: string }) {
 
   if (!entries?.length) {
     return (
-      <div className="bg-white border border-[#E8E2D9] rounded-3xl px-6 py-16 text-center text-[#6B7280] shadow-sm">
+      <div className="glass rounded-3xl px-6 py-16 text-center text-black/40 ">
         No activity yet. Start scanning customer cards!
       </div>
     )
@@ -72,15 +72,15 @@ async function LedgerFeed({ vendorId }: { vendorId: string }) {
         const bg = eventBg(e.event_type)
 
         return (
-          <div key={e.id} className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-4 flex items-center gap-4 shadow-sm">
+          <div key={e.id} className="glass rounded-2xl px-5 py-4 flex items-center gap-4 ">
             <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: bg }}>
-              <IconComp size={18} style={{ color }} />
+              <IconComp size={18}  />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-[#111111] truncate">{name}</p>
-              <p className="text-[#9CA3AF] text-xs mt-0.5">{new Date(e.created_at).toLocaleString()}</p>
+              <p className="font-semibold text-[#1D1D1F] truncate">{name}</p>
+              <p className="text-black/35 text-xs mt-0.5">{new Date(e.created_at).toLocaleString()}</p>
             </div>
-            <span className="font-bold text-sm whitespace-nowrap" style={{ color }}>
+            <span className="font-bold text-sm whitespace-nowrap" >
               {label}
             </span>
           </div>
@@ -94,13 +94,13 @@ function LedgerSkeleton() {
   return (
     <div className="flex flex-col gap-2 animate-pulse">
       {[...Array(8)].map((_, i) => (
-        <div key={i} className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-4 flex items-center gap-4 shadow-sm">
-          <div className="w-10 h-10 rounded-full bg-[#C8C0B4] shrink-0" />
+        <div key={i} className="glass rounded-2xl px-5 py-4 flex items-center gap-4 ">
+          <div className="w-10 h-10 rounded-full bg-black/15 shrink-0" />
           <div className="flex-1">
-            <div className="h-4 w-32 bg-[#C8C0B4] rounded mb-2" />
-            <div className="h-3 w-24 bg-[#D8D0C8] rounded" />
+            <div className="h-4 w-32 bg-black/15 rounded mb-2" />
+            <div className="h-3 w-24 bg-black/10 rounded" />
           </div>
-          <div className="h-4 w-16 bg-[#C8C0B4] rounded" />
+          <div className="h-4 w-16 bg-black/15 rounded" />
         </div>
       ))}
     </div>
@@ -114,9 +114,9 @@ export default async function ActivityPage() {
     <main className="px-6 pt-10 pb-32">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
-          <p className="text-[#9CA3AF] text-xs font-semibold tracking-widest uppercase mb-1">{vendor.business_name}</p>
-          <h1 className="text-3xl font-extrabold text-[#111111]">Activity</h1>
-          <p className="text-[#6B7280] mt-1">Full ledger of stamps, points and redemptions</p>
+          <p className="text-black/35 text-xs font-semibold tracking-widest uppercase mb-1">{vendor.business_name}</p>
+          <h1 className="text-2xl font-bold text-[#1D1D1F]">Activity</h1>
+          <p className="text-black/40 mt-1">Full ledger of stamps, points and redemptions</p>
         </div>
 
         <Suspense fallback={<LedgerSkeleton />}>

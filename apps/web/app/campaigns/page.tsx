@@ -23,14 +23,14 @@ function campaignStatus(c: Campaign): 'live' | 'scheduled' | 'ended' | 'cancelle
 }
 
 const statusBadge = {
-  live: 'bg-[#E8805A]/10 text-[#E8805A] border border-[#E8805A]/20',
+  live: 'bg-black/5 text-black/70 border border-black/15',
   scheduled: 'bg-black/5 text-black/60 border border-black/10',
   ended: 'bg-black/5 text-black/30 border border-black/5',
   cancelled: 'bg-red-50 text-red-400 border border-red-100',
 }
 
 async function CampaignList({ vendorId }: { vendorId: string }) {
-  const cookieStore = await cookies()
+  const cookieStore = cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -81,7 +81,7 @@ async function CampaignList({ vendorId }: { vendorId: string }) {
             )}
             {isLive && (
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5 text-[#E8805A] text-xs font-semibold">
+                <div className="flex items-center gap-1.5 text-black/70 text-xs font-semibold">
                   <Clock size={12} />
                   <span>Ends {new Date(c.ends_at).toLocaleString()}</span>
                 </div>
@@ -100,9 +100,8 @@ async function CampaignList({ vendorId }: { vendorId: string }) {
   )
 }
 
-export default async function CampaignsPage({ searchParams }: { searchParams: Promise<{ error?: string; success?: string }> }) {
+export default async function CampaignsPage({ searchParams }: { searchParams: { error?: string; success?: string } }) {
   const { vendor } = await getPortalData()
-  const query = await searchParams
 
   return (
     <main className="min-h-screen px-6 pt-10 pb-32">
@@ -113,11 +112,11 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
           <p className="text-black/40 mt-1">Run bonus round events to reward loyal customers</p>
         </div>
 
-        {query.error && (
-          <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-500 text-sm">{query.error}</div>
+        {searchParams?.error && (
+          <div className="mb-5 p-4 bg-black/5 border border-black/10 rounded-2xl text-black/60 text-sm">{searchParams.error}</div>
         )}
-        {query.success && (
-          <div className="mb-5 p-4 bg-[#E8805A]/10 border border-[#E8805A]/20 rounded-2xl text-[#E8805A] text-sm font-semibold">{query.success}</div>
+        {searchParams?.success && (
+          <div className="mb-5 p-4 bg-black/5 border border-black/15 rounded-2xl text-black/70 text-sm font-semibold">{searchParams.success}</div>
         )}
 
         <div className="glass mb-6">

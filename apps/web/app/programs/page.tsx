@@ -37,18 +37,18 @@ async function ProgramView({ vendorId, role }: { vendorId: string; role: string 
   if (!program) {
     if (!canEdit) {
       return (
-        <div className="bg-white border border-[#E8E2D9] rounded-3xl px-6 py-16 text-center shadow-sm">
-          <Award className="mx-auto text-[#9CA3AF] mb-4" size={40} />
-          <h3 className="text-[#374151] font-semibold mb-2">No program yet</h3>
-          <p className="text-[#9CA3AF] text-sm">Contact your manager to set up a loyalty program.</p>
+        <div className="glass rounded-3xl px-6 py-16 text-center ">
+          <Award className="mx-auto text-black/35 mb-4" size={40} />
+          <h3 className="text-[#1D1D1F] font-semibold mb-2">No program yet</h3>
+          <p className="text-black/35 text-sm">Contact your manager to set up a loyalty program.</p>
         </div>
       )
     }
     return (
-      <div className="bg-white border border-[#E8E2D9] rounded-3xl px-6 py-16 text-center shadow-sm">
-        <Award className="mx-auto text-[#9CA3AF] mb-4" size={40} />
-        <h3 className="text-[#374151] font-semibold mb-2">No program yet</h3>
-        <p className="text-[#9CA3AF] text-sm mb-6">Create your loyalty program to start rewarding customers.</p>
+      <div className="glass rounded-3xl px-6 py-16 text-center ">
+        <Award className="mx-auto text-black/35 mb-4" size={40} />
+        <h3 className="text-[#1D1D1F] font-semibold mb-2">No program yet</h3>
+        <p className="text-black/35 text-sm mb-6">Create your loyalty program to start rewarding customers.</p>
         <form action="/api/programs/upsert" method="POST">
           <input type="hidden" name="vendor_id" value={vendorId} />
           <button type="submit" className="btn-primary">Create program</button>
@@ -58,10 +58,10 @@ async function ProgramView({ vendorId, role }: { vendorId: string; role: string 
   }
 
   return (
-    <div className="bg-white border border-[#E8E2D9] rounded-3xl p-6 shadow-sm">
+    <div className="glass rounded-3xl p-6 ">
       <div className="flex items-center gap-2 mb-6">
-        <span className="text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full">Active</span>
-        <h2 className="text-lg font-bold text-[#111111]">{program.name}</h2>
+        <span className="text-xs font-bold bg-[#1D1D1F] text-white px-2.5 py-1 rounded-full">Active</span>
+        <h2 className="text-lg font-bold text-[#1D1D1F]">{program.name}</h2>
       </div>
 
       {canEdit ? (
@@ -70,43 +70,43 @@ async function ProgramView({ vendorId, role }: { vendorId: string; role: string 
           <input type="hidden" name="vendor_id" value={vendorId} />
 
           <div>
-            <label className="block text-sm font-semibold text-[#374151] mb-1.5">Program name</label>
+            <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Program name</label>
             <input name="name" required defaultValue={program.name} className="w-full dark-input" />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-[#374151] mb-1.5">Rounds required</label>
+              <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Rounds required</label>
               <input type="number" name="rounds_required" min="1" max="200" required defaultValue={program.rounds_required} className="w-full dark-input" />
-              <p className="text-[#9CA3AF] text-xs mt-1">Rounds needed to earn reward</p>
+              <p className="text-black/35 text-xs mt-1">Rounds needed to earn reward</p>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-[#374151] mb-1.5">Default round value</label>
+              <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Default round value</label>
               <input type="number" name="default_round_value" min="1" max="5" required defaultValue={program.default_round_value} className="w-full dark-input" />
-              <p className="text-[#9CA3AF] text-xs mt-1">Rounds per scan</p>
+              <p className="text-black/35 text-xs mt-1">Rounds per scan</p>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#374151] mb-1.5">Maximum round value</label>
+            <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Maximum round value</label>
             <input type="number" name="max_round_value" min="1" max="10" required defaultValue={program.max_round_value} className="w-full dark-input" />
-            <p className="text-[#9CA3AF] text-xs mt-1">Maximum rounds that can be awarded per scan (e.g. during campaigns)</p>
+            <p className="text-black/35 text-xs mt-1">Maximum rounds that can be awarded per scan (e.g. during campaigns)</p>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#374151] mb-1.5">Reward name</label>
+            <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Reward name</label>
             <input name="reward_name" required defaultValue={program.reward_name} className="w-full dark-input" placeholder="e.g. Free Coffee" />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#374151] mb-1.5">Reward description</label>
+            <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Reward description</label>
             <textarea name="reward_description" rows={3} defaultValue={program.reward_description ?? ''} placeholder="Describe the reward for customers" className="w-full dark-input resize-none" />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#374151] mb-1.5">Reward expiry (days)</label>
+            <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Reward expiry (days)</label>
             <input type="number" name="reward_expiry_days" min="1" max="365" defaultValue={program.reward_expiry_days ?? 30} className="w-full dark-input" />
-            <p className="text-[#9CA3AF] text-xs mt-1">Days until an unlocked reward expires</p>
+            <p className="text-black/35 text-xs mt-1">Days until an unlocked reward expires</p>
           </div>
 
           <button type="submit" className="btn-primary self-start">Save changes</button>
@@ -127,9 +127,9 @@ async function ProgramView({ vendorId, role }: { vendorId: string; role: string 
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between items-start gap-4 py-2 border-b border-[#F0EDE6] last:border-0">
-      <span className="text-[#6B7280] font-medium shrink-0">{label}</span>
-      <span className="text-[#111111] font-semibold text-right">{value}</span>
+    <div className="flex justify-between items-start gap-4 py-2 border-b border-black/5 last:border-0">
+      <span className="text-black/40 font-medium shrink-0">{label}</span>
+      <span className="text-[#1D1D1F] font-semibold text-right">{value}</span>
     </div>
   )
 }
@@ -142,18 +142,18 @@ export default async function ProgramsPage({ searchParams }: { searchParams: Pro
     <main className="px-6 pt-10 pb-32">
       <div className="max-w-lg mx-auto">
         <div className="mb-8">
-          <p className="text-[#9CA3AF] text-xs font-semibold tracking-widest uppercase mb-1">{vendor.business_name}</p>
-          <h1 className="text-3xl font-extrabold text-[#111111]">Program</h1>
-          <p className="text-[#6B7280] mt-1">Manage your loyalty program and reward structure</p>
+          <p className="text-black/35 text-xs font-semibold tracking-widest uppercase mb-1">{vendor.business_name}</p>
+          <h1 className="text-2xl font-bold text-[#1D1D1F]">Program</h1>
+          <p className="text-black/40 mt-1">Manage your loyalty program and reward structure</p>
         </div>
 
-        {query.error && <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm">{query.error}</div>}
-        {query.success && <div className="mb-5 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 text-sm font-semibold">{query.success}</div>}
+        {query.error && <div className="mb-5 p-4 bg-black/5 border border-black/10 rounded-2xl text-black/60 text-sm">{query.error}</div>}
+        {query.success && <div className="mb-5 p-4 bg-black/5 border border-black/15 rounded-2xl text-black/70 text-sm font-semibold">{query.success}</div>}
 
         <Suspense fallback={
-          <div className="bg-white border border-[#E8E2D9] rounded-3xl p-6 shadow-sm animate-pulse">
-            <div className="h-6 w-40 bg-[#C8C0B4] rounded mb-4" />
-            {[...Array(5)].map((_, i) => <div key={i} className="h-10 bg-[#D8D0C8] rounded-2xl mb-3" />)}
+          <div className="glass rounded-3xl p-6  animate-pulse">
+            <div className="h-6 w-40 bg-black/15 rounded mb-4" />
+            {[...Array(5)].map((_, i) => <div key={i} className="h-10 bg-black/10 rounded-2xl mb-3" />)}
           </div>
         }>
           <ProgramView vendorId={vendor.id} role={role} />

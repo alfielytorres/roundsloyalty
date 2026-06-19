@@ -15,10 +15,10 @@ interface StaffMember {
 
 function RoleBadge({ role }: { role: string }) {
   const cls = {
-    owner: 'bg-purple-50 text-purple-700 border-purple-200',
-    manager: 'bg-blue-50 text-blue-700 border-blue-200',
-    staff: 'bg-gray-100 text-gray-600 border-gray-200',
-  }[role] ?? 'bg-gray-100 text-gray-500 border-gray-200'
+    owner: 'bg-black/10 text-[#1D1D1F] border-black/15',
+    manager: 'bg-black/5 text-black/60 border-black/10',
+    staff: 'bg-black/5 text-black/50 border-black/10',
+  }[role] ?? 'bg-black/5 text-black/40 border-black/10'
 
   return (
     <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${cls}`}>
@@ -43,9 +43,9 @@ async function StaffList({ vendorId, currentRole }: { vendorId: string; currentR
 
   if (!staffMembers?.length) {
     return (
-      <div className="bg-white border border-[#E8E2D9] rounded-3xl px-6 py-12 text-center shadow-sm">
-        <UserCog className="mx-auto text-[#9CA3AF] mb-3" size={36} />
-        <p className="text-[#6B7280] font-medium">No staff members yet</p>
+      <div className="glass rounded-3xl px-6 py-12 text-center ">
+        <UserCog className="mx-auto text-black/35 mb-3" size={36} />
+        <p className="text-black/40 font-medium">No staff members yet</p>
       </div>
     )
   }
@@ -53,12 +53,12 @@ async function StaffList({ vendorId, currentRole }: { vendorId: string; currentR
   const canManage = currentRole === 'owner' || currentRole === 'manager'
 
   return (
-    <div className="bg-white border border-[#E8E2D9] rounded-3xl overflow-hidden shadow-sm">
+    <div className="glass rounded-3xl overflow-hidden ">
       <table className="w-full">
         <thead>
-          <tr className="border-b border-[#F0EDE6]">
+          <tr className="border-b border-black/5">
             {['Name', 'Email', 'Role', 'Status', 'Added', ...(canManage ? ['Actions'] : [])].map((h) => (
-              <th key={h} className="text-left px-5 py-4 text-sm font-semibold text-[#9CA3AF]">{h}</th>
+              <th key={h} className="text-left px-5 py-4 text-sm font-semibold text-black/35">{h}</th>
             ))}
           </tr>
         </thead>
@@ -68,34 +68,34 @@ async function StaffList({ vendorId, currentRole }: { vendorId: string; currentR
             const name = (profile as { display_name?: string | null } | null)?.display_name ?? 'Unknown'
             const email = (profile as { email?: string | null } | null)?.email ?? '—'
             return (
-              <tr key={m.id} className="border-b border-[#F8F5F1] hover:bg-[#FAFAF8] transition-colors">
+              <tr key={m.id} className="border-b border-black/5 hover:bg-black/5 transition-colors">
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-[#E8E2D9] flex items-center justify-center font-bold text-[#374151] text-sm">
+                    <div className="w-9 h-9 rounded-full bg-black/10 flex items-center justify-center font-bold text-[#1D1D1F] text-sm">
                       {name.charAt(0).toUpperCase()}
                     </div>
-                    <span className="font-semibold text-[#111111]">{name}</span>
+                    <span className="font-semibold text-[#1D1D1F]">{name}</span>
                   </div>
                 </td>
-                <td className="px-5 py-4 text-[#6B7280] text-sm">{email}</td>
+                <td className="px-5 py-4 text-black/40 text-sm">{email}</td>
                 <td className="px-5 py-4"><RoleBadge role={m.role} /></td>
                 <td className="px-5 py-4">
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${m.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${m.status === 'active' ? 'bg-black/10 text-[#1D1D1F]' : 'bg-black/5 text-black/40'}`}>
                     {m.status}
                   </span>
                 </td>
-                <td className="px-5 py-4 text-[#9CA3AF] text-sm">{new Date(m.created_at).toLocaleDateString()}</td>
+                <td className="px-5 py-4 text-black/35 text-sm">{new Date(m.created_at).toLocaleDateString()}</td>
                 {canManage && (
                   <td className="px-5 py-4">
                     {m.role !== 'owner' && (
                       <div className="flex items-center gap-2">
                         <form action="/api/staff/update-role" method="POST" className="inline flex items-center gap-1">
                           <input type="hidden" name="staff_id" value={m.id} />
-                          <select name="role" defaultValue={m.role} className="text-xs border border-[#E8E2D9] rounded-lg px-2 py-1 bg-white text-[#374151]">
+                          <select name="role" defaultValue={m.role} className="text-xs border border-black/10 rounded-lg px-2 py-1 bg-white text-[#1D1D1F]">
                             <option value="manager">Manager</option>
                             <option value="staff">Staff</option>
                           </select>
-                          <button type="submit" className="text-xs font-semibold text-[#2563EB] hover:text-[#1D4ED8] px-2 py-1 rounded-lg hover:bg-blue-50 transition-colors">
+                          <button type="submit" className="text-xs font-semibold text-[] hover:text-[#1D4ED8] px-2 py-1 rounded-lg hover:bg-blue-50 transition-colors">
                             Save
                           </button>
                         </form>
@@ -129,26 +129,26 @@ export default async function StaffPage({ searchParams }: { searchParams: Promis
     <main className="px-6 pt-10 pb-32">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <p className="text-[#9CA3AF] text-xs font-semibold tracking-widest uppercase mb-1">{vendor.business_name}</p>
-          <h1 className="text-3xl font-extrabold text-[#111111]">Staff</h1>
-          <p className="text-[#6B7280] mt-1">Manage who has access to the vendor portal</p>
+          <p className="text-black/35 text-xs font-semibold tracking-widest uppercase mb-1">{vendor.business_name}</p>
+          <h1 className="text-2xl font-bold text-[#1D1D1F]">Staff</h1>
+          <p className="text-black/40 mt-1">Manage who has access to the vendor portal</p>
         </div>
 
-        {query.error && <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm">{query.error}</div>}
-        {query.success && <div className="mb-5 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 text-sm font-semibold">{query.success}</div>}
+        {query.error && <div className="mb-5 p-4 bg-black/5 border border-black/10 rounded-2xl text-black/60 text-sm">{query.error}</div>}
+        {query.success && <div className="mb-5 p-4 bg-black/5 border border-black/15 rounded-2xl text-black/70 text-sm font-semibold">{query.success}</div>}
 
         {canManage && (
-          <div className="bg-white border border-[#E8E2D9] rounded-3xl p-6 shadow-sm mb-6">
-            <h2 className="text-base font-bold text-[#111111] mb-5">Add staff member</h2>
+          <div className="glass rounded-3xl p-6  mb-6">
+            <h2 className="text-base font-bold text-[#1D1D1F] mb-5">Add staff member</h2>
             <form action="/api/staff/add" method="POST" className="flex flex-col gap-4">
               <input type="hidden" name="vendor_id" value={vendor.id} />
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-[#374151] mb-1.5">Email address</label>
+                  <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Email address</label>
                   <input type="email" name="email" required placeholder="staff@example.com" className="w-full dark-input" />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-[#374151] mb-1.5">Role</label>
+                  <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Role</label>
                   <select name="role" className="w-full dark-input">
                     <option value="staff">Staff</option>
                     <option value="manager">Manager</option>
@@ -161,8 +161,8 @@ export default async function StaffPage({ searchParams }: { searchParams: Promis
         )}
 
         <Suspense fallback={
-          <div className="bg-white border border-[#E8E2D9] rounded-3xl p-6 shadow-sm animate-pulse">
-            {[...Array(3)].map((_, i) => <div key={i} className="h-12 bg-[#D8D0C8] rounded-2xl mb-3" />)}
+          <div className="glass rounded-3xl p-6  animate-pulse">
+            {[...Array(3)].map((_, i) => <div key={i} className="h-12 bg-black/10 rounded-2xl mb-3" />)}
           </div>
         }>
           <StaffList vendorId={vendor.id} currentRole={role} />
