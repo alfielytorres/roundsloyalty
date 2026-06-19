@@ -25,7 +25,7 @@ struct CustomerToolbarItems: ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
             Button(action: { tabSelection.tab = .offers }) {
                 Image(systemName: "bell.fill")
-                    .foregroundColor(.brandDarkGreen)
+                    .foregroundColor(.black)
             }
         }
     }

@@ -10,7 +10,7 @@ struct CustomerQRView: View {
         VStack(spacing: 24) {
             Text("My QR Code")
                 .font(.title2.bold())
-                .foregroundColor(.brandDarkGreen)
+                .foregroundColor(.black)
 
             Text("Show this to the store to earn points")
                 .font(.subheadline)

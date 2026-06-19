@@ -61,6 +61,7 @@ struct DiscoverMapView: View {
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
     @State private var didCenterOnUser = false
+    @State private var isLocating = true
 
     var body: some View {
         NavigationStack {
@@ -74,9 +75,12 @@ struct DiscoverMapView: View {
             .toolbar { CustomerToolbarItems() }
             .task { await loadVendors() }
             .onChange(of: locationManager.userLocation) { coord in
-                guard let coord = coord, !didCenterOnUser else { return }
-                didCenterOnUser = true
-                withAnimation { region.center = coord }
+                guard let coord = coord else { return }
+                isLocating = false
+                if !didCenterOnUser {
+                    didCenterOnUser = true
+                    region.center = coord
+                }
             }
         }
     }
@@ -184,6 +188,14 @@ struct DiscoverMapView: View {
                 guard let lat = row.lat, let lng = row.lng else { return nil }
                 return VendorPin(id: row.id, name: row.businessName, address: row.address,
                                  description: row.description, lat: lat, lng: lng)
+            }
+            // If no vendors have coordinates, show a fallback with all vendors still in carousel
+            if vendors.isEmpty {
+                vendors = rows.map { row in
+                    VendorPin(id: row.id, name: row.businessName, address: row.address,
+                              description: row.description,
+                              lat: row.lat ?? -33.8688, lng: row.lng ?? 151.2093)
+                }
             }
         } catch {
             print("Failed to load vendors: \(error)")

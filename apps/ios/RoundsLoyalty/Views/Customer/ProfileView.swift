@@ -28,7 +28,7 @@ struct CustomerProfileView: View {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(profile?.displayName ?? "Customer")
                                     .font(.headline)
-                                    .foregroundColor(.brandDarkGreen)
+                                    .foregroundColor(.black)
                                 Text(sessionManager.session?.user.email ?? "")
                                     .font(.subheadline)
                                     .foregroundColor(.brandTaupe)
@@ -56,7 +56,7 @@ struct CustomerProfileView: View {
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(consent.business?.name ?? "Unknown Store")
                                             .font(.subheadline)
-                                            .foregroundColor(.brandDarkGreen)
+                                            .foregroundColor(.black)
                                         Text("Sharing visit data & eligible for offers")
                                             .font(.caption)
                                             .foregroundColor(.brandTaupe)

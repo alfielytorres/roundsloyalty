@@ -19,7 +19,7 @@ struct OffersView: View {
                             .foregroundColor(.brandTaupe)
                         Text("No offers yet")
                             .font(.headline)
-                            .foregroundColor(.brandDarkGreen)
+                            .foregroundColor(.black)
                         Text("Offers from your favourite stores will appear here")
                             .font(.subheadline)
                             .foregroundColor(.brandTaupe)
@@ -119,7 +119,7 @@ struct OfferRow: View {
                 }
                 Text(offer?.title ?? "")
                     .font(.subheadline.weight(isUnread ? .semibold : .regular))
-                    .foregroundColor(.brandDarkGreen)
+                    .foregroundColor(.black)
                     .lineLimit(1)
                 Text(offer?.body ?? "")
                     .font(.caption)

@@ -19,7 +19,7 @@ struct SignInView: View {
                         RoundsLogoMark(size: 56)
                         Text("Rounds Loyalty")
                             .font(.largeTitle.bold())
-                            .foregroundColor(.brandDarkGreen)
+                            .foregroundColor(.black)
                         Text("Welcome back")
                             .font(.subheadline)
                             .foregroundColor(.brandTaupe)
@@ -31,7 +31,7 @@ struct SignInView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Email")
                                 .font(.caption.weight(.semibold))
-                                .foregroundColor(.brandDarkGreen)
+                                .foregroundColor(.black)
                             TextField("you@example.com", text: $email)
                                 .keyboardType(.emailAddress)
                                 .autocapitalization(.none)
@@ -45,7 +45,7 @@ struct SignInView: View {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Password")
                                 .font(.caption.weight(.semibold))
-                                .foregroundColor(.brandDarkGreen)
+                                .foregroundColor(.black)
                             SecureField("••••••••", text: $password)
                                 .padding()
                                 .background(Color.white.opacity(0.7))

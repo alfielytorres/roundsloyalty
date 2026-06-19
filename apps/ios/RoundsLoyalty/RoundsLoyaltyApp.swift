@@ -31,12 +31,12 @@ struct RoundsLoyaltyApp: App {
         appearance.titleTextAttributes = [
             .font: titleFont,
             .kern: -0.4,
-            .foregroundColor: UIColor(red: 0x15/255, green: 0x80/255, blue: 0x3D/255, alpha: 1)
+            .foregroundColor: UIColor.black
         ]
         appearance.largeTitleTextAttributes = [
             .font: largeTitleFont,
             .kern: -0.8,
-            .foregroundColor: UIColor(red: 0x15/255, green: 0x80/255, blue: 0x3D/255, alpha: 1)
+            .foregroundColor: UIColor.black
         ]
 
         UINavigationBar.appearance().standardAppearance = appearance
