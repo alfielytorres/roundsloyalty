@@ -1,6 +1,6 @@
 {
   "buildCommand": "pnpm build",
   "outputDirectory": ".next",
-  "installCommand": "npx pnpm@10 install",
+  "installCommand": "npx pnpm@10 install --no-frozen-lockfile",
   "devCommand": "pnpm dev"
 }

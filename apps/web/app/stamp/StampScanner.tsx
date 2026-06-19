@@ -7,6 +7,7 @@ import { QrCode, Camera, X } from 'lucide-react'
 export default function StampScanner() {
   const inputRef = useRef<HTMLInputElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const rafRef = useRef<number>(0)
 
@@ -41,43 +42,58 @@ export default function StampScanner() {
       if (videoRef.current) {
         videoRef.current.srcObject = stream
         await videoRef.current.play()
-        scanLoop()
+        rafRef.current = requestAnimationFrame(scanFrame)
       }
     } catch {
-      setCameraError('Camera access denied. Grant permission and try again.')
+      setCameraError('Camera access denied. Please allow camera access and try again.')
       setCameraOpen(false)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  function scanLoop() {
+  const scanFrame = useCallback(async () => {
     const video = videoRef.current
-    if (!video || video.readyState < 2) {
-      rafRef.current = requestAnimationFrame(scanLoop)
+    const canvas = canvasRef.current
+    if (!video || !canvas || video.readyState < 2) {
+      rafRef.current = requestAnimationFrame(scanFrame)
       return
     }
 
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    ctx.drawImage(video, 0, 0)
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+
+    let detected: string | null = null
+
     if ('BarcodeDetector' in window) {
-      // @ts-ignore
-      const detector = new window.BarcodeDetector({ formats: ['qr_code'] })
-      const detect = async () => {
-        try {
-          const codes = await detector.detect(video)
-          if (codes.length > 0) {
-            const value = codes[0].rawValue as string
-            stopCamera()
-            setToken(value)
-            setTimeout(() => inputRef.current?.form?.requestSubmit(), 100)
-            return
-          }
-        } catch { /* continue */ }
-        rafRef.current = requestAnimationFrame(detect)
-      }
-      detect()
-    } else {
-      setCameraError('QR scanning not supported in this browser. Use Chrome or paste the token.')
-      stopCamera()
+      try {
+        // @ts-ignore
+        const detector = new window.BarcodeDetector({ formats: ['qr_code'] })
+        const codes = await detector.detect(video)
+        if (codes.length > 0) detected = codes[0].rawValue as string
+      } catch { /* fall through */ }
     }
-  }
+
+    if (!detected) {
+      try {
+        const jsQR = (await import('jsqr')).default
+        const code = jsQR(imageData.data, imageData.width, imageData.height)
+        if (code) detected = code.data
+      } catch { /* fall through */ }
+    }
+
+    if (detected) {
+      stopCamera()
+      setToken(detected)
+      return
+    }
+
+    rafRef.current = requestAnimationFrame(scanFrame)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stopCamera])
 
   useEffect(() => () => { stopCamera() }, [stopCamera])
 
@@ -145,6 +161,7 @@ export default function StampScanner() {
       {cameraOpen && (
         <div className="mb-5 relative rounded-2xl overflow-hidden bg-black aspect-video">
           <video ref={videoRef} className="w-full h-full object-cover" muted playsInline />
+          <canvas ref={canvasRef} className="hidden" />
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div className="w-48 h-48 border-2 border-[#22C55E] rounded-2xl shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]" />
           </div>
