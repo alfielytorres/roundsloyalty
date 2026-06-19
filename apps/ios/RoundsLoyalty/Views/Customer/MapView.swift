@@ -68,14 +68,7 @@ struct DiscoverMapView: View {
                             HStack(spacing: 12) {
                                 ForEach(businesses) { biz in
                                     BusinessCard(business: biz, isSelected: selectedBusiness?.id == biz.id)
-                                        .onTapGesture {
-                                            withAnimation {
-                                                selectedBusiness = biz
-                                                if let lat = biz.lat, let lng = biz.lng {
-                                                    region.center = CLLocationCoordinate2D(latitude: lat, longitude: lng)
-                                                }
-                                            }
-                                        }
+                                        .onTapGesture { selectBusiness(biz) }
                                 }
                             }
                             .padding(.horizontal, 16)
@@ -95,6 +88,16 @@ struct DiscoverMapView: View {
                 didCenterOnUser = true
                 region.center = coord
             }
+        }
+    }
+
+    private func selectBusiness(_ biz: Business) {
+        let coord: CLLocationCoordinate2D? = (biz.lat != nil && biz.lng != nil)
+            ? CLLocationCoordinate2D(latitude: biz.lat!, longitude: biz.lng!)
+            : nil
+        withAnimation {
+            selectedBusiness = biz
+            if let coord = coord { region.center = coord }
         }
     }
 
