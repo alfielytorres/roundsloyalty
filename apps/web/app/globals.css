@@ -3,58 +3,75 @@
 @tailwind utilities;
 
 body {
-  background-color: #F8F5F1;
-  color: #111111;
+  background-color: #0D0D0D;
+  color: #ffffff;
   letter-spacing: -0.025em;
 }
 
 html {
-  background-color: #F8F5F1;
+  background-color: #0D0D0D;
 }
 
 :root {
-  --color-bg: #F8F5F1;
-  --color-surface: #FFFFFF;
-  --color-border: #E8E2D9;
-  --color-primary: #16A34A;
-  --color-text: #111111;
-  --color-text-secondary: #6B7280;
-  --color-text-muted: #9CA3AF;
+  --color-bg: #0D0D0D;
+  --color-surface: #1A1A1A;
+  --color-border: rgba(255,255,255,0.08);
+  --color-primary: #E8805A;
+  --color-text: #ffffff;
+  --color-text-secondary: rgba(255,255,255,0.5);
+  --color-text-muted: rgba(255,255,255,0.3);
 }
 
 @layer components {
+  .card-rose {
+    @apply bg-gradient-to-br from-[#C96B6B] to-[#7A2A2A] rounded-3xl p-6 text-white;
+  }
+  .card-teal {
+    @apply bg-gradient-to-br from-[#2A6B7C] to-[#0A1A2A] rounded-3xl p-6 text-white;
+  }
+  .card-coral {
+    @apply bg-gradient-to-br from-[#E8805A] to-[#8B3A1A] rounded-3xl p-6 text-white;
+  }
+  .card-blue {
+    @apply bg-gradient-to-br from-[#4A6FA5] to-[#1A2A50] rounded-3xl p-6 text-white;
+  }
+  .card-gold {
+    @apply bg-gradient-to-br from-[#D4A017] to-[#8B6010] rounded-3xl p-6 text-white;
+  }
+  .card-dark {
+    @apply bg-[#1A1A1A] rounded-3xl p-6 text-white;
+  }
   .glass-card {
-    @apply bg-white border border-[#E8E2D9] rounded-3xl shadow-sm;
+    @apply bg-[#1A1A1A] rounded-3xl shadow-sm;
   }
   .glass-row {
-    @apply bg-white border border-[#E8E2D9] rounded-2xl;
+    @apply bg-[#1A1A1A] rounded-2xl;
   }
   .dark-input {
-    @apply bg-white border border-[#E8E2D9] rounded-2xl px-4 py-3 text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/20 transition-colors w-full;
+    @apply bg-[#111111] border border-white/10 rounded-2xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-[#E8805A]/50 focus:ring-2 focus:ring-[#E8805A]/10 transition-colors w-full;
   }
-  /* skeleton base — used directly in JSX via className="skel" */
   .skel {
-    @apply bg-[#C8C0B4] rounded-lg animate-pulse;
+    @apply bg-white/10 rounded-lg animate-pulse;
   }
   .skel-dark {
-    @apply bg-[#B8B0A4] rounded-lg animate-pulse;
+    @apply bg-white/5 rounded-lg animate-pulse;
   }
   .btn-primary {
-    @apply bg-[#111111] hover:bg-[#333333] text-white font-semibold rounded-2xl px-6 py-3 transition-colors;
+    @apply bg-white/10 hover:bg-white/20 text-white font-semibold rounded-2xl px-6 py-3 transition-colors border border-white/10;
   }
   .btn-green {
-    @apply bg-[#16A34A] hover:bg-[#15803D] text-white font-semibold rounded-2xl px-6 py-3 transition-colors;
+    @apply bg-gradient-to-br from-[#E8805A] to-[#8B3A1A] hover:opacity-90 text-white font-semibold rounded-2xl px-6 py-3 transition-opacity;
   }
   .btn-danger {
-    @apply border border-red-200 text-red-600 hover:bg-red-50 font-semibold rounded-2xl px-5 py-2.5 transition-colors;
+    @apply border border-red-500/30 text-red-400 hover:bg-red-900/30 font-semibold rounded-2xl px-5 py-2.5 transition-colors;
   }
   .status-pending {
-    @apply bg-amber-50 text-amber-700 border border-amber-200 text-xs font-semibold px-2.5 py-1 rounded-full;
+    @apply bg-amber-900/30 text-amber-400 border border-amber-500/30 text-xs font-semibold px-2.5 py-1 rounded-full;
   }
   .status-active {
-    @apply bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-2.5 py-1 rounded-full;
+    @apply bg-emerald-900/30 text-emerald-400 border border-emerald-500/30 text-xs font-semibold px-2.5 py-1 rounded-full;
   }
   .status-inactive {
-    @apply bg-gray-100 text-gray-500 text-xs font-semibold px-2.5 py-1 rounded-full;
+    @apply bg-white/5 text-white/30 text-xs font-semibold px-2.5 py-1 rounded-full;
   }
 }
