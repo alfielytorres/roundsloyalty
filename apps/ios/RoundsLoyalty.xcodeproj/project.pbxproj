@@ -12,9 +12,7 @@
 		AA000003000000000000000A /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000003000000000000001A /* SupabaseService.swift */; };
 		AA000004000000000000000A /* SessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000004000000000000001A /* SessionManager.swift */; };
 		AA000005000000000000000A /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000005000000000000001A /* Profile.swift */; };
-		AA000006000000000000000A /* Business.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000006000000000000001A /* Business.swift */; };
 		AA000007000000000000000A /* LoyaltyProgram.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000007000000000000001A /* LoyaltyProgram.swift */; };
-		AA000008000000000000000A /* LoyaltyCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000008000000000000001A /* LoyaltyCard.swift */; };
 		AA000009000000000000000A /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000009000000000000001A /* Colors.swift */; };
 		AA000022000000000000000A /* RoundsLogoMark.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000022000000000000001A /* RoundsLogoMark.swift */; };
 		AA000025000000000000000A /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000025000000000000001A /* Typography.swift */; };
@@ -41,9 +39,7 @@
 		AA000003000000000000001A /* SupabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseService.swift; sourceTree = "<group>"; };
 		AA000004000000000000001A /* SessionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionManager.swift; sourceTree = "<group>"; };
 		AA000005000000000000001A /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
-		AA000006000000000000001A /* Business.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Business.swift; sourceTree = "<group>"; };
 		AA000007000000000000001A /* LoyaltyProgram.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoyaltyProgram.swift; sourceTree = "<group>"; };
-		AA000008000000000000001A /* LoyaltyCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoyaltyCard.swift; sourceTree = "<group>"; };
 		AA000009000000000000001A /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
 		AA000022000000000000001A /* RoundsLogoMark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundsLogoMark.swift; sourceTree = "<group>"; };
 		AA000025000000000000001A /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Typography.swift; sourceTree = "<group>"; };
@@ -119,9 +115,7 @@
 			isa = PBXGroup;
 			children = (
 				AA000005000000000000001A /* Profile.swift */,
-				AA000006000000000000001A /* Business.swift */,
 				AA000007000000000000001A /* LoyaltyProgram.swift */,
-				AA000008000000000000001A /* LoyaltyCard.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -253,9 +247,7 @@
 				AA000003000000000000000A /* SupabaseService.swift in Sources */,
 				AA000004000000000000000A /* SessionManager.swift in Sources */,
 				AA000005000000000000000A /* Profile.swift in Sources */,
-				AA000006000000000000000A /* Business.swift in Sources */,
 				AA000007000000000000000A /* LoyaltyProgram.swift in Sources */,
-				AA000008000000000000000A /* LoyaltyCard.swift in Sources */,
 				AA000009000000000000000A /* Colors.swift in Sources */,
 				AA000022000000000000000A /* RoundsLogoMark.swift in Sources */,
 				AA000025000000000000000A /* Typography.swift in Sources */,
