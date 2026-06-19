@@ -13,8 +13,8 @@ async function Stats({ vendorId }: { vendorId: string }) {
     { cookies: { getAll: () => cookieStore.getAll() } },
   )
 
-  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-  const [{ count: totalCustomers }, { count: weekActivity }] = await Promise.all([
+  // Gracefully return zeros if tables don't exist yet
+  const [membersRes, activityRes] = await Promise.allSettled([
     supabase
       .from('customer_vendor_memberships')
       .select('*', { count: 'exact', head: true })
@@ -24,13 +24,16 @@ async function Stats({ vendorId }: { vendorId: string }) {
       .from('loyalty_ledger')
       .select('*', { count: 'exact', head: true })
       .eq('vendor_id', vendorId)
-      .gte('created_at', weekAgo),
+      .gte('created_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()),
   ])
+
+  const totalCustomers = membersRes.status === 'fulfilled' ? (membersRes.value.count ?? 0) : 0
+  const weekActivity = activityRes.status === 'fulfilled' ? (activityRes.value.count ?? 0) : 0
 
   return (
     <div className="grid grid-cols-2 gap-4 mb-8">
-      <StatCard label="Active members" value={totalCustomers ?? 0} icon={<Users size={15} className="text-white/40" />} />
-      <StatCard label="Events this week" value={weekActivity ?? 0} icon={<TrendingUp size={15} className="text-white/40" />} />
+      <StatCard label="Active members" value={totalCustomers} icon={<Users size={15} className="text-white/40" />} />
+      <StatCard label="Events this week" value={weekActivity} icon={<TrendingUp size={15} className="text-white/40" />} />
     </div>
   )
 }
@@ -64,18 +67,18 @@ export default async function DashboardPage() {
         </Suspense>
 
         <div className="grid grid-cols-1 gap-3">
-          <Link href="/stamp" className="flex items-center gap-4 bg-[#8B5CF6] rounded-3xl p-5 hover:opacity-90 transition-opacity">
-            <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
-              <Stamp size={20} className="text-white" />
+          <Link href="/stamp" className="flex items-center gap-4 bg-[#22C55E] rounded-3xl p-5 hover:bg-[#16A34A] transition-colors">
+            <div className="w-10 h-10 rounded-2xl bg-[#081C12]/20 flex items-center justify-center shrink-0">
+              <Stamp size={20} className="text-[#081C12]" />
             </div>
             <div>
-              <h2 className="font-bold text-white">Scan Card</h2>
-              <p className="text-white/70 text-sm">Add stamps or points to a customer's card</p>
+              <h2 className="font-bold text-[#081C12]">Scan Card</h2>
+              <p className="text-[#081C12]/70 text-sm">Add stamps or points to a customer&apos;s card</p>
             </div>
           </Link>
           <Link href="/customers" className="flex items-center gap-4 glass-card p-5 hover:bg-white/10 transition-colors">
-            <div className="w-10 h-10 rounded-2xl bg-[#8B5CF6]/20 flex items-center justify-center shrink-0">
-              <Users size={20} className="text-[#8B5CF6]" />
+            <div className="w-10 h-10 rounded-2xl bg-[#22C55E]/20 flex items-center justify-center shrink-0">
+              <Users size={20} className="text-[#22C55E]" />
             </div>
             <div>
               <h2 className="font-bold text-white">Customers</h2>
@@ -83,8 +86,8 @@ export default async function DashboardPage() {
             </div>
           </Link>
           <Link href="/claims" className="flex items-center gap-4 glass-card p-5 hover:bg-white/10 transition-colors">
-            <div className="w-10 h-10 rounded-2xl bg-[#8B5CF6]/20 flex items-center justify-center shrink-0">
-              <FileCheck size={20} className="text-[#8B5CF6]" />
+            <div className="w-10 h-10 rounded-2xl bg-[#22C55E]/20 flex items-center justify-center shrink-0">
+              <FileCheck size={20} className="text-[#22C55E]" />
             </div>
             <div>
               <h2 className="font-bold text-white">Claims</h2>
@@ -92,8 +95,8 @@ export default async function DashboardPage() {
             </div>
           </Link>
           <Link href="/activity" className="flex items-center gap-4 glass-card p-5 hover:bg-white/10 transition-colors">
-            <div className="w-10 h-10 rounded-2xl bg-[#8B5CF6]/20 flex items-center justify-center shrink-0">
-              <Activity size={20} className="text-[#8B5CF6]" />
+            <div className="w-10 h-10 rounded-2xl bg-[#22C55E]/20 flex items-center justify-center shrink-0">
+              <Activity size={20} className="text-[#22C55E]" />
             </div>
             <div>
               <h2 className="font-bold text-white">Activity</h2>
@@ -109,7 +112,7 @@ export default async function DashboardPage() {
 function StatCard({ label, value, icon }: { label: string; value: number; icon?: React.ReactNode }) {
   return (
     <div className="glass-card p-5">
-      <p className="text-3xl font-black text-[#8B5CF6]">{value.toLocaleString()}</p>
+      <p className="text-3xl font-black text-[#22C55E]">{value.toLocaleString()}</p>
       <p className="flex items-center gap-1.5 text-white/50 mt-1 text-sm font-medium">{icon}{label}</p>
     </div>
   )

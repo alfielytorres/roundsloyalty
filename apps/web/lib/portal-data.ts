@@ -14,14 +14,14 @@ export const getPortalData = cache(async () => {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/')
 
-  const { data: vendor } = await supabase
+  const { data: vendor, error } = await supabase
     .from('vendors')
-    .select('id, business_name, description, proof_of_purchase_enabled, proof_of_purchase_instructions, proof_of_purchase_max_claim_age_days, brand_color, category, status')
+    .select('id, business_name, description, category, status')
     .eq('owner_id', user.id)
     .limit(1)
-    .maybeSingle()
+    .single()
 
-  if (!vendor) redirect('/onboarding')
+  if (error || !vendor) redirect('/onboarding')
 
   return { user, vendor, supabase }
 })
