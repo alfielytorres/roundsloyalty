@@ -26,13 +26,6 @@
 		AA000011000000000000000A /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000011000000000000001A /* MapView.swift */; };
 		AA000012000000000000000A /* OffersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000012000000000000001A /* OffersView.swift */; };
 		AA000013000000000000000A /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000013000000000000001A /* ProfileView.swift */; };
-		AA000014000000000000000A /* VendorTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000014000000000000001A /* VendorTabView.swift */; };
-		AA000015000000000000000A /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000015000000000000001A /* DashboardView.swift */; };
-		AA000016000000000000000A /* QRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000016000000000000001A /* QRView.swift */; };
-		AA000017000000000000000A /* CustomersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000017000000000000001A /* CustomersView.swift */; };
-		AA000018000000000000000A /* VendorOffersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000018000000000000001A /* VendorOffersView.swift */; };
-		AA000019000000000000000A /* ComposeOfferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000019000000000000001A /* ComposeOfferView.swift */; };
-		AA00001A000000000000000A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00001A000000000000001A /* SettingsView.swift */; };
 		AA00001B000000000000000A /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = AA00001B000000000000002A /* Supabase */; };
 /* End PBXBuildFile section */
 
@@ -56,13 +49,6 @@
 		AA000011000000000000001A /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		AA000012000000000000001A /* OffersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OffersView.swift; sourceTree = "<group>"; };
 		AA000013000000000000001A /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
-		AA000014000000000000001A /* VendorTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VendorTabView.swift; sourceTree = "<group>"; };
-		AA000015000000000000001A /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
-		AA000016000000000000001A /* QRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRView.swift; sourceTree = "<group>"; };
-		AA000017000000000000001A /* CustomersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomersView.swift; sourceTree = "<group>"; };
-		AA000018000000000000001A /* VendorOffersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VendorOffersView.swift; sourceTree = "<group>"; };
-		AA000019000000000000001A /* ComposeOfferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ComposeOfferView.swift; sourceTree = "<group>"; };
-		AA00001A000000000000001A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		AA00001C000000000000001A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AAFPRODUCT00000000000001A /* RoundsLoyalty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RoundsLoyalty.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -135,7 +121,6 @@
 				AASHAREDGROUP000000000A /* Shared */,
 				AAAAUTHGROUP0000000000A /* Auth */,
 				AACUSTOMERGROUP00000000A /* Customer */,
-				AAVENDORGROUP000000000A /* Vendor */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -169,20 +154,6 @@
 				AA000013000000000000001A /* ProfileView.swift */,
 			);
 			path = Customer;
-			sourceTree = "<group>";
-		};
-		AAVENDORGROUP000000000A /* Vendor */ = {
-			isa = PBXGroup;
-			children = (
-				AA000014000000000000001A /* VendorTabView.swift */,
-				AA000015000000000000001A /* DashboardView.swift */,
-				AA000016000000000000001A /* QRView.swift */,
-				AA000017000000000000001A /* CustomersView.swift */,
-				AA000018000000000000001A /* VendorOffersView.swift */,
-				AA000019000000000000001A /* ComposeOfferView.swift */,
-				AA00001A000000000000001A /* SettingsView.swift */,
-			);
-			path = Vendor;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -278,13 +249,6 @@
 				AA000011000000000000000A /* MapView.swift in Sources */,
 				AA000012000000000000000A /* OffersView.swift in Sources */,
 				AA000013000000000000000A /* ProfileView.swift in Sources */,
-				AA000014000000000000000A /* VendorTabView.swift in Sources */,
-				AA000015000000000000000A /* DashboardView.swift in Sources */,
-				AA000016000000000000000A /* QRView.swift in Sources */,
-				AA000017000000000000000A /* CustomersView.swift in Sources */,
-				AA000018000000000000000A /* VendorOffersView.swift in Sources */,
-				AA000019000000000000000A /* ComposeOfferView.swift in Sources */,
-				AA00001A000000000000000A /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
