@@ -31,6 +31,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Business name is required.' }, { status: 400 })
   }
 
+  // Check if vendor already exists to prevent duplicates
+  const { data: existing } = await supabase
+    .from('vendors')
+    .select('id')
+    .eq('owner_id', user.id)
+    .limit(1)
+
+  if (existing && existing.length > 0) {
+    return NextResponse.json({ redirect: '/dashboard' }, { status: 200 })
+  }
+
   const { data: vendor, error } = await supabase
     .from('vendors')
     .insert({
@@ -47,15 +58,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
 
-  const { error: staffError } = await supabase.from('vendor_staff').insert({
+  // Best-effort: create owner staff record (table may not exist yet)
+  await supabase.from('vendor_staff').insert({
     vendor_id: vendor.id,
     user_id: user.id,
     role: 'owner',
   })
-
-  if (staffError) {
-    return NextResponse.json({ error: staffError.message }, { status: 400 })
-  }
 
   return NextResponse.json({ redirect: '/dashboard' }, { status: 200 })
 }

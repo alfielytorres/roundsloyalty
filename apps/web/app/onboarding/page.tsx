@@ -16,12 +16,14 @@ export default async function OnboardingPage({ searchParams }: { searchParams: {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/')
 
+  // Use limit(1) instead of maybeSingle() to handle accidental duplicates gracefully
   const { data: existing } = await supabase
     .from('vendors')
     .select('id')
     .eq('owner_id', user.id)
-    .maybeSingle()
-  if (existing) redirect('/dashboard')
+    .limit(1)
+
+  if (existing && existing.length > 0) redirect('/dashboard')
 
   const defaultBusinessName = (user.user_metadata?.display_name as string) ?? ''
 
