@@ -2,7 +2,18 @@
 
 import { usePathname } from 'next/navigation'
 
-const PORTAL_PREFIXES = ['/dashboard', '/stamp', '/customers', '/claims', '/settings', '/activity', '/programs', '/qr', '/offers']
+const PORTAL_PREFIXES = [
+  '/dashboard',
+  '/stamp',
+  '/customers',
+  '/settings',
+  '/programs',
+  '/campaigns',
+  '/devices',
+  '/collections',
+  '/staff',
+  '/qr',
+]
 
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()

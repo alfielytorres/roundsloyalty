@@ -2,13 +2,27 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, QrCode, Users, FileCheck, Settings2 } from 'lucide-react'
+import {
+  LayoutDashboard,
+  Award,
+  Megaphone,
+  Cpu,
+  PackageCheck,
+  Users,
+  UserCog,
+  QrCode,
+  Settings2,
+} from 'lucide-react'
 
 const items = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Home', color: '#2563EB' },
-  { href: '/stamp', icon: QrCode, label: 'QR & Scan', color: '#16A34A' },
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', color: '#2563EB' },
+  { href: '/programs', icon: Award, label: 'Program', color: '#8B5CF6' },
+  { href: '/campaigns', icon: Megaphone, label: 'Campaigns', color: '#E8805A' },
+  { href: '/devices', icon: Cpu, label: 'NFC Devices', color: '#0891B2' },
+  { href: '/collections', icon: PackageCheck, label: 'Collections', color: '#16A34A' },
   { href: '/customers', icon: Users, label: 'Customers', color: '#D97706' },
-  { href: '/claims', icon: FileCheck, label: 'Claims', color: '#DC2626' },
+  { href: '/staff', icon: UserCog, label: 'Staff', color: '#6366F1' },
+  { href: '/stamp', icon: QrCode, label: 'Stamp', color: '#E8805A' },
   { href: '/settings', icon: Settings2, label: 'Settings', color: '#6B7280' },
 ]
 
@@ -19,7 +33,7 @@ export default function Sidebar() {
     <aside className="hidden lg:flex fixed left-0 top-0 h-full w-60 bg-white border-r border-[#E8E2D9] flex-col z-40">
       <div className="px-5 py-5 border-b border-[#E8E2D9]">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-[#16A34A] flex items-center justify-center shadow-sm">
+          <div className="w-8 h-8 rounded-xl bg-[#E8805A] flex items-center justify-center shadow-sm">
             <span className="text-white font-black text-sm">R</span>
           </div>
           <span className="font-bold text-[#111111]">Rounds Loyalty</span>

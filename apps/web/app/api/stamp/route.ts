@@ -20,128 +20,60 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: vendor } = await supabase
-    .from('vendors')
-    .select('id, business_name')
-    .eq('owner_id', user.id)
+  // Resolve vendor via vendor_staff
+  const { data: staffRecord } = await supabase
+    .from('vendor_staff')
+    .select('vendor_id')
+    .eq('user_id', user.id)
+    .eq('status', 'active')
     .limit(1)
     .maybeSingle()
 
-  if (!vendor) return NextResponse.json({ error: 'Vendor account not found' }, { status: 404 })
+  if (!staffRecord) return NextResponse.json({ error: 'Vendor account not found' }, { status: 404 })
+
+  const vendorId = staffRecord.vendor_id
 
   const body = await req.json()
-  const rawToken: string = body.token?.trim()
-  const action: 'stamp' | 'points' = body.action ?? 'stamp'
+  const customerToken: string = body.customer_token?.trim()
+  const source: string = body.source ?? 'staff_scan'
+  const idempotencyKey: string = body.idempotency_key || crypto.randomUUID()
 
-  if (!rawToken) return NextResponse.json({ error: 'Token is required' }, { status: 400 })
+  if (!customerToken) return NextResponse.json({ error: 'customer_token is required' }, { status: 400 })
 
-  // Resolve token: if it looks like a UUID it's a customer_id from the iOS QR code.
-  // Look up (or auto-create) their membership_token for this vendor.
-  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-  let membershipToken = rawToken
+  const { data, error } = await supabase.rpc('award_rounds', {
+    p_customer_token: customerToken,
+    p_vendor_id: vendorId,
+    p_source: source,
+    p_staff_user_id: user.id,
+    p_idempotency_key: idempotencyKey,
+  })
 
-  if (uuidPattern.test(rawToken)) {
-    const customerId = rawToken
-
-    // Find existing membership
-    const { data: existing } = await supabase
-      .from('customer_vendor_memberships')
-      .select('membership_token, status')
-      .eq('customer_id', customerId)
-      .eq('vendor_id', vendor.id)
-      .maybeSingle()
-
-    if (existing) {
-      membershipToken = existing.membership_token
-      // Auto-activate if still pending
-      if (existing.status === 'pending') {
-        await supabase
-          .from('customer_vendor_memberships')
-          .update({ status: 'active', activated_at: new Date().toISOString() })
-          .eq('customer_id', customerId)
-          .eq('vendor_id', vendor.id)
-      }
-    } else {
-      // Auto-create membership for this customer+vendor
-      const crypto = await import('crypto')
-      const token = crypto.randomBytes(32).toString('hex')
-      const { data: created, error: createErr } = await supabase
-        .from('customer_vendor_memberships')
-        .insert({
-          customer_id: customerId,
-          vendor_id: vendor.id,
-          status: 'active',
-          membership_token: token,
-          activated_at: new Date().toISOString(),
-        })
-        .select('membership_token')
-        .single()
-
-      if (createErr || !created) {
-        return NextResponse.json({ error: 'Failed to create membership for customer' }, { status: 500 })
-      }
-
-      // Initialise loyalty balance
-      await supabase
-        .from('loyalty_balances')
-        .upsert({ customer_id: customerId, vendor_id: vendor.id, stamps: 0, points: 0 }, { onConflict: 'customer_id,vendor_id', ignoreDuplicates: true })
-
-      // Ledger: joined + activated
-      await supabase.from('loyalty_ledger').insert([
-        { customer_id: customerId, vendor_id: vendor.id, event_type: 'joined', source: 'qr', staff_user_id: user.id },
-        { customer_id: customerId, vendor_id: vendor.id, event_type: 'activated', source: 'qr', staff_user_id: user.id },
-      ])
-
-      membershipToken = created.membership_token
-    }
+  if (error) {
+    const msg = error.message.includes('Rate limit') || error.message.includes('rate_limit')
+      ? 'A round was already awarded in the last few minutes.'
+      : error.message.includes('not active') || error.message.includes('inactive')
+      ? 'This membership is not active.'
+      : error.message.includes('not found') || error.message.includes('token')
+      ? 'Customer not found. Make sure they show the correct QR code.'
+      : error.message
+    return NextResponse.json({ error: msg }, { status: 400 })
   }
 
-  if (action === 'stamp') {
-    const { data, error } = await supabase.rpc('add_stamp', {
-      p_membership_token: membershipToken,
-      p_staff_user_id: user.id,
-    })
+  const result = data as {
+    rounds_awarded: number
+    new_balance: number
+    campaign_name: string | null
+    reward_unlocked: boolean
+    reward_name: string | null
+  } | null
 
-    if (error) {
-      const msg = error.message.includes('Rate limit')
-        ? 'A stamp was already given in the last 15 minutes.'
-        : error.message.includes('not active')
-        ? 'This membership is not active.'
-        : error.message.includes('Staff user')
-        ? 'This card does not belong to your store.'
-        : error.message.includes('token not found') || error.message.includes('not found')
-        ? 'Customer not found. Make sure they show the correct QR code.'
-        : error.message
-      return NextResponse.json({ error: msg }, { status: 400 })
-    }
-
-    const balance = data as { stamps: number } | null
-    return NextResponse.json({
-      success: true,
-      message: `Stamp added! Customer now has ${balance?.stamps ?? '?'} stamp${(balance?.stamps ?? 0) !== 1 ? 's' : ''}.`,
-    })
-  }
-
-  if (action === 'points') {
-    const spend_amount: number = parseFloat(body.amount) || 0
-    if (spend_amount <= 0) return NextResponse.json({ error: 'Amount must be greater than 0' }, { status: 400 })
-
-    const { data, error } = await supabase.rpc('add_points_from_spend', {
-      p_membership_token: membershipToken,
-      p_staff_user_id: user.id,
-      p_purchase_amount: spend_amount,  // corrected: was p_spend_amount
-    })
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
-    }
-
-    const balance = data as { points: number } | null
-    return NextResponse.json({
-      success: true,
-      message: `Points added! Customer now has ${balance?.points ?? '?'} points.`,
-    })
-  }
-
-  return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
+  return NextResponse.json({
+    success: true,
+    rounds_awarded: result?.rounds_awarded ?? 1,
+    new_balance: result?.new_balance ?? 0,
+    campaign_name: result?.campaign_name ?? null,
+    reward_unlocked: result?.reward_unlocked ?? false,
+    reward_name: result?.reward_name ?? null,
+    message: `${result?.rounds_awarded ?? 1} round${(result?.rounds_awarded ?? 1) !== 1 ? 's' : ''} awarded!${result?.reward_unlocked ? ` Reward unlocked: ${result.reward_name}!` : ''}`,
+  })
 }

@@ -2,13 +2,19 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, QrCode, Users, FileCheck, Settings2 } from 'lucide-react'
+import {
+  LayoutDashboard,
+  QrCode,
+  PackageCheck,
+  Users,
+  Settings2,
+} from 'lucide-react'
 
 const items = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Home', color: '#2563EB' },
+  { href: '/collections', icon: PackageCheck, label: 'Collections', color: '#16A34A' },
+  { href: '/stamp', icon: QrCode, label: 'Stamp', primary: true, color: '#E8805A' },
   { href: '/customers', icon: Users, label: 'Customers', color: '#D97706' },
-  { href: '/stamp', icon: QrCode, label: 'QR & Scan', primary: true, color: '#16A34A' },
-  { href: '/claims', icon: FileCheck, label: 'Claims', color: '#DC2626' },
   { href: '/settings', icon: Settings2, label: 'Settings', color: '#6B7280' },
 ]
 
@@ -28,7 +34,7 @@ export default function BottomNav() {
               href={href}
               title={label}
               className={`flex items-center justify-center w-14 h-14 -mt-8 rounded-full shadow-xl transition-all mx-3 ${
-                scanActive ? 'bg-[#15803D]' : 'bg-[#16A34A] hover:bg-[#15803D]'
+                scanActive ? 'bg-[#d4714e]' : 'bg-[#E8805A] hover:bg-[#d4714e]'
               }`}
             >
               <Icon size={24} strokeWidth={2.5} className="text-white" />
