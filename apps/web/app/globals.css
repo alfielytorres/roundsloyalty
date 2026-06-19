@@ -5,7 +5,7 @@
 body {
   background-color: #F8F5F1;
   color: #111111;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 
 html {
@@ -16,12 +16,10 @@ html {
   --color-bg: #F8F5F1;
   --color-surface: #FFFFFF;
   --color-border: #E8E2D9;
+  --color-primary: #16A34A;
   --color-text: #111111;
-  --color-text-2: #6B7280;
-  --color-green: #16A34A;
-  --color-blue: #2563EB;
-  --color-amber: #D97706;
-  --color-red: #DC2626;
+  --color-text-secondary: #6B7280;
+  --color-text-muted: #9CA3AF;
 }
 
 @layer components {
@@ -29,10 +27,10 @@ html {
     @apply bg-white border border-[#E8E2D9] rounded-3xl shadow-sm;
   }
   .glass-row {
-    @apply bg-white border border-[#E8E2D9] rounded-2xl shadow-sm;
+    @apply bg-white border border-[#E8E2D9] rounded-2xl;
   }
   .dark-input {
-    @apply bg-white border border-[#E8E2D9] rounded-2xl px-4 py-3 text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/20 transition-all w-full;
+    @apply bg-white border border-[#E8E2D9] rounded-2xl px-4 py-3 text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#16A34A] focus:ring-2 focus:ring-[#16A34A]/20 transition-colors w-full;
   }
   .skeleton {
     @apply bg-[#E8E2D9] rounded-xl animate-pulse;
@@ -47,10 +45,10 @@ html {
     @apply border border-red-200 text-red-600 hover:bg-red-50 font-semibold rounded-2xl px-5 py-2.5 transition-colors;
   }
   .status-pending {
-    @apply bg-amber-100 text-amber-700 text-xs font-semibold px-2.5 py-1 rounded-full;
+    @apply bg-amber-50 text-amber-700 border border-amber-200 text-xs font-semibold px-2.5 py-1 rounded-full;
   }
   .status-active {
-    @apply bg-green-100 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full;
+    @apply bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-2.5 py-1 rounded-full;
   }
   .status-inactive {
     @apply bg-gray-100 text-gray-500 text-xs font-semibold px-2.5 py-1 rounded-full;

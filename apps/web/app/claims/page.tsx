@@ -31,7 +31,7 @@ async function ClaimsTable({ vendorId }: { vendorId: string }) {
 
   if (!claims?.length) {
     return (
-      <div className="bg-white/[.07] border border-white/10 rounded-3xl px-6 py-16 text-center text-white/40">
+      <div className="bg-white border border-[#E8E2D9] rounded-3xl px-6 py-16 text-center text-[#9CA3AF]">
         No claims yet. Customers can submit proof-of-purchase from the app.
       </div>
     )
@@ -47,34 +47,34 @@ async function ClaimsTable({ vendorId }: { vendorId: string }) {
         return (
           <div
             key={c.id}
-            className={`bg-white/[.07] border rounded-2xl px-5 py-4 flex items-start gap-4 ${
-              isPending ? 'border-yellow-500/30' : c.status === 'approved' ? 'border-emerald-500/30' : 'border-red-500/20'
+            className={`bg-white border rounded-2xl px-5 py-4 flex items-start gap-4 ${
+              isPending ? 'border-amber-200' : c.status === 'approved' ? 'border-emerald-200' : 'border-red-200'
             }`}
           >
             <div className="mt-0.5">
               {c.status === 'approved' ? (
-                <CheckCircle className="text-emerald-400" size={20} />
+                <CheckCircle className="text-emerald-600" size={20} />
               ) : c.status === 'rejected' ? (
-                <XCircle className="text-red-400" size={20} />
+                <XCircle className="text-red-500" size={20} />
               ) : (
-                <Clock className="text-yellow-400" size={20} />
+                <Clock className="text-amber-600" size={20} />
               )}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-4 mb-1">
-                <span className="font-bold text-white">{name}</span>
-                <span className="text-xs text-white/40 shrink-0">
+                <span className="font-bold text-[#111111]">{name}</span>
+                <span className="text-xs text-[#9CA3AF] shrink-0">
                   {new Date(c.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                 </span>
               </div>
               {c.amount != null && (
-                <div className="text-[#8B5CF6] font-bold text-lg mb-1">${c.amount.toFixed(2)}</div>
+                <div className="text-[#16A34A] font-bold text-lg mb-1">${c.amount.toFixed(2)}</div>
               )}
               {c.description && (
-                <p className="text-white/60 text-sm mb-2">{c.description}</p>
+                <p className="text-[#6B7280] text-sm mb-2">{c.description}</p>
               )}
               {c.notes && (
-                <p className="text-white/40 text-xs italic">Note: {c.notes}</p>
+                <p className="text-[#9CA3AF] text-xs italic">Note: {c.notes}</p>
               )}
             </div>
             {isPending && (
@@ -83,7 +83,7 @@ async function ClaimsTable({ vendorId }: { vendorId: string }) {
                   <input type="hidden" name="status" value="approved" />
                   <button
                     type="submit"
-                    className="flex items-center gap-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30 text-emerald-300 font-semibold text-sm rounded-xl px-4 py-2 transition-colors"
+                    className="flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-700 font-semibold text-sm rounded-xl px-4 py-2 transition-colors"
                   >
                     <CheckCircle size={14} />
                     Approve
@@ -93,7 +93,7 @@ async function ClaimsTable({ vendorId }: { vendorId: string }) {
                   <input type="hidden" name="status" value="rejected" />
                   <button
                     type="submit"
-                    className="flex items-center gap-1.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-400 font-semibold text-sm rounded-xl px-4 py-2 transition-colors"
+                    className="flex items-center gap-1.5 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 font-semibold text-sm rounded-xl px-4 py-2 transition-colors"
                   >
                     <XCircle size={14} />
                     Reject
@@ -104,8 +104,8 @@ async function ClaimsTable({ vendorId }: { vendorId: string }) {
             {!isPending && (
               <div className={`shrink-0 text-xs font-bold px-3 py-1 rounded-full capitalize ${
                 c.status === 'approved'
-                  ? 'bg-emerald-500/15 text-emerald-400'
-                  : 'bg-red-500/15 text-red-400'
+                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                  : 'bg-red-50 text-red-600 border border-red-200'
               }`}>
                 {c.status}
               </div>
@@ -121,7 +121,7 @@ function ClaimsSkeleton() {
   return (
     <div className="flex flex-col gap-3 animate-pulse">
       {[...Array(3)].map((_, i) => (
-        <div key={i} className="bg-white/[.07] border border-white/10 rounded-2xl px-5 py-4 h-20" />
+        <div key={i} className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-4 h-20" />
       ))}
     </div>
   )
@@ -147,18 +147,18 @@ export default async function ClaimsPage() {
     <main className="px-6 pt-10 pb-32">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
-          <p className="text-white/40 text-xs font-semibold tracking-widest uppercase mb-1">
+          <p className="text-[#9CA3AF] text-xs font-semibold tracking-widest uppercase mb-1">
             {vendor.business_name}
           </p>
           <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-extrabold text-white">Claims</h1>
+            <h1 className="text-3xl font-extrabold text-[#111111]">Claims</h1>
             {(pendingCount ?? 0) > 0 && (
-              <span className="bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 text-xs font-bold px-2.5 py-1 rounded-full">
+              <span className="bg-amber-50 border border-amber-200 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-full">
                 {pendingCount} pending
               </span>
             )}
           </div>
-          <p className="text-white/50 mt-1">Review proof-of-purchase submissions from customers</p>
+          <p className="text-[#6B7280] mt-1">Review proof-of-purchase submissions from customers</p>
         </div>
 
         <Suspense fallback={<ClaimsSkeleton />}>

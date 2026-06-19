@@ -16,7 +16,7 @@ export default function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 bg-white/95 backdrop-blur-xl border border-[#E8E2D9] rounded-full px-3 py-2.5 shadow-lg shadow-black/10">
+    <nav className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white border border-[#E8E2D9] rounded-full px-4 py-3 shadow-xl">
       {items.map(({ href, icon: Icon, label, primary, color }) => {
         const active = pathname === href || (!primary && href !== '/dashboard' && pathname.startsWith(href))
         const scanActive = primary && pathname.startsWith('/stamp')
@@ -27,7 +27,9 @@ export default function BottomNav() {
               key={href}
               href={href}
               title={label}
-              className="flex items-center justify-center w-14 h-14 -mt-8 rounded-full shadow-lg transition-all mx-2 bg-[#16A34A] hover:bg-[#15803D] shadow-green-200"
+              className={`flex items-center justify-center w-14 h-14 -mt-8 rounded-full shadow-xl transition-all mx-3 ${
+                scanActive ? 'bg-[#15803D]' : 'bg-[#16A34A] hover:bg-[#15803D]'
+              }`}
             >
               <Icon size={24} strokeWidth={2.5} className="text-white" />
             </Link>
@@ -39,12 +41,12 @@ export default function BottomNav() {
             key={href}
             href={href}
             title={label}
-            style={active ? { color } : undefined}
-            className={`flex items-center justify-center w-11 h-11 rounded-full transition-all text-sm ${
-              active ? 'bg-gray-100' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+            style={active ? { color } : {}}
+            className={`flex items-center justify-center w-12 h-12 rounded-full transition-all ${
+              active ? '' : 'text-[#9CA3AF] hover:text-[#6B7280] hover:bg-[#F8F5F1]'
             }`}
           >
-            <Icon size={20} strokeWidth={active ? 2.2 : 1.7} />
+            <Icon size={21} strokeWidth={active ? 2.2 : 1.7} />
           </Link>
         )
       })}
