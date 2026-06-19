@@ -82,22 +82,14 @@ export async function GET() {
     business = created
   }
 
-  if (!business.qr_code_secret) {
-    return NextResponse.json({ error: 'QR secret not configured.' }, { status: 500 })
-  }
-
-  const timestamp = Date.now()
-  const nonce = crypto.randomUUID()
-  const message = `${business.id}:${timestamp}:${nonce}`
-  const hmac = await computeHmac(business.qr_code_secret, message)
-
+  // Static payload — just the business_id, no expiry
   const payload = Buffer.from(
-    JSON.stringify({ business_id: business.id, timestamp, nonce, hmac }),
+    JSON.stringify({ business_id: business.id }),
   ).toString('base64')
 
   return NextResponse.json({
     payload,
     businessName: business.name,
-    expiresAt: timestamp + 5 * 60 * 1000,
+    expiresAt: null,
   })
 }

@@ -29,35 +29,24 @@ Deno.serve(async (req) => {
     if (!qr_payload) return json({ error: 'qr_payload required' }, 400)
 
     // Decode and parse QR payload
-    let parsed: { business_id: string; timestamp: number; nonce: string; hmac: string }
+    let parsed: { business_id: string; timestamp?: number; nonce?: string; hmac?: string }
     try {
       parsed = JSON.parse(atob(qr_payload))
     } catch {
       return json({ error: 'Invalid QR code' }, 400)
     }
 
-    const { business_id, timestamp, nonce, hmac } = parsed
+    const { business_id } = parsed
+    if (!business_id) return json({ error: 'Invalid QR code' }, 400)
 
-    // Check expiry
-    if (Date.now() - timestamp > QR_EXPIRY_MS) {
-      return json({ error: 'QR code expired. Please ask the vendor to refresh.' }, 400)
-    }
-
-    // Fetch business to get QR secret and owner
+    // Fetch business to get owner
     const { data: business, error: bizError } = await supabase
       .from('businesses')
-      .select('id, name, logo_url, qr_code_secret, owner_id')
+      .select('id, name, logo_url, owner_id')
       .eq('id', business_id)
       .single()
 
     if (bizError || !business) return json({ error: 'Business not found' }, 404)
-
-    // Verify HMAC
-    const expectedHmac = await computeHmac(
-      business.qr_code_secret,
-      `${business_id}:${timestamp}:${nonce}`,
-    )
-    if (expectedHmac !== hmac) return json({ error: 'Invalid QR code signature' }, 400)
 
     // Find the vendor record via owner_id (vendors schema)
     const { data: vendor, error: vendorError } = await supabase
