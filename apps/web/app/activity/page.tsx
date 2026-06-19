@@ -21,6 +21,22 @@ const EVENT_LABELS: Record<string, (delta: number) => string> = {
   new_customer_reward: () => 'New customer reward',
 }
 
+function eventColor(type: string) {
+  if (type === 'stamp_added') return '#16A34A'
+  if (type === 'points_added') return '#2563EB'
+  if (type === 'reward_redeemed') return '#D97706'
+  if (type === 'transaction_voided') return '#DC2626'
+  return '#6B7280'
+}
+
+function eventBg(type: string) {
+  if (type === 'stamp_added') return '#F0FDF4'
+  if (type === 'points_added') return '#EFF6FF'
+  if (type === 'reward_redeemed') return '#FFFBEB'
+  if (type === 'transaction_voided') return '#FEF2F2'
+  return '#F3F4F6'
+}
+
 async function LedgerFeed({ vendorId }: { vendorId: string }) {
   const cookieStore = cookies()
   const supabase = createServerClient(
@@ -38,7 +54,7 @@ async function LedgerFeed({ vendorId }: { vendorId: string }) {
 
   if (!entries?.length) {
     return (
-      <div className="glass-row px-5 py-16 text-center text-white/40">
+      <div className="bg-white border border-[#E8E2D9] rounded-3xl px-6 py-16 text-center text-[#9CA3AF] shadow-sm">
         No activity yet. Start scanning customer cards!
       </div>
     )
@@ -52,23 +68,19 @@ async function LedgerFeed({ vendorId }: { vendorId: string }) {
         const IconComp = EVENT_ICONS[e.event_type] ?? Activity
         const labelFn = EVENT_LABELS[e.event_type]
         const label = labelFn ? labelFn(e.delta ?? 0) : e.event_type.replace(/_/g, ' ')
-        const isPositive = e.event_type === 'stamp_added' || e.event_type === 'points_added' || e.event_type === 'new_customer_reward'
-        const isNegative = e.event_type === 'transaction_voided'
+        const color = eventColor(e.event_type)
+        const bg = eventBg(e.event_type)
 
         return (
-          <div key={e.id} className="glass-row px-5 py-4 flex items-center gap-4">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
-              isNegative ? 'bg-red-500/20' : 'bg-[#8B5CF6]/20'
-            }`}>
-              <IconComp size={18} className={isNegative ? 'text-red-400' : 'text-[#8B5CF6]'} />
+          <div key={e.id} className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-4 flex items-center gap-4 shadow-sm">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: bg }}>
+              <IconComp size={18} style={{ color }} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-white truncate">{name}</p>
-              <p className="text-white/40 text-xs mt-0.5">{new Date(e.created_at).toLocaleString()}</p>
+              <p className="font-semibold text-[#111111] truncate">{name}</p>
+              <p className="text-[#9CA3AF] text-xs mt-0.5">{new Date(e.created_at).toLocaleString()}</p>
             </div>
-            <span className={`font-bold text-sm whitespace-nowrap ${
-              isPositive ? 'text-[#8B5CF6]' : isNegative ? 'text-red-400' : 'text-white/50'
-            }`}>
+            <span className="font-bold text-sm whitespace-nowrap" style={{ color }}>
               {label}
             </span>
           </div>
@@ -82,13 +94,13 @@ function LedgerSkeleton() {
   return (
     <div className="flex flex-col gap-2 animate-pulse">
       {[...Array(8)].map((_, i) => (
-        <div key={i} className="glass-row px-5 py-4 flex items-center gap-4">
-          <div className="w-10 h-10 rounded-full bg-white/10 shrink-0" />
+        <div key={i} className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-4 flex items-center gap-4 shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-[#F0EDE8] shrink-0" />
           <div className="flex-1">
-            <div className="h-4 w-28 bg-white/10 rounded mb-2" />
-            <div className="h-3 w-20 bg-white/5 rounded" />
+            <div className="h-4 w-28 bg-[#E8E2D9] rounded mb-2" />
+            <div className="h-3 w-20 bg-[#F0EDE8] rounded" />
           </div>
-          <div className="h-4 w-16 bg-white/10 rounded" />
+          <div className="h-4 w-16 bg-[#E8E2D9] rounded" />
         </div>
       ))}
     </div>
@@ -102,9 +114,9 @@ export default async function ActivityPage() {
     <main className="px-6 pt-10 pb-32">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
-          <p className="text-white/40 text-xs font-semibold tracking-widest uppercase mb-1">{vendor.business_name}</p>
-          <h1 className="text-3xl font-extrabold text-white">Activity</h1>
-          <p className="text-white/50 mt-1">Full ledger of stamps, points and redemptions</p>
+          <p className="text-[#9CA3AF] text-xs font-semibold tracking-widest uppercase mb-1">{vendor.business_name}</p>
+          <h1 className="text-3xl font-extrabold text-[#111111]">Activity</h1>
+          <p className="text-[#6B7280] mt-1">Full ledger of stamps, points and redemptions</p>
         </div>
 
         <Suspense fallback={<LedgerSkeleton />}>
