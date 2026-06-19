@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import ConditionalNav from '@/components/ConditionalNav'
+import LayoutShell from '@/components/LayoutShell'
 
 export const metadata: Metadata = {
   title: 'Rounds Loyalty — Vendor Portal',
@@ -13,9 +14,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="bg-[#F8F5F1] text-[#111111] antialiased">
         <ConditionalNav />
-        <div className="lg:pl-60">
-          {children}
-        </div>
+        <LayoutShell>{children}</LayoutShell>
       </body>
     </html>
   )

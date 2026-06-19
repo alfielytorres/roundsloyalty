@@ -1,5 +1,6 @@
 import { getPortalData } from '@/lib/portal-data'
-import { LogOut } from 'lucide-react'
+import { LogOut, QrCode } from 'lucide-react'
+import Link from 'next/link'
 
 export default async function SettingsPage({ searchParams }: { searchParams: { error?: string; success?: string } }) {
   const { user, vendor } = await getPortalData()
@@ -51,6 +52,16 @@ export default async function SettingsPage({ searchParams }: { searchParams: { e
             <button type="submit" className="btn-primary self-start">Save settings</button>
           </form>
         </div>
+
+        <Link href="/qr" className="flex items-center gap-4 bg-[#16A34A] rounded-3xl p-5 mb-4 hover:bg-[#15803D] transition-colors">
+          <div className="w-10 h-10 rounded-2xl bg-white/25 flex items-center justify-center shrink-0">
+            <QrCode size={20} className="text-white" />
+          </div>
+          <div>
+            <h2 className="font-bold text-white">My QR Code</h2>
+            <p className="text-white/80 text-sm">Show this to customers so they can scan and earn stamps</p>
+          </div>
+        </Link>
 
         <div className="bg-white border border-[#E8E2D9] rounded-3xl p-6 shadow-sm">
           <h2 className="text-base font-bold text-[#111111] mb-1">Account</h2>
