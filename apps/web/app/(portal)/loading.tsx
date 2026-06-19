@@ -1,12 +1,17 @@
 export default function Loading() {
   return (
-    <div className="p-8">
-      <div className="max-w-6xl mx-auto animate-pulse">
-        <div className="h-8 w-48 bg-gray-200 rounded-2xl mb-3" />
-        <div className="h-4 w-32 bg-gray-100 rounded-xl mb-10" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[...Array(3)].map((_, i) => (
-            <div key={i} className="bg-white rounded-3xl p-6 h-32" />
+    <div className="px-6 pt-10 pb-32">
+      <div className="max-w-2xl mx-auto animate-pulse">
+        <div className="h-3 w-24 bg-white/10 rounded-lg mb-2" />
+        <div className="h-8 w-40 bg-white/10 rounded-xl mb-8" />
+        <div className="grid grid-cols-2 gap-4 mb-8">
+          {[...Array(2)].map((_, i) => (
+            <div key={i} className="glass-card p-5 h-24" />
+          ))}
+        </div>
+        <div className="flex flex-col gap-3">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="glass-card p-5 h-16" />
           ))}
         </div>
       </div>

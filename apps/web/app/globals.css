@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Outside @layer — beats all Tailwind layers */
 body {
   background-color: #081C12;
   color: #F8FAFC;
@@ -21,7 +20,7 @@ html {
   --color-warning: #FBBF24;
   --color-danger: #F87171;
   --color-text: #F8FAFC;
-  --color-text-secondary: #94A3B8;
+  --color-text-secondary: rgba(255,255,255,0.55);
 }
 
 @layer components {
@@ -47,7 +46,7 @@ html {
     @apply bg-yellow-500/20 text-yellow-300 text-xs font-semibold px-2.5 py-1 rounded-full;
   }
   .status-active {
-    @apply bg-emerald-500/20 text-emerald-300 text-xs font-semibold px-2.5 py-1 rounded-full;
+    @apply bg-[#22C55E]/20 text-[#86EFAC] text-xs font-semibold px-2.5 py-1 rounded-full;
   }
   .status-inactive {
     @apply bg-white/10 text-white/50 text-xs font-semibold px-2.5 py-1 rounded-full;
