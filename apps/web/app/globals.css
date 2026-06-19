@@ -6,6 +6,7 @@ body {
   background-color: #F5F5F7;
   color: #1D1D1F;
   letter-spacing: -0.025em;
+  line-height: 1.35;
 }
 
 html {
@@ -23,7 +24,7 @@ html {
 
 @layer components {
   .glass {
-    @apply bg-white/70 backdrop-blur-xl rounded-3xl p-6 border border-white/90 shadow-sm;
+    @apply bg-white/70 backdrop-blur-xl rounded-2xl p-4 border border-white/90 shadow-sm;
   }
   .card-rose  { @apply glass; }
   .card-teal  { @apply glass; }
