@@ -1,16 +1,12 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { crypto } from 'https://deno.land/std@0.208.0/crypto/mod.ts'
-import { encode } from 'https://deno.land/std@0.208.0/encoding/base64.ts'
 
 const QR_EXPIRY_MS = 5 * 60 * 1000 // 5 minutes
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-      },
+    return json(null, 200, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
     })
   }
 
@@ -28,7 +24,8 @@ Deno.serve(async (req) => {
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
     if (authError || !user) return json({ error: 'Unauthorized' }, 401)
 
-    const { qr_payload } = await req.json() as { qr_payload: string }
+    const body = await req.json() as { qr_payload?: string }
+    const { qr_payload } = body
     if (!qr_payload) return json({ error: 'qr_payload required' }, 400)
 
     // Decode and parse QR payload
@@ -46,10 +43,10 @@ Deno.serve(async (req) => {
       return json({ error: 'QR code expired. Please ask the vendor to refresh.' }, 400)
     }
 
-    // Fetch business to get QR secret
+    // Fetch business to get QR secret and owner
     const { data: business, error: bizError } = await supabase
       .from('businesses')
-      .select('id, name, logo_url, qr_code_secret')
+      .select('id, name, logo_url, qr_code_secret, owner_id')
       .eq('id', business_id)
       .single()
 
@@ -62,131 +59,104 @@ Deno.serve(async (req) => {
     )
     if (expectedHmac !== hmac) return json({ error: 'Invalid QR code signature' }, 400)
 
-    // Fetch active loyalty program
-    const { data: program, error: progError } = await supabase
-      .from('loyalty_programs')
-      .select('*')
-      .eq('business_id', business_id)
-      .eq('is_active', true)
+    // Find the vendor record via owner_id (vendors schema)
+    const { data: vendor, error: vendorError } = await supabase
+      .from('vendors')
+      .select('id, business_name')
+      .eq('owner_id', business.owner_id)
+      .limit(1)
       .single()
 
-    if (progError || !program) return json({ error: 'No active loyalty program for this business' }, 404)
+    if (vendorError || !vendor) return json({ error: 'Vendor not found' }, 404)
 
-    // Check consent — if no consent record, caller must show consent UI first
-    const { data: consent } = await supabase
-      .from('data_consents')
-      .select('id, withdrawn_at')
-      .eq('customer_id', user.id)
-      .eq('business_id', business_id)
+    // Find or create customer_vendor_membership
+    const customerId = user.id
+    let membershipToken: string
+
+    const { data: existing } = await supabase
+      .from('customer_vendor_memberships')
+      .select('membership_token, status')
+      .eq('customer_id', customerId)
+      .eq('vendor_id', vendor.id)
       .maybeSingle()
 
-    if (!consent) {
-      // Signal front-end to show consent modal before proceeding
-      return json({
-        requires_consent: true,
-        business: { id: business.id, name: business.name, logo_url: business.logo_url },
-      }, 200)
-    }
+    if (existing) {
+      membershipToken = existing.membership_token
+      // Auto-activate pending membership
+      if (existing.status === 'pending') {
+        await supabase
+          .from('customer_vendor_memberships')
+          .update({ status: 'active', activated_at: new Date().toISOString() })
+          .eq('customer_id', customerId)
+          .eq('vendor_id', vendor.id)
+      }
+    } else {
+      // Create new membership
+      const tokenBytes = new Uint8Array(32)
+      crypto.getRandomValues(tokenBytes)
+      const newToken = Array.from(tokenBytes).map(b => b.toString(16).padStart(2, '0')).join('')
 
-    if (consent.withdrawn_at) {
-      return json({ error: 'You have withdrawn consent for this business.' }, 403)
-    }
-
-    // Upsert loyalty card
-    const stampsToAdd = 1
-    const pointsToAdd = program.type === 'points' ? (program.config?.points_per_visit ?? 10) : 0
-
-    const { data: card, error: upsertError } = await supabase
-      .from('loyalty_cards')
-      .upsert(
-        {
-          customer_id: user.id,
-          program_id: program.id,
-          stamps_collected: stampsToAdd,
-          points_accumulated: pointsToAdd,
-          last_visit: new Date().toISOString(),
-        },
-        {
-          onConflict: 'customer_id,program_id',
-          ignoreDuplicates: false,
-        },
-      )
-      .select()
-      .single()
-
-    if (upsertError || !card) {
-      // On conflict, increment existing card
-      const { data: existingCard, error: fetchError } = await supabase
-        .from('loyalty_cards')
-        .select('*')
-        .eq('customer_id', user.id)
-        .eq('program_id', program.id)
-        .single()
-
-      if (fetchError || !existingCard) return json({ error: 'Failed to update card' }, 500)
-
-      const { data: updatedCard, error: updateError } = await supabase
-        .from('loyalty_cards')
-        .update({
-          stamps_collected: existingCard.stamps_collected + stampsToAdd,
-          points_accumulated: existingCard.points_accumulated + pointsToAdd,
-          last_visit: new Date().toISOString(),
+      const { data: created, error: createErr } = await supabase
+        .from('customer_vendor_memberships')
+        .insert({
+          customer_id: customerId,
+          vendor_id: vendor.id,
+          status: 'active',
+          membership_token: newToken,
+          activated_at: new Date().toISOString(),
         })
-        .eq('id', existingCard.id)
-        .select()
+        .select('membership_token')
         .single()
 
-      if (updateError || !updatedCard) return json({ error: 'Failed to update card' }, 500)
+      if (createErr || !created) {
+        return json({ error: 'Failed to create membership' }, 500)
+      }
 
-      await recordVisitEvent(supabase, updatedCard.id, business_id, stampsToAdd, pointsToAdd)
+      // Initialise loyalty balance
+      await supabase
+        .from('loyalty_balances')
+        .upsert({ customer_id: customerId, vendor_id: vendor.id, stamps: 0, points: 0 })
 
-      const rewardUnlocked = checkRewardUnlocked(updatedCard, program)
+      // Log joined + activated
+      await supabase.from('loyalty_ledger').insert([
+        { customer_id: customerId, vendor_id: vendor.id, event_type: 'joined', source: 'qr', staff_user_id: null },
+        { customer_id: customerId, vendor_id: vendor.id, event_type: 'activated', source: 'qr', staff_user_id: null },
+      ])
 
-      return json({
-        card: updatedCard,
-        stamps_added: stampsToAdd,
-        reward_unlocked: rewardUnlocked,
-        business: { id: business.id, name: business.name, logo_url: business.logo_url },
-      })
+      membershipToken = created.membership_token
     }
 
-    await recordVisitEvent(supabase, card.id, business_id, stampsToAdd, pointsToAdd)
-    const rewardUnlocked = checkRewardUnlocked(card, program)
+    // Add stamp via RPC
+    const { data: stampData, error: stampError } = await supabase.rpc('add_stamp', {
+      p_membership_token: membershipToken,
+      p_staff_user_id: business.owner_id,
+    })
+
+    if (stampError) {
+      return json({ error: stampError.message }, 400)
+    }
+
+    const balance = stampData as { stamps: number } | null
+    const stampsNow = balance?.stamps ?? 0
 
     return json({
-      card,
-      stamps_added: stampsToAdd,
-      reward_unlocked: rewardUnlocked,
-      business: { id: business.id, name: business.name, logo_url: business.logo_url },
+      card: {
+        id: customerId,
+        stamps_collected: stampsNow,
+      },
+      stamps_added: 1,
+      reward_unlocked: false,
+      business: {
+        id: business.id,
+        name: business.name,
+        logo_url: business.logo_url ?? null,
+      },
     })
   } catch (err) {
     console.error('stamp-card error:', err)
     return json({ error: 'Internal server error' }, 500)
   }
 })
-
-async function recordVisitEvent(
-  supabase: ReturnType<typeof createClient>,
-  cardId: string,
-  businessId: string,
-  stampsAdded: number,
-  pointsAdded: number,
-) {
-  await supabase.from('visit_events').insert({
-    card_id: cardId,
-    business_id: businessId,
-    stamps_added: stampsAdded,
-    points_added: pointsAdded,
-  })
-}
-
-function checkRewardUnlocked(card: Record<string, unknown>, program: Record<string, unknown>): boolean {
-  const config = program.config as Record<string, unknown>
-  if (program.type === 'stamp' && typeof config?.stamps_required === 'number') {
-    return (card.stamps_collected as number) >= config.stamps_required
-  }
-  return false
-}
 
 async function computeHmac(secret: string, message: string): Promise<string> {
   const encoder = new TextEncoder()
@@ -198,15 +168,16 @@ async function computeHmac(secret: string, message: string): Promise<string> {
     ['sign'],
   )
   const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(message))
-  return encode(new Uint8Array(signature))
+  return btoa(String.fromCharCode(...new Uint8Array(signature)))
 }
 
-function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
+function json(data: unknown, status = 200, extraHeaders: Record<string, string> = {}) {
+  return new Response(data === null ? null : JSON.stringify(data), {
     status,
     headers: {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
+      ...extraHeaders,
     },
   })
 }
