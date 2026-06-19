@@ -105,9 +105,24 @@ CREATE POLICY "Vendor sees own ledger" ON loyalty_ledger FOR SELECT USING (
   EXISTS (SELECT 1 FROM vendors v WHERE v.id = loyalty_ledger.vendor_id AND v.owner_id = auth.uid())
 );
 
--- LOYALTY PROGRAMS (add vendor_id if table already exists with only business_id)
-ALTER TABLE loyalty_programs ADD COLUMN IF NOT EXISTS vendor_id uuid REFERENCES vendors(id) ON DELETE CASCADE;
-ALTER TABLE loyalty_programs ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'active';
+-- LOYALTY PROGRAMS
+CREATE TABLE IF NOT EXISTS loyalty_programs (
+  id                 uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  vendor_id          uuid REFERENCES vendors(id) ON DELETE CASCADE,
+  type               text NOT NULL DEFAULT 'stamp_card',
+  config             jsonb NOT NULL DEFAULT '{}',
+  reward_description text,
+  status             text NOT NULL DEFAULT 'active',
+  created_at         timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE loyalty_programs ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Vendors manage own programs" ON loyalty_programs;
+CREATE POLICY "Vendors manage own programs" ON loyalty_programs FOR ALL USING (
+  EXISTS (SELECT 1 FROM vendors v WHERE v.id = loyalty_programs.vendor_id AND v.owner_id = auth.uid())
+);
+DROP POLICY IF EXISTS "Anyone can read active programs" ON loyalty_programs;
+CREATE POLICY "Anyone can read active programs" ON loyalty_programs FOR SELECT USING (loyalty_programs.status = 'active');
 
 -- REWARD RULES
 CREATE TABLE IF NOT EXISTS reward_rules (
