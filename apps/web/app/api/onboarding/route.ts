@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     .limit(1)
 
   if (existing && existing.length > 0) {
-    return NextResponse.json({ redirect: '/dashboard' }, { status: 200 })
+    return NextResponse.json({ success: true, redirect: '/dashboard' }, { status: 200 })
   }
 
   const { data: vendor, error } = await supabase
@@ -58,24 +58,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 400 })
   }
 
-  // Best-effort: create owner staff record (table may not exist yet)
+  // Create owner staff record
   await supabase.from('vendor_staff').insert({
     vendor_id: vendor.id,
     user_id: user.id,
     role: 'owner',
+    status: 'active',
   })
 
-  // Create matching businesses record so the iOS QR system works
-  const secret = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '')
-  await supabase.from('businesses').upsert(
-    {
-      owner_id: user.id,
-      name: business_name,
-      description: description || null,
-      qr_code_secret: secret,
-    },
-    { onConflict: 'owner_id', ignoreDuplicates: true },
-  )
+  // Update profile role to vendor
+  await supabase.from('profiles').update({ role: 'vendor' }).eq('id', user.id)
 
-  return NextResponse.json({ redirect: '/dashboard' }, { status: 200 })
+  return NextResponse.json({ success: true }, { status: 200 })
 }

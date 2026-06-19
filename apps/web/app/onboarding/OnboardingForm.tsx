@@ -18,7 +18,7 @@ export default function OnboardingForm({ error: initialError, defaultBusinessNam
       const res = await fetch('/api/onboarding', { method: 'POST', body: formData })
       const data = await res.json()
       if (!res.ok || data.error) { setError(data.error ?? 'Something went wrong.'); return }
-      router.push('/dashboard')
+      router.push(data.redirect ?? '/dashboard')
     } catch {
       setError('Network error. Please check your connection.')
     } finally {
