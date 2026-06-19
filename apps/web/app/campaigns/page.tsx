@@ -100,23 +100,24 @@ async function CampaignList({ vendorId }: { vendorId: string }) {
   )
 }
 
-export default async function CampaignsPage({ searchParams }: { searchParams: { error?: string; success?: string } }) {
+export default async function CampaignsPage({ searchParams }: { searchParams: Promise<{ error?: string; success?: string }> }) {
   const { vendor } = await getPortalData()
+  const query = await searchParams
 
   return (
     <main className="min-h-screen px-6 pt-10 pb-32">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
           <p className="text-xs tracking-widest uppercase text-black/30 font-semibold mb-1">ROUNDS VENDOR</p>
-          <h1 className="text-3xl font-extrabold text-[#111]">Campaigns</h1>
-          <p className="text-black/40 mt-1">Run bonus round events to reward loyal customers</p>
+          <h1 className="text-2xl font-bold text-[#1D1D1F]">Campaigns</h1>
+          <p className="text-black/40 text-sm mt-0.5">Run bonus round events to reward loyal customers</p>
         </div>
 
-        {searchParams?.error && (
-          <div className="mb-5 p-4 bg-black/5 border border-black/10 rounded-2xl text-black/60 text-sm">{searchParams.error}</div>
+        {query?.error && (
+          <div className="mb-5 p-4 bg-black/5 border border-black/10 rounded-2xl text-black/60 text-sm">{query.error}</div>
         )}
-        {searchParams?.success && (
-          <div className="mb-5 p-4 bg-black/5 border border-black/15 rounded-2xl text-black/70 text-sm font-semibold">{searchParams.success}</div>
+        {query?.success && (
+          <div className="mb-5 p-4 bg-black/5 border border-black/15 rounded-2xl text-black/70 text-sm font-semibold">{query.success}</div>
         )}
 
         <div className="glass mb-6">
