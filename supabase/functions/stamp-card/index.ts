@@ -115,18 +115,33 @@ Deno.serve(async (req) => {
       membershipToken = created.membership_token
     }
 
-    // Add stamp via RPC
-    const { data: stampData, error: stampError } = await supabase.rpc('add_stamp', {
-      p_membership_token: membershipToken,
-      p_staff_user_id: business.owner_id,
+    // Get current balance then increment
+    const { data: current } = await supabase
+      .from('loyalty_balances')
+      .select('stamps')
+      .eq('customer_id', customerId)
+      .eq('vendor_id', vendor.id)
+      .maybeSingle()
+
+    const newStamps = (current?.stamps ?? 0) + 1
+
+    await supabase
+      .from('loyalty_balances')
+      .upsert(
+        { customer_id: customerId, vendor_id: vendor.id, stamps: newStamps, points: 0 },
+        { onConflict: 'customer_id,vendor_id' }
+      )
+
+    const stampsNow = newStamps
+
+    // Log stamp to ledger
+    await supabase.from('loyalty_ledger').insert({
+      customer_id: customerId,
+      vendor_id: vendor.id,
+      event_type: 'stamp_added',
+      stamps_delta: 1,
+      source: 'qr',
     })
-
-    if (stampError) {
-      return json({ error: stampError.message }, 400)
-    }
-
-    const balance = stampData as { stamps: number } | null
-    const stampsNow = balance?.stamps ?? 0
 
     return json({
       card: {
@@ -147,18 +162,6 @@ Deno.serve(async (req) => {
   }
 })
 
-async function computeHmac(secret: string, message: string): Promise<string> {
-  const encoder = new TextEncoder()
-  const key = await crypto.subtle.importKey(
-    'raw',
-    encoder.encode(secret),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign'],
-  )
-  const signature = await crypto.subtle.sign('HMAC', key, encoder.encode(message))
-  return btoa(String.fromCharCode(...new Uint8Array(signature)))
-}
 
 function json(data: unknown, status = 200, extraHeaders: Record<string, string> = {}) {
   return new Response(data === null ? null : JSON.stringify(data), {
