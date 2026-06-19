@@ -2,6 +2,12 @@ import SwiftUI
 import MapKit
 import CoreLocation
 
+extension CLLocationCoordinate2D: @retroactive Equatable {
+    public static func == (lhs: CLLocationCoordinate2D, rhs: CLLocationCoordinate2D) -> Bool {
+        lhs.latitude == rhs.latitude && lhs.longitude == rhs.longitude
+    }
+}
+
 final class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObject {
     private let manager = CLLocationManager()
     @Published var userLocation: CLLocationCoordinate2D?
