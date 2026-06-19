@@ -33,13 +33,13 @@ async function RecentActivity({ vendorId }: { vendorId: string }) {
         return (
           <div key={e.id} className="glass-row px-5 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#8B5CF6]/20 flex items-center justify-center font-bold text-[#8B5CF6] text-sm">
+              <div className="w-8 h-8 rounded-full bg-[#22C55E]/20 flex items-center justify-center font-bold text-[#22C55E] text-sm">
                 {name.charAt(0).toUpperCase()}
               </div>
               <span className="font-semibold text-white">{name}</span>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-[#8B5CF6] font-bold text-sm">{label}</span>
+              <span className="text-[#22C55E] font-bold text-sm">{label}</span>
               <span className="text-white/40 text-xs">{new Date(e.created_at).toLocaleTimeString()}</span>
             </div>
           </div>
@@ -87,14 +87,14 @@ export default async function StampPage({
         <div className="mb-8">
           <p className="text-white/40 text-xs font-semibold tracking-widest uppercase mb-1">{vendor.business_name}</p>
           <h1 className="text-3xl font-extrabold text-white">Scan Card</h1>
-          <p className="text-white/50 mt-1">Scan or enter a customer's membership token</p>
+          <p className="text-white/50 mt-1">Scan or enter a customer&apos;s membership token</p>
         </div>
 
         {searchParams.error && (
           <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-2xl text-red-300 text-sm">{searchParams.error}</div>
         )}
         {searchParams.success && (
-          <div className="mb-6 p-4 bg-[#8B5CF6]/20 border border-[#8B5CF6]/30 rounded-2xl text-white font-semibold">{searchParams.success}</div>
+          <div className="mb-6 p-4 bg-[#22C55E]/20 border border-[#22C55E]/30 rounded-2xl text-[#86EFAC] font-semibold">{searchParams.success}</div>
         )}
 
         <StampScanner />

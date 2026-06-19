@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
+import BottomNav from '@/components/BottomNav'
 
 export default async function PortalLayout({ children }: { children: React.ReactNode }) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -23,5 +24,10 @@ export default async function PortalLayout({ children }: { children: React.React
 
   if (!vendors || vendors.length === 0) redirect('/onboarding')
 
-  return <>{children}</>
+  return (
+    <>
+      {children}
+      <BottomNav />
+    </>
+  )
 }

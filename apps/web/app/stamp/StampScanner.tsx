@@ -1,21 +1,85 @@
 'use client'
 
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { QrCode } from 'lucide-react'
+import { QrCode, Camera, X } from 'lucide-react'
 
 export default function StampScanner() {
   const inputRef = useRef<HTMLInputElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const streamRef = useRef<MediaStream | null>(null)
+  const rafRef = useRef<number>(0)
+
   const [token, setToken] = useState('')
   const [action, setAction] = useState<'stamp' | 'points'>('stamp')
   const [count, setCount] = useState(1)
   const [amount, setAmount] = useState('')
   const [loading, setLoading] = useState(false)
+  const [cameraOpen, setCameraOpen] = useState(false)
+  const [cameraError, setCameraError] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
-    inputRef.current?.focus()
+    if (!cameraOpen) inputRef.current?.focus()
+  }, [cameraOpen])
+
+  const stopCamera = useCallback(() => {
+    cancelAnimationFrame(rafRef.current)
+    streamRef.current?.getTracks().forEach((t) => t.stop())
+    streamRef.current = null
+    setCameraOpen(false)
   }, [])
+
+  const startCamera = useCallback(async () => {
+    setCameraError(null)
+    setCameraOpen(true)
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+      })
+      streamRef.current = stream
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream
+        await videoRef.current.play()
+        scanLoop()
+      }
+    } catch {
+      setCameraError('Camera access denied. Grant permission and try again.')
+      setCameraOpen(false)
+    }
+  }, [])
+
+  function scanLoop() {
+    const video = videoRef.current
+    if (!video || video.readyState < 2) {
+      rafRef.current = requestAnimationFrame(scanLoop)
+      return
+    }
+
+    if ('BarcodeDetector' in window) {
+      // @ts-ignore
+      const detector = new window.BarcodeDetector({ formats: ['qr_code'] })
+      const detect = async () => {
+        try {
+          const codes = await detector.detect(video)
+          if (codes.length > 0) {
+            const value = codes[0].rawValue as string
+            stopCamera()
+            setToken(value)
+            setTimeout(() => inputRef.current?.form?.requestSubmit(), 100)
+            return
+          }
+        } catch { /* continue */ }
+        rafRef.current = requestAnimationFrame(detect)
+      }
+      detect()
+    } else {
+      setCameraError('QR scanning not supported in this browser. Use Chrome or paste the token.')
+      stopCamera()
+    }
+  }
+
+  useEffect(() => () => { stopCamera() }, [stopCamera])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -48,15 +112,46 @@ export default function StampScanner() {
   }
 
   return (
-    <div className="glass-card p-8">
-      <h2 className="flex items-center gap-2 text-xl font-bold text-white mb-2">
-        <QrCode size={20} className="text-[#8B5CF6]" />
-        Scan or enter membership token
-      </h2>
-      <p className="text-white/50 text-sm mb-6">
-        Ask the customer to open their Rounds app and show their QR code.
-        A USB/Bluetooth scanner will fill this automatically.
-      </p>
+    <div className="glass-card p-6">
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <h2 className="flex items-center gap-2 text-xl font-bold text-white">
+            <QrCode size={20} className="text-[#22C55E]" />
+            Scan or enter membership token
+          </h2>
+          <p className="text-white/50 text-sm mt-1">
+            Ask the customer to show their QR code, or scan with camera below.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={cameraOpen ? stopCamera : startCamera}
+          className={`flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-semibold transition-colors shrink-0 ml-4 ${
+            cameraOpen
+              ? 'bg-red-500/20 text-red-300 hover:bg-red-500/30'
+              : 'bg-[#22C55E]/20 text-[#22C55E] hover:bg-[#22C55E]/30'
+          }`}
+        >
+          {cameraOpen ? <><X size={15} />Close</> : <><Camera size={15} />Camera</>}
+        </button>
+      </div>
+
+      {cameraError && (
+        <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-2xl text-red-300 text-sm">
+          {cameraError}
+        </div>
+      )}
+
+      {cameraOpen && (
+        <div className="mb-5 relative rounded-2xl overflow-hidden bg-black aspect-video">
+          <video ref={videoRef} className="w-full h-full object-cover" muted playsInline />
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-48 h-48 border-2 border-[#22C55E] rounded-2xl shadow-[0_0_0_9999px_rgba(0,0,0,0.45)]" />
+          </div>
+          <p className="absolute bottom-3 left-0 right-0 text-center text-white/60 text-xs">Point at the customer&apos;s QR code</p>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div>
           <label className="block text-sm font-semibold text-white mb-2">Membership token</label>
@@ -79,7 +174,7 @@ export default function StampScanner() {
               type="button"
               onClick={() => setAction('stamp')}
               className={`flex-1 py-2.5 rounded-2xl font-semibold text-sm transition-colors ${
-                action === 'stamp' ? 'bg-[#8B5CF6] text-white' : 'bg-white/10 text-white/60 hover:bg-white/15'
+                action === 'stamp' ? 'bg-[#22C55E] text-[#081C12]' : 'bg-white/10 text-white/60 hover:bg-white/15'
               }`}
             >
               Add stamp
@@ -88,7 +183,7 @@ export default function StampScanner() {
               type="button"
               onClick={() => setAction('points')}
               className={`flex-1 py-2.5 rounded-2xl font-semibold text-sm transition-colors ${
-                action === 'points' ? 'bg-[#8B5CF6] text-white' : 'bg-white/10 text-white/60 hover:bg-white/15'
+                action === 'points' ? 'bg-[#22C55E] text-[#081C12]' : 'bg-white/10 text-white/60 hover:bg-white/15'
               }`}
             >
               Add points
@@ -106,7 +201,7 @@ export default function StampScanner() {
                   type="button"
                   onClick={() => setCount(n)}
                   className={`w-12 h-12 rounded-2xl font-bold text-sm transition-colors ${
-                    count === n ? 'bg-[#8B5CF6] text-white' : 'bg-white/10 text-white/70 hover:bg-white/20'
+                    count === n ? 'bg-[#22C55E] text-[#081C12]' : 'bg-white/10 text-white/70 hover:bg-white/20'
                   }`}
                 >
                   {n}

@@ -55,7 +55,7 @@ async function CustomerTable({ vendorId, segment }: { vendorId: string; segment:
               <tr key={m.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-[#8B5CF6]/20 flex items-center justify-center font-bold text-[#8B5CF6] text-sm">
+                    <div className="w-9 h-9 rounded-full bg-[#22C55E]/20 flex items-center justify-center font-bold text-[#22C55E] text-sm">
                       {name.charAt(0).toUpperCase()}
                     </div>
                     <span className="font-semibold text-white">{name}</span>
@@ -131,10 +131,10 @@ export default async function CustomersPage({
             <h1 className="text-3xl font-extrabold text-white">Customers</h1>
           </div>
           <div className="flex gap-2 mt-1">
-            <a href={`/api/export?vendor_id=${vendor.id}&format=csv`} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/20 text-white/60 text-sm font-semibold hover:border-[#8B5CF6] hover:text-white transition-colors">
+            <a href={`/api/export?vendor_id=${vendor.id}&format=csv`} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/20 text-white/60 text-sm font-semibold hover:border-[#22C55E] hover:text-white transition-colors">
               <Download size={13} />CSV
             </a>
-            <a href={`/api/export?vendor_id=${vendor.id}&format=json`} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/20 text-white/60 text-sm font-semibold hover:border-[#8B5CF6] hover:text-white transition-colors">
+            <a href={`/api/export?vendor_id=${vendor.id}&format=json`} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/20 text-white/60 text-sm font-semibold hover:border-[#22C55E] hover:text-white transition-colors">
               <Download size={13} />JSON
             </a>
           </div>
@@ -144,7 +144,7 @@ export default async function CustomersPage({
           {['all', 'active', 'pending', 'inactive'].map((seg) => (
             <Link key={seg} href={`/customers?segment=${seg}`}
               className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
-                segment === seg ? 'bg-[#8B5CF6] text-white' : 'bg-white/[.07] border border-white/10 text-white/50 hover:text-white'
+                segment === seg ? 'bg-[#22C55E] text-[#081C12]' : 'bg-white/[.07] border border-white/10 text-white/50 hover:text-white'
               }`}>
               {seg.charAt(0).toUpperCase() + seg.slice(1)}
             </Link>
