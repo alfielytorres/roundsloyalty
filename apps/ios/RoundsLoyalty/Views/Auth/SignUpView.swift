@@ -1,4 +1,5 @@
 import SwiftUI
+import Supabase
 
 struct SignUpView: View {
     @Binding var showSignUp: Bool
@@ -121,11 +122,13 @@ struct SignUpView: View {
         errorMessage = nil
         successMessage = nil
         do {
-            struct SignUpMeta: Encodable { let display_name: String; let role: String }
             try await supabase.auth.signUp(
                 email: email,
                 password: password,
-                data: SignUpMeta(display_name: displayName, role: "customer")
+                data: [
+                    "display_name": AnyJSON.string(displayName),
+                    "role": AnyJSON.string("customer")
+                ]
             )
             successMessage = "Account created! Please check your email to confirm your account."
         } catch {
