@@ -54,6 +54,7 @@ struct VendorPin: Identifiable {
 struct DiscoverMapView: View {
     @StateObject private var locationManager = LocationManager()
     @State private var vendors: [VendorPin] = []
+    @State private var mappableVendors: [VendorPin] = []
     @State private var selectedVendor: VendorPin?
     @State private var isLoading = true
     @State private var region = MKCoordinateRegion(
@@ -70,7 +71,7 @@ struct DiscoverMapView: View {
                 ZStack(alignment: .bottom) {
                     Map(coordinateRegion: $region,
                         showsUserLocation: true,
-                        annotationItems: vendors) { v in
+                        annotationItems: mappableVendors) { v in
                         MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: v.lat, longitude: v.lng)) {
                             VendorMapPin(isSelected: selectedVendor?.id == v.id)
                                 .onTapGesture { actionVendor = v }
@@ -232,17 +233,16 @@ struct DiscoverMapView: View {
                 .eq("status", value: "active")
                 .execute()
                 .value
-            vendors = rows.compactMap { row in
+            // All vendors in the list
+            vendors = rows.map { row in
+                VendorPin(id: row.id, name: row.businessName, address: row.address,
+                          description: row.description, lat: row.lat ?? 0, lng: row.lng ?? 0)
+            }
+            // Only vendors with real coordinates get a map pin
+            mappableVendors = rows.compactMap { row in
                 guard let lat = row.lat, let lng = row.lng else { return nil }
                 return VendorPin(id: row.id, name: row.businessName, address: row.address,
                                  description: row.description, lat: lat, lng: lng)
-            }
-            if vendors.isEmpty {
-                vendors = rows.map { row in
-                    VendorPin(id: row.id, name: row.businessName, address: row.address,
-                              description: row.description,
-                              lat: row.lat ?? -33.8688, lng: row.lng ?? 151.2093)
-                }
             }
         } catch {
             print("Failed to load vendors: \(error)")
