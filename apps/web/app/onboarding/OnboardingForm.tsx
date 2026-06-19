@@ -4,7 +4,13 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Store } from 'lucide-react'
 
-export default function OnboardingForm({ error: initialError }: { error?: string }) {
+export default function OnboardingForm({
+  error: initialError,
+  defaultBusinessName,
+}: {
+  error?: string
+  defaultBusinessName?: string
+}) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(initialError ?? null)
@@ -47,6 +53,18 @@ export default function OnboardingForm({ error: initialError }: { error?: string
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div>
+            <label className="block text-sm font-semibold text-white mb-1">Business name</label>
+            <input
+              type="text"
+              name="business_name"
+              required
+              defaultValue={defaultBusinessName}
+              placeholder="e.g. The Coffee Corner"
+              className="w-full dark-input"
+              disabled={loading}
+            />
+          </div>
           <div>
             <label className="block text-sm font-semibold text-white mb-1">Description</label>
             <input

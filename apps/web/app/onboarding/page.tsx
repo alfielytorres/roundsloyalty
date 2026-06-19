@@ -23,5 +23,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: {
     .maybeSingle()
   if (existing) redirect('/dashboard')
 
-  return <OnboardingForm error={searchParams.error} />
+  const defaultBusinessName = (user.user_metadata?.display_name as string) ?? ''
+
+  return <OnboardingForm error={searchParams.error} defaultBusinessName={defaultBusinessName} />
 }
