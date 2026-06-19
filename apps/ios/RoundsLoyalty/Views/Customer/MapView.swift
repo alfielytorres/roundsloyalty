@@ -44,40 +44,8 @@ struct DiscoverMapView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
-                Map(coordinateRegion: $region,
-                    showsUserLocation: true,
-                    annotationItems: businesses.filter { $0.lat != nil && $0.lng != nil }) { biz in
-                    MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: biz.lat ?? 0, longitude: biz.lng ?? 0)) {
-                        BusinessMapPin(business: biz, isSelected: selectedBusiness?.id == biz.id)
-                            .onTapGesture { withAnimation { selectedBusiness = biz } }
-                    }
-                }
-                .colorScheme(.light)
-                .ignoresSafeArea(edges: .top)
-
-                VStack(spacing: 0) {
-                    if isLoading {
-                        ProgressView()
-                            .tint(.brandGreen)
-                            .padding()
-                            .background(Color.white.opacity(0.9))
-                            .cornerRadius(16)
-                            .padding()
-                    } else if !businesses.isEmpty {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 12) {
-                                ForEach(businesses) { biz in
-                                    BusinessCard(business: biz, isSelected: selectedBusiness?.id == biz.id)
-                                        .onTapGesture { selectBusiness(biz) }
-                                }
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
-                        }
-                        .background(Color.brandCream.opacity(0.95))
-                        .cornerRadius(20, corners: [.topLeft, .topRight])
-                    }
-                }
+                mapLayer
+                bottomSheet
             }
             .navigationTitle("Discover")
             .navigationBarTitleDisplayMode(.inline)
@@ -89,6 +57,54 @@ struct DiscoverMapView: View {
                 region.center = coord
             }
         }
+    }
+
+    @ViewBuilder private var mapLayer: some View {
+        Map(coordinateRegion: $region,
+            showsUserLocation: true,
+            annotationItems: businesses.filter { $0.lat != nil && $0.lng != nil }) { biz in
+            MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: biz.lat ?? 0, longitude: biz.lng ?? 0)) {
+                BusinessMapPin(business: biz, isSelected: selectedBusiness?.id == biz.id)
+                    .onTapGesture { withAnimation { selectedBusiness = biz } }
+            }
+        }
+        .colorScheme(.light)
+        .ignoresSafeArea(edges: .top)
+    }
+
+    @ViewBuilder private var bottomSheet: some View {
+        VStack(spacing: 0) {
+            if isLoading {
+                loadingIndicator
+            } else if !businesses.isEmpty {
+                businessCarousel
+            }
+        }
+    }
+
+    private var loadingIndicator: some View {
+        ProgressView()
+            .tint(.brandGreen)
+            .padding()
+            .background(Color.white.opacity(0.9))
+            .cornerRadius(16)
+            .padding()
+    }
+
+    private var businessCarousel: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 12) {
+                ForEach(businesses) { biz in
+                    let selected = selectedBusiness?.id == biz.id
+                    BusinessCard(business: biz, isSelected: selected)
+                        .onTapGesture { selectBusiness(biz) }
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+        }
+        .background(Color.brandCream.opacity(0.95))
+        .cornerRadius(20, corners: [.topLeft, .topRight])
     }
 
     private func selectBusiness(_ biz: Business) {
