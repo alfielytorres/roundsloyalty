@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
-import { Megaphone } from 'lucide-react'
+import { Megaphone, Clock } from 'lucide-react'
 
 interface Campaign {
   id: string
@@ -22,27 +22,11 @@ function campaignStatus(c: Campaign): 'live' | 'scheduled' | 'ended' | 'cancelle
   return 'ended'
 }
 
-const statusConfig = {
-  live: {
-    cardClass: 'bg-gradient-to-br from-[#D4A017] to-[#8B6010] rounded-3xl p-5 text-white',
-    badge: 'bg-white/20 text-white text-xs font-bold px-2.5 py-1 rounded-full',
-    label: 'Live',
-  },
-  scheduled: {
-    cardClass: 'bg-gradient-to-br from-[#4A6FA5] to-[#1A2A50] rounded-3xl p-5 text-white',
-    badge: 'bg-white/20 text-white text-xs font-bold px-2.5 py-1 rounded-full',
-    label: 'Scheduled',
-  },
-  ended: {
-    cardClass: 'bg-[#1A1A1A] rounded-3xl p-5 text-white',
-    badge: 'bg-white/10 text-white/50 text-xs font-bold px-2.5 py-1 rounded-full',
-    label: 'Ended',
-  },
-  cancelled: {
-    cardClass: 'bg-gradient-to-br from-[#5A1A1A] to-[#1A0A0A] rounded-3xl p-5 text-white',
-    badge: 'bg-white/10 text-white/50 text-xs font-bold px-2.5 py-1 rounded-full',
-    label: 'Cancelled',
-  },
+const statusBadge = {
+  live: 'bg-[#E8805A]/10 text-[#E8805A] border border-[#E8805A]/20',
+  scheduled: 'bg-black/5 text-black/60 border border-black/10',
+  ended: 'bg-black/5 text-black/30 border border-black/5',
+  cancelled: 'bg-red-50 text-red-400 border border-red-100',
 }
 
 async function CampaignList({ vendorId }: { vendorId: string }) {
@@ -62,10 +46,10 @@ async function CampaignList({ vendorId }: { vendorId: string }) {
 
   if (!campaigns?.length) {
     return (
-      <div className="card-dark px-6 py-12 text-center">
-        <Megaphone className="mx-auto text-white/20 mb-3" size={36} />
-        <p className="text-white/50 font-medium">No campaigns yet</p>
-        <p className="text-white/30 text-sm mt-1">Create your first campaign to boost engagement</p>
+      <div className="glass px-6 py-12 text-center">
+        <Megaphone className="mx-auto text-black/20 mb-3" size={36} />
+        <p className="text-black/40 font-medium">No campaigns yet</p>
+        <p className="text-black/30 text-sm mt-1">Create your first campaign to boost engagement</p>
       </div>
     )
   }
@@ -74,32 +58,40 @@ async function CampaignList({ vendorId }: { vendorId: string }) {
     <div className="flex flex-col gap-3">
       {(campaigns as Campaign[]).map((c) => {
         const st = campaignStatus(c)
-        const cfg = statusConfig[st]
+        const isLive = st === 'live'
         return (
-          <div key={c.id} className={cfg.cardClass}>
+          <div key={c.id} className={`glass ${!isLive && st !== 'scheduled' ? 'opacity-60' : ''}`}>
             <div className="flex items-start justify-between gap-3 mb-3">
               <div>
-                <span className={cfg.badge}>{cfg.label}</span>
-                <h3 className="font-bold text-white text-lg mt-2">{c.name}</h3>
-                <p className="text-white/50 text-sm mt-0.5">
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${statusBadge[st]}`}>
+                  {st.charAt(0).toUpperCase() + st.slice(1)}
+                </span>
+                <h3 className="font-bold text-[#111] text-lg mt-2">{c.name}</h3>
+                <p className="text-black/40 text-sm mt-0.5">
                   {new Date(c.starts_at).toLocaleDateString()} — {new Date(c.ends_at).toLocaleDateString()}
                 </p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-6xl font-black text-white leading-none">{c.round_value}×</p>
-                <p className="text-white/60 text-xs tracking-widest uppercase mt-1">rounds</p>
+                <p className="text-5xl font-black text-[#111] leading-none">{c.round_value}×</p>
+                <p className="text-black/30 text-xs tracking-widest uppercase mt-1">rounds</p>
               </div>
             </div>
             {c.customer_message && (
-              <p className="text-white/60 text-sm italic mb-3">&ldquo;{c.customer_message}&rdquo;</p>
+              <p className="text-black/50 text-sm italic mb-3">&ldquo;{c.customer_message}&rdquo;</p>
             )}
-            {st === 'live' && (
-              <form action="/api/campaigns/cancel" method="POST">
-                <input type="hidden" name="campaign_id" value={c.id} />
-                <button type="submit" className="text-xs font-semibold rounded-xl px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white transition-colors border border-white/20">
-                  End campaign
-                </button>
-              </form>
+            {isLive && (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5 text-[#E8805A] text-xs font-semibold">
+                  <Clock size={12} />
+                  <span>Ends {new Date(c.ends_at).toLocaleString()}</span>
+                </div>
+                <form action="/api/campaigns/cancel" method="POST">
+                  <input type="hidden" name="campaign_id" value={c.id} />
+                  <button type="submit" className="text-xs font-semibold rounded-xl px-3 py-1.5 border border-black/10 text-black/50 hover:border-black/20 hover:text-black/70 transition-colors">
+                    End campaign
+                  </button>
+                </form>
+              </div>
             )}
           </div>
         )
@@ -112,63 +104,64 @@ export default async function CampaignsPage({ searchParams }: { searchParams: { 
   const { vendor } = await getPortalData()
 
   return (
-    <main className="min-h-screen bg-[#0D0D0D] px-6 pt-10 pb-32">
+    <main className="min-h-screen px-6 pt-10 pb-32">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
-          <p className="text-xs tracking-widest uppercase text-white/30 font-semibold mb-1">ROUNDS VENDOR</p>
-          <h1 className="text-3xl font-extrabold text-white">Campaigns</h1>
-          <p className="text-white/40 mt-1">Run bonus round events to reward loyal customers</p>
+          <p className="text-xs tracking-widest uppercase text-black/30 font-semibold mb-1">ROUNDS VENDOR</p>
+          <h1 className="text-3xl font-extrabold text-[#111]">Campaigns</h1>
+          <p className="text-black/40 mt-1">Run bonus round events to reward loyal customers</p>
         </div>
 
         {searchParams?.error && (
-          <div className="mb-5 p-4 bg-red-900/30 border border-red-500/30 rounded-2xl text-red-400 text-sm">{searchParams.error}</div>
+          <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-500 text-sm">{searchParams.error}</div>
         )}
         {searchParams?.success && (
-          <div className="mb-5 p-4 bg-green-900/30 border border-green-500/30 rounded-2xl text-green-400 text-sm font-semibold">{searchParams.success}</div>
+          <div className="mb-5 p-4 bg-[#E8805A]/10 border border-[#E8805A]/20 rounded-2xl text-[#E8805A] text-sm font-semibold">{searchParams.success}</div>
         )}
 
-        {/* Create campaign form */}
-        <div className="card-dark mb-6">
-          <h2 className="text-base font-bold text-white mb-5">Create campaign</h2>
+        <div className="glass mb-6">
+          <h2 className="text-base font-bold text-[#111] mb-5">Create campaign</h2>
           <form action="/api/campaigns/create" method="POST" className="flex flex-col gap-4">
             <input type="hidden" name="vendor_id" value={vendor.id} />
 
             <div>
-              <label className="block text-sm font-semibold text-white/60 mb-1.5">Campaign name</label>
-              <input name="name" required placeholder="e.g. Double Round Weekend" className="w-full dark-input" />
+              <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Campaign name</label>
+              <input name="name" required placeholder="e.g. Double Round Weekend" className="dark-input" />
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-white/60 mb-1.5">Round value (per scan)</label>
-              <input type="number" name="round_value" min="2" max="10" required defaultValue={2} className="w-full dark-input" />
-              <p className="text-white/30 text-xs mt-1">Must be between 2 and your program&apos;s max round value</p>
+              <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Round value (per scan)</label>
+              <input type="number" name="round_value" min="2" max="10" required defaultValue={2} className="dark-input" />
+              <p className="text-black/30 text-xs mt-1">Must be between 2 and your program&apos;s max round value</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-white/60 mb-1.5">Start date &amp; time</label>
-                <input type="datetime-local" name="starts_at" required className="w-full dark-input" />
+                <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Start</label>
+                <input type="datetime-local" name="starts_at" required className="dark-input" />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-white/60 mb-1.5">End date &amp; time</label>
-                <input type="datetime-local" name="ends_at" required className="w-full dark-input" />
+                <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">End</label>
+                <input type="datetime-local" name="ends_at" required className="dark-input" />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-white/60 mb-1.5">Customer message (optional)</label>
-              <textarea name="customer_message" rows={2} placeholder="Message shown to customers during the campaign" className="w-full dark-input resize-none" />
+              <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Customer message (optional)</label>
+              <textarea name="customer_message" rows={2} placeholder="Message shown to customers during the campaign" className="dark-input resize-none" />
             </div>
 
-            <button type="submit" className="btn-primary self-start">Create campaign</button>
+            <button type="submit" className="self-start bg-[#111] hover:bg-[#222] text-white font-bold py-2.5 px-5 rounded-2xl transition-colors text-sm">
+              Create campaign
+            </button>
           </form>
         </div>
 
-        <h2 className="text-base font-bold text-white mb-4">All campaigns</h2>
+        <h2 className="text-base font-bold text-[#111] mb-4">All campaigns</h2>
         <Suspense fallback={
           <div className="flex flex-col gap-3 animate-pulse">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="card-dark h-28" />
+              <div key={i} className="glass h-28" />
             ))}
           </div>
         }>

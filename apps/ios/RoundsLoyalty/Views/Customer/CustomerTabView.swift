@@ -38,14 +38,14 @@ struct DarkTabBar: View {
 
     var body: some View {
         ZStack {
-            // Dark glass background
+            // Light glass background
             RoundedRectangle(cornerRadius: 28)
-                .fill(Color(hex: "#111111").opacity(0.95))
+                .fill(Color.white.opacity(0.80))
                 .overlay(
                     RoundedRectangle(cornerRadius: 28)
-                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                        .stroke(Color.black.opacity(0.06), lineWidth: 1)
                 )
-                .shadow(color: .black.opacity(0.5), radius: 20, x: 0, y: -4)
+                .shadow(color: .black.opacity(0.10), radius: 20, x: 0, y: -4)
                 .frame(height: 80)
 
             HStack(spacing: 0) {
@@ -92,10 +92,10 @@ struct DarkTabItem: View {
             VStack(spacing: 3) {
                 Image(systemName: icon)
                     .font(.system(size: 20, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(isSelected ? .accentDefault : Color.secondaryText)
+                    .foregroundColor(isSelected ? Color(hex: "#111111") : Color.black.opacity(0.35))
                 Text(label)
                     .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(isSelected ? .accentDefault : Color.secondaryText)
+                    .foregroundColor(isSelected ? Color(hex: "#111111") : Color.black.opacity(0.35))
             }
             .frame(maxWidth: .infinity)
             .padding(.top, 12)

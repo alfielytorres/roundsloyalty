@@ -1,29 +1,27 @@
 import SwiftUI
 
-// MARK: - Dark glass palette
+// MARK: - Palette
 
 extension Color {
-    // New dark theme colours
-    static let appBackground = Color(hex: "#0D0D0D")
-    static let glassCard = Color.white.opacity(0.10)
-    static let glassBorder = Color.white.opacity(0.15)
-    static let primaryText = Color.white
-    static let secondaryText = Color.white.opacity(0.55)
-    static let accentDefault = Color(hex: "#E8805A") // coral fallback
+    static let appBackground = Color(hex: "#F0EDE8")
+    static let glassCard = Color.white.opacity(0.60)
+    static let glassBorder = Color.white.opacity(0.80)
+    static let primaryText = Color(hex: "#111111")
+    static let secondaryText = Color.black.opacity(0.40)
+    static let accentDefault = Color(hex: "#E8805A")
 
-    // Legacy brand colours kept for compatibility
+    // Legacy compatibility
     static let brandGreen = Color(red: 0x16 / 255, green: 0xA3 / 255, blue: 0x4A / 255)
     static let brandLightGreen = Color(red: 0xD1 / 255, green: 0xFA / 255, blue: 0xE5 / 255)
     static let brandDarkGreen = Color(red: 0x15 / 255, green: 0x80 / 255, blue: 0x3D / 255)
-    static let brandCream = Color(red: 0xF8 / 255, green: 0xF5 / 255, blue: 0xF1 / 255)
+    static let brandCream = Color(hex: "#F0EDE8")
     static let brandCard = Color.white
     static let brandBorder = Color(red: 0xE8 / 255, green: 0xE2 / 255, blue: 0xD9 / 255)
-    static let brandAccent = Color(red: 0xF0 / 255, green: 0xED / 255, blue: 0xE6 / 255)
-    static let brandText = Color(red: 0x11 / 255, green: 0x11 / 255, blue: 0x11 / 255)
+    static let brandAccent = Color(hex: "#F0EDE8")
+    static let brandText = Color(hex: "#111111")
     static let brandTaupe = Color(red: 0x6B / 255, green: 0x72 / 255, blue: 0x80 / 255)
     static let brandSubtle = Color(red: 0x9C / 255, green: 0xA3 / 255, blue: 0xAF / 255)
 
-    // Hex initialiser
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0
@@ -43,10 +41,49 @@ extension Color {
         )
     }
 
-    /// Parse a hex brand colour string, falling back to coral accent
     static func vendorAccent(_ hex: String?) -> Color {
         guard let hex = hex, !hex.isEmpty else { return .accentDefault }
         return Color(hex: hex)
+    }
+}
+
+// MARK: - Card radial gradient presets (iOS widget style)
+
+struct CardRadialGradient: View {
+    let index: Int
+
+    private var colors: (light: Color, dark: Color) {
+        switch index % 5 {
+        case 0: return (Color(hex: "#FB7185"), Color(hex: "#BE123C"))   // rose/pink
+        case 1: return (Color(hex: "#A78BFA"), Color(hex: "#6D28D9"))   // violet/purple
+        case 2: return (Color(hex: "#7DD3FC"), Color(hex: "#0284C7"))   // sky/blue
+        case 3: return (Color(hex: "#CBD5E1"), Color(hex: "#475569"))   // slate
+        default: return (Color(hex: "#FCA5A5"), Color(hex: "#DC2626"))  // red/salmon
+        }
+    }
+
+    var body: some View {
+        RadialGradient(
+            colors: [colors.light.opacity(0.95), colors.dark.opacity(0.88)],
+            center: .init(x: 0.3, y: 0.75),
+            startRadius: 0,
+            endRadius: 180
+        )
+    }
+}
+
+// Legacy LinearGradient shim so HomeView still compiles
+extension LinearGradient {
+    static func cardGradient(index: Int) -> LinearGradient {
+        let presets: [(Color, Color)] = [
+            (Color(hex: "#FB7185"), Color(hex: "#BE123C")),
+            (Color(hex: "#A78BFA"), Color(hex: "#6D28D9")),
+            (Color(hex: "#7DD3FC"), Color(hex: "#0284C7")),
+            (Color(hex: "#CBD5E1"), Color(hex: "#475569")),
+            (Color(hex: "#FCA5A5"), Color(hex: "#DC2626")),
+        ]
+        let (light, dark) = presets[index % presets.count]
+        return LinearGradient(colors: [light, dark], startPoint: .init(x: 0.3, y: 0.75), endPoint: .topTrailing)
     }
 }
 
@@ -59,10 +96,10 @@ struct GlassCardStyle: ViewModifier {
         content
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(Color.glassCard)
+                    .fill(Color.white.opacity(0.60))
                     .overlay(
                         RoundedRectangle(cornerRadius: cornerRadius)
-                            .stroke(Color.glassBorder, lineWidth: 1)
+                            .stroke(Color.white.opacity(0.80), lineWidth: 1)
                     )
             )
     }
@@ -74,12 +111,12 @@ struct CardStyle: ViewModifier {
         content
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(Color.glassCard)
+                    .fill(Color.white.opacity(0.60))
                     .overlay(
                         RoundedRectangle(cornerRadius: cornerRadius)
-                            .stroke(Color.glassBorder, lineWidth: 1)
+                            .stroke(Color.white.opacity(0.80), lineWidth: 1)
                     )
-                    .shadow(color: Color.black.opacity(0.3), radius: 8, x: 0, y: 2)
+                    .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 2)
             )
     }
 }
@@ -91,23 +128,5 @@ extension View {
 
     func darkGlassCard(cornerRadius: CGFloat = 20) -> some View {
         modifier(GlassCardStyle(cornerRadius: cornerRadius))
-    }
-}
-
-// MARK: - Card gradient presets
-
-extension LinearGradient {
-    /// Cycles through a palette of rich gradient card colours.
-    /// Index 0 = rose/red, 1 = teal/dark, 2 = coral/orange, 3 = blue/navy, 4 = purple
-    static func cardGradient(index: Int) -> LinearGradient {
-        let presets: [[Color]] = [
-            [Color(hex: "#C96B6B"), Color(hex: "#7A2A2A")],  // rose/dark red
-            [Color(hex: "#2A5A6B"), Color(hex: "#0A1A2A")],  // teal/dark
-            [Color(hex: "#E8805A"), Color(hex: "#8B3A1A")],  // coral/orange
-            [Color(hex: "#4A6FA5"), Color(hex: "#1A2A50")],  // blue/navy
-            [Color(hex: "#6B5EA8"), Color(hex: "#2A1A50")],  // purple
-        ]
-        let colors = presets[index % presets.count]
-        return LinearGradient(colors: colors, startPoint: .topLeading, endPoint: .bottomTrailing)
     }
 }

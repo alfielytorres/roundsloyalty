@@ -30,7 +30,7 @@ export default function OnboardingForm({ error: initialError, defaultBusinessNam
     <main className="min-h-screen flex flex-col items-center justify-center px-6 bg-[#F8F5F1]">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-[#16A34A] flex items-center justify-center mb-4 shadow-lg shadow-green-200">
+          <div className="w-16 h-16 rounded-2xl bg-[#111] flex items-center justify-center mb-4 shadow-lg">
             <Store size={28} className="text-white" />
           </div>
           <h1 className="text-3xl font-extrabold text-[#111111] text-center">Set up your store</h1>
@@ -41,7 +41,7 @@ export default function OnboardingForm({ error: initialError, defaultBusinessNam
           <div className="mb-4 rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-600">{error}</div>
         )}
 
-        <div className="bg-white rounded-3xl border border-[#E8E2D9] shadow-sm p-6">
+        <div className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/80 shadow-sm p-6">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
               <label className="block text-sm font-semibold text-[#374151] mb-1.5">Business name</label>
@@ -63,7 +63,7 @@ export default function OnboardingForm({ error: initialError, defaultBusinessNam
                 <option value="other">Other</option>
               </select>
             </div>
-            <button type="submit" disabled={loading} className="flex items-center justify-center gap-2 w-full bg-[#16A34A] hover:bg-[#15803D] disabled:opacity-60 text-white font-bold py-3 rounded-2xl mt-1 transition-colors">
+            <button type="submit" disabled={loading} className="flex items-center justify-center gap-2 w-full bg-[#111] hover:bg-[#222] disabled:opacity-60 text-white font-bold py-3 rounded-2xl mt-1 transition-colors">
               {loading ? (
                 <>
                   <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

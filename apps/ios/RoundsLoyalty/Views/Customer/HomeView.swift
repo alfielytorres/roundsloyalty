@@ -36,14 +36,14 @@ struct HomeView: View {
                         Text("ROUNDS")
                             .font(.system(size: 14, weight: .black, design: .default))
                             .kerning(3)
-                            .foregroundColor(.white)
+                            .foregroundColor(.black.opacity(0.85))
                         Spacer()
                         Button {
                             // notifications
                         } label: {
                             Image(systemName: "bell")
                                 .font(.system(size: 18, weight: .medium))
-                                .foregroundColor(.white.opacity(0.85))
+                                .foregroundColor(.black.opacity(0.50))
                         }
                     }
                     .padding(.horizontal, 20)
@@ -58,7 +58,7 @@ struct HomeView: View {
                     .padding(.horizontal, 20)
 
                     if isLoading {
-                        HStack { Spacer(); ProgressView().tint(.white); Spacer() }
+                        HStack { Spacer(); ProgressView().tint(.black.opacity(0.4)); Spacer() }
                             .padding(.top, 40)
                     } else {
                         // MARK: Your Rounds section
@@ -66,7 +66,7 @@ struct HomeView: View {
                             Text("YOUR ROUNDS")
                                 .font(.system(size: 11, weight: .semibold))
                                 .kerning(1.5)
-                                .foregroundColor(.white.opacity(0.55))
+                                .foregroundColor(.black.opacity(0.35))
                                 .padding(.horizontal, 20)
 
                             VendorCardGrid(
@@ -80,7 +80,7 @@ struct HomeView: View {
                             Text("READY TO COLLECT")
                                 .font(.system(size: 11, weight: .semibold))
                                 .kerning(1.5)
-                                .foregroundColor(.white.opacity(0.55))
+                                .foregroundColor(.black.opacity(0.35))
                                 .padding(.horizontal, 20)
 
                             ForEach(availableRewards.prefix(3)) { reward in
@@ -95,13 +95,13 @@ struct HomeView: View {
                             VStack(spacing: 16) {
                                 Image(systemName: "cup.and.saucer")
                                     .font(.system(size: 48))
-                                    .foregroundColor(.white.opacity(0.3))
+                                    .foregroundColor(.black.opacity(0.20))
                                 Text("No memberships yet")
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.black.opacity(0.70))
                                 Text("Scan a store QR code to get started")
                                     .font(.subheadline)
-                                    .foregroundColor(.white.opacity(0.55))
+                                    .foregroundColor(.black.opacity(0.40))
                                     .multilineTextAlignment(.center)
                             }
                             .frame(maxWidth: .infinity)
@@ -112,7 +112,7 @@ struct HomeView: View {
                     Spacer(minLength: 100)
                 }
             }
-            .background(Color(hex: "#0A0A0A").ignoresSafeArea())
+            .background(Color.appBackground.ignoresSafeArea())
             .navigationBarHidden(true)
             .task { await loadData() }
             .refreshable { await loadData() }
@@ -163,14 +163,14 @@ private struct GreetingCard: View {
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            LinearGradient.cardGradient(index: 1)
+            CardRadialGradient(index: 1)
                 .cornerRadius(26)
 
             VStack(alignment: .leading, spacing: 6) {
                 Text(greeting.uppercased())
                     .font(.system(size: 11, weight: .semibold))
                     .kerning(1.2)
-                    .foregroundColor(.white.opacity(0.55))
+                    .foregroundColor(.white.opacity(0.60))
 
                 Text(firstName.isEmpty ? "Welcome back" : firstName)
                     .font(.system(size: 36, weight: .bold, design: .rounded))
@@ -182,14 +182,14 @@ private struct GreetingCard: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 12)
                         .padding(.vertical, 6)
-                        .background(Color.white.opacity(0.2))
+                        .background(Color.white.opacity(0.25))
                         .cornerRadius(20)
                 }
             }
             .padding(22)
         }
         .frame(maxWidth: .infinity, minHeight: 160, alignment: .bottomLeading)
-        .shadow(color: .black.opacity(0.4), radius: 16, x: 0, y: 8)
+        .shadow(color: .black.opacity(0.15), radius: 16, x: 0, y: 6)
     }
 }
 
@@ -201,14 +201,12 @@ private struct VendorCardGrid: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            // Featured card — full width
             if let first = memberships.first {
                 VendorCard(membership: first, index: 2, isFeatured: true)
                     .padding(.horizontal, 20)
                     .onTapGesture { onTap(first) }
             }
 
-            // 2-column grid for the rest
             if memberships.count > 1 {
                 let rest = Array(memberships.dropFirst())
                 LazyVGrid(
@@ -242,15 +240,14 @@ private struct VendorCard: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            LinearGradient.cardGradient(index: index)
+            CardRadialGradient(index: index)
                 .cornerRadius(26)
 
             VStack(alignment: .leading, spacing: 0) {
-                // Top row: vendor name + reward ready badge
                 HStack(alignment: .top) {
                     Text(membership.vendor?.businessName ?? "Store")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundColor(.white.opacity(0.70))
                         .lineLimit(1)
                     Spacer()
                     if remaining == 0 && required > 0 {
@@ -259,14 +256,13 @@ private struct VendorCard: View {
                             .foregroundColor(Color(hex: "#FFD700"))
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
-                            .background(Color(hex: "#FFD700").opacity(0.2))
+                            .background(Color(hex: "#FFD700").opacity(0.25))
                             .cornerRadius(12)
                     }
                 }
 
                 Spacer()
 
-                // Hero number
                 VStack(alignment: .leading, spacing: 2) {
                     Text("\(membership.currentRounds)")
                         .font(.system(size: isFeatured ? 72 : 64, weight: .heavy, design: .rounded))
@@ -282,12 +278,11 @@ private struct VendorCard: View {
 
                 Spacer()
 
-                // Progress bar + label
                 VStack(alignment: .leading, spacing: 6) {
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
                             RoundedRectangle(cornerRadius: 3)
-                                .fill(Color.white.opacity(0.3))
+                                .fill(Color.white.opacity(0.30))
                                 .frame(height: 4)
                             RoundedRectangle(cornerRadius: 3)
                                 .fill(Color.white)
@@ -299,7 +294,7 @@ private struct VendorCard: View {
                     if remaining > 0, let rewardName = membership.program?.rewardName {
                         Text("\(remaining) more for \(rewardName)")
                             .font(.system(size: 11))
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(.white.opacity(0.70))
                             .lineLimit(1)
                     } else if let rewardName = membership.program?.rewardName {
                         Text("Collect: \(rewardName)")
@@ -313,7 +308,7 @@ private struct VendorCard: View {
         }
         .frame(maxWidth: .infinity)
         .frame(height: isFeatured ? 200 : 160)
-        .shadow(color: .black.opacity(0.35), radius: 14, x: 0, y: 6)
+        .shadow(color: .black.opacity(0.15), radius: 14, x: 0, y: 6)
     }
 }
 
@@ -324,14 +319,14 @@ private struct ReadyToCollectCard: View {
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            LinearGradient.cardGradient(index: 0)
+            CardRadialGradient(index: 0)
                 .cornerRadius(26)
 
             VStack(alignment: .leading, spacing: 10) {
                 Text("READY TO COLLECT")
                     .font(.system(size: 11, weight: .semibold))
                     .kerning(1.5)
-                    .foregroundColor(.white.opacity(0.55))
+                    .foregroundColor(.white.opacity(0.60))
 
                 Text(reward.rewardName)
                     .font(.system(size: 24, weight: .bold, design: .rounded))
@@ -340,7 +335,7 @@ private struct ReadyToCollectCard: View {
                 if let vendorName = reward.vendor?.businessName {
                     Text(vendorName)
                         .font(.system(size: 13))
-                        .foregroundColor(.white.opacity(0.7))
+                        .foregroundColor(.white.opacity(0.70))
                 }
 
                 HStack {
@@ -350,12 +345,12 @@ private struct ReadyToCollectCard: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 18)
                         .padding(.vertical, 10)
-                        .background(Color.white.opacity(0.2))
+                        .background(Color.white.opacity(0.25))
                         .cornerRadius(20)
                 }
             }
             .padding(20)
         }
-        .shadow(color: .black.opacity(0.35), radius: 14, x: 0, y: 6)
+        .shadow(color: .black.opacity(0.15), radius: 14, x: 0, y: 6)
     }
 }

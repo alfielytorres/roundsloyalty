@@ -3,43 +3,53 @@
 @tailwind utilities;
 
 body {
-  background-color: #0D0D0D;
-  color: #ffffff;
+  background-color: #F0EDE8;
+  color: #111111;
   letter-spacing: -0.025em;
 }
 
 html {
-  background-color: #0D0D0D;
+  background-color: #F0EDE8;
 }
 
 :root {
-  --color-bg: #0D0D0D;
-  --color-surface: #1A1A1A;
-  --color-border: rgba(255,255,255,0.08);
+  --color-bg: #F0EDE8;
+  --color-surface: rgba(255,255,255,0.6);
+  --color-border: rgba(0,0,0,0.06);
   --color-primary: #E8805A;
-  --color-text: #ffffff;
-  --color-text-secondary: rgba(255,255,255,0.5);
-  --color-text-muted: rgba(255,255,255,0.3);
+  --color-text: #111111;
+  --color-text-secondary: rgba(0,0,0,0.45);
+  --color-text-muted: rgba(0,0,0,0.3);
 }
 
 @layer components {
+  /* Glass card — frosted white on warm light background */
+  .glass {
+    @apply bg-white/60 backdrop-blur-xl rounded-3xl p-6 border border-white/80 shadow-sm;
+  }
+  /* Stat cards — radial glow on base colour (iOS widget style) */
   .card-rose {
-    @apply bg-gradient-to-br from-[#C96B6B] to-[#7A2A2A] rounded-3xl p-6 text-white;
+    background: radial-gradient(ellipse at 30% 70%, rgba(251,113,133,0.95) 0%, rgba(190,18,60,0.85) 100%);
+    @apply rounded-3xl p-6 shadow-sm;
   }
   .card-teal {
-    @apply bg-gradient-to-br from-[#2A6B7C] to-[#0A1A2A] rounded-3xl p-6 text-white;
+    background: radial-gradient(ellipse at 30% 70%, rgba(167,139,250,0.95) 0%, rgba(109,40,217,0.85) 100%);
+    @apply rounded-3xl p-6 shadow-sm;
   }
   .card-coral {
-    @apply bg-gradient-to-br from-[#E8805A] to-[#8B3A1A] rounded-3xl p-6 text-white;
+    background: radial-gradient(ellipse at 30% 70%, rgba(125,211,252,0.95) 0%, rgba(2,132,199,0.85) 100%);
+    @apply rounded-3xl p-6 shadow-sm;
   }
   .card-blue {
-    @apply bg-gradient-to-br from-[#4A6FA5] to-[#1A2A50] rounded-3xl p-6 text-white;
+    background: radial-gradient(ellipse at 30% 70%, rgba(203,213,225,0.95) 0%, rgba(71,85,105,0.85) 100%);
+    @apply rounded-3xl p-6 shadow-sm;
   }
+  /* Live campaign — warm coral accent */
   .card-gold {
-    @apply bg-gradient-to-br from-[#D4A017] to-[#8B6010] rounded-3xl p-6 text-white;
+    @apply bg-gradient-to-br from-[#E8805A]/20 to-[#E8805A]/5 backdrop-blur-xl rounded-3xl p-6 border border-[#E8805A]/20 shadow-sm;
   }
   .card-dark {
-    @apply bg-[#1A1A1A] rounded-3xl p-6 text-white;
+    @apply glass;
   }
   .glass-card {
     @apply bg-[#1A1A1A] rounded-3xl shadow-sm;
@@ -48,7 +58,7 @@ html {
     @apply bg-[#1A1A1A] rounded-2xl;
   }
   .dark-input {
-    @apply bg-[#111111] border border-white/10 rounded-2xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-[#E8805A]/50 focus:ring-2 focus:ring-[#E8805A]/10 transition-colors w-full;
+    @apply bg-white/80 border border-black/8 rounded-2xl px-4 py-3 text-[#111] placeholder:text-black/25 focus:outline-none focus:border-[#E8805A]/50 transition-colors w-full;
   }
   .skel {
     @apply bg-white/10 rounded-lg animate-pulse;
@@ -57,10 +67,10 @@ html {
     @apply bg-white/5 rounded-lg animate-pulse;
   }
   .btn-primary {
-    @apply bg-white/10 hover:bg-white/20 text-white font-semibold rounded-2xl px-6 py-3 transition-colors border border-white/10;
+    @apply bg-[#111] hover:bg-[#222] text-white font-semibold rounded-2xl px-6 py-3 transition-colors;
   }
   .btn-green {
-    @apply bg-gradient-to-br from-[#E8805A] to-[#8B3A1A] hover:opacity-90 text-white font-semibold rounded-2xl px-6 py-3 transition-opacity;
+    @apply bg-[#E8805A] hover:bg-[#D4724E] text-white font-semibold rounded-2xl px-6 py-3 transition-colors;
   }
   .btn-danger {
     @apply border border-red-500/30 text-red-400 hover:bg-red-900/30 font-semibold rounded-2xl px-5 py-2.5 transition-colors;
