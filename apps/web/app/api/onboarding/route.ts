@@ -20,18 +20,17 @@ export async function POST(req: NextRequest) {
   )
 
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.redirect(new URL('/', req.url))
+  if (!user) return NextResponse.json({ error: 'Not authenticated.' }, { status: 401 })
+
+  // Business name comes from sign-up metadata
+  const business_name = (user.user_metadata?.display_name as string)?.trim()
+  if (!business_name) {
+    return NextResponse.json({ error: 'Business name missing. Please sign up again.' }, { status: 400 })
+  }
 
   const formData = await req.formData()
-  const business_name = (formData.get('business_name') as string)?.trim()
   const description = (formData.get('description') as string)?.trim()
   const category = (formData.get('category') as string)?.trim() || null
-
-  if (!business_name) {
-    return NextResponse.redirect(
-      new URL(`/onboarding?error=${encodeURIComponent('Business name is required.')}`, req.url),
-    )
-  }
 
   const { data: vendor, error } = await supabase
     .from('vendors')
@@ -46,17 +45,14 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (error) {
-    return NextResponse.redirect(
-      new URL(`/onboarding?error=${encodeURIComponent(error.message)}`, req.url),
-    )
+    return NextResponse.json({ error: error.message }, { status: 400 })
   }
 
-  // Create owner staff record
   await supabase.from('vendor_staff').insert({
     vendor_id: vendor.id,
     user_id: user.id,
     role: 'owner',
   })
 
-  return NextResponse.redirect(new URL('/dashboard', req.url))
+  return NextResponse.json({ redirect: '/dashboard' }, { status: 200 })
 }
