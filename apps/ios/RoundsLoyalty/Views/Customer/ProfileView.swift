@@ -93,6 +93,7 @@ struct CustomerProfileView: View {
                 .scrollContentBackground(.hidden)
             }
             .navigationTitle("Profile")
+            .toolbar { CustomerToolbarItems() }
             .task { await loadConsents() }
         }
     }
@@ -109,7 +110,7 @@ struct CustomerProfileView: View {
     private func loadConsents() async {
         guard let userId = sessionManager.session?.user.id else { return }
         do {
-            let fetched: [DataConsent] = try await supabase
+            let fetched: [DataConsent] = try await supabase.database
                 .from("data_consents")
                 .select("*, businesses(id, name)")
                 .eq("customer_id", value: userId)
@@ -125,7 +126,7 @@ struct CustomerProfileView: View {
 
     private func withdrawConsent(consentId: UUID) async {
         do {
-            try await supabase
+            try await supabase.database
                 .from("data_consents")
                 .update(["withdrawn_at": Date().ISO8601Format()])
                 .eq("id", value: consentId)

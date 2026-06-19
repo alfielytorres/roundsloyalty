@@ -43,6 +43,7 @@ struct OffersView: View {
                 }
             }
             .navigationTitle("Offers")
+            .toolbar { CustomerToolbarItems() }
             .task { await loadOffers() }
             .refreshable { await loadOffers() }
         }
@@ -51,7 +52,7 @@ struct OffersView: View {
     private func loadOffers() async {
         guard let userId = sessionManager.session?.user.id else { return }
         do {
-            let fetched: [OfferRecipient] = try await supabase
+            let fetched: [OfferRecipient] = try await supabase.database
                 .from("offer_recipients")
                 .select("id, offer_id, delivered_at, opened_at, offers(id, title, body, created_at, businesses(name, logo_url))")
                 .eq("customer_id", value: userId)
@@ -67,7 +68,7 @@ struct OffersView: View {
 
     private func markOpened(recipient: OfferRecipient) async {
         do {
-            try await supabase
+            try await supabase.database
                 .from("offer_recipients")
                 .update(["opened_at": Date().ISO8601Format()])
                 .eq("id", value: recipient.id)

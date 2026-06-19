@@ -26,6 +26,7 @@
 		AA000011000000000000000A /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000011000000000000001A /* MapView.swift */; };
 		AA000012000000000000000A /* OffersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000012000000000000001A /* OffersView.swift */; };
 		AA000013000000000000000A /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000013000000000000001A /* ProfileView.swift */; };
+		AA000020000000000000000A /* CustomerToolbarItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000020000000000000001A /* CustomerToolbarItems.swift */; };
 		AA00001B000000000000000A /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = AA00001B000000000000002A /* Supabase */; };
 /* End PBXBuildFile section */
 
@@ -49,6 +50,7 @@
 		AA000011000000000000001A /* MapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
 		AA000012000000000000001A /* OffersView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OffersView.swift; sourceTree = "<group>"; };
 		AA000013000000000000001A /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		AA000020000000000000001A /* CustomerToolbarItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerToolbarItems.swift; sourceTree = "<group>"; };
 		AA00001C000000000000001A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AAFPRODUCT00000000000001A /* RoundsLoyalty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RoundsLoyalty.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -152,6 +154,7 @@
 				AA000011000000000000001A /* MapView.swift */,
 				AA000012000000000000001A /* OffersView.swift */,
 				AA000013000000000000001A /* ProfileView.swift */,
+				AA000020000000000000001A /* CustomerToolbarItems.swift */,
 			);
 			path = Customer;
 			sourceTree = "<group>";
@@ -249,6 +252,7 @@
 				AA000011000000000000000A /* MapView.swift in Sources */,
 				AA000012000000000000000A /* OffersView.swift in Sources */,
 				AA000013000000000000000A /* ProfileView.swift in Sources */,
+				AA000020000000000000000A /* CustomerToolbarItems.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

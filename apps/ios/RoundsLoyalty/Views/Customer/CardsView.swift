@@ -41,6 +41,7 @@ struct CardsView: View {
             }
             .navigationTitle("My Cards")
             .navigationBarTitleDisplayMode(.large)
+            .toolbar { CustomerToolbarItems() }
             .task { await loadCards() }
             .refreshable { await loadCards() }
         }
@@ -50,7 +51,7 @@ struct CardsView: View {
         guard let userId = sessionManager.session?.user.id else { return }
         isLoading = true
         do {
-            let fetched: [LoyaltyCard] = try await supabase
+            let fetched: [LoyaltyCard] = try await supabase.database
                 .from("loyalty_cards")
                 .select("*, loyalty_programs(*, businesses(*))")
                 .eq("customer_id", value: userId)

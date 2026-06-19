@@ -59,13 +59,14 @@ struct DiscoverMapView: View {
             }
             .navigationTitle("Discover")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar { CustomerToolbarItems() }
             .task { await loadBusinesses() }
         }
     }
 
     private func loadBusinesses() async {
         do {
-            let fetched: [Business] = try await supabase
+            let fetched: [Business] = try await supabase.database
                 .from("businesses")
                 .select("id, name, description, logo_url, address, lat, lng")
                 .not("lat", operator: "is", value: "null")
