@@ -1,38 +1,29 @@
 export const Colors = {
-  // Core palette
-  background: '#090B12',
-  surface: 'rgba(255,255,255,0.06)',
-  surfaceHover: 'rgba(255,255,255,0.10)',
-  border: 'rgba(255,255,255,0.10)',
+  // Core palette — dark forest green (me&u style)
+  background:    '#081C12',
+  surface:       '#0D2418',
+  surfaceHigh:   '#122E1E',
 
-  // Brand
-  primary: '#8B5CF6',
-  primaryHover: '#7C3AED',
-  secondary: '#22D3EE',
-  success: '#34D399',
-  warning: '#FBBF24',
-  danger: '#F87171',
+  primary:       '#22C55E',
+  primaryDark:   '#16A34A',
+  primaryLight:  '#86EFAC',
 
-  // Text
-  text: '#F8FAFC',
-  textSecondary: '#94A3B8',
-  textMuted: 'rgba(255,255,255,0.30)',
+  textPrimary:   '#FFFFFF',
+  textSecondary: 'rgba(255,255,255,0.55)',
+  textMuted:     'rgba(255,255,255,0.30)',
 
-  // Misc
-  white: '#FFFFFF',
-  black: '#000000',
+  border:        'rgba(255,255,255,0.08)',
+  borderStrong:  'rgba(34,197,94,0.30)',
 
-  // Stamp-specific
-  stampFilled: '#8B5CF6',
-  stampEmpty: 'rgba(255,255,255,0.15)',
+  stampFilled:   '#22C55E',
+  stampEmpty:    'rgba(255,255,255,0.12)',
 
-  // Legacy aliases (keeps existing layout files from breaking)
-  primaryDark: '#090B12',
-  primaryLight: 'rgba(139,92,246,0.15)',
-  cream: '#F8FAFC',
-  taupe: '#94A3B8',
-  error: '#F87171',
-  textPrimary: '#F8FAFC',
+  error:         '#EF4444',
+  success:       '#22C55E',
+
+  // Legacy aliases (keeps old imports working)
+  cream:         '#0D2418',
+  taupe:         'rgba(255,255,255,0.30)',
 } as const
 
 export type ColorKey = keyof typeof Colors
