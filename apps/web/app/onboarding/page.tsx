@@ -27,8 +27,8 @@ export default async function OnboardingPage({ searchParams }: { searchParams: {
     <main className="min-h-screen flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-10">
-          <div className="w-20 h-20 rounded-3xl bg-[#8B5CF6] flex items-center justify-center mb-6 shadow-[0_0_32px_rgba(139,92,246,0.4)]">
-            <Store size={36} className="text-white" />
+          <div className="w-20 h-20 rounded-3xl bg-[#22C55E] flex items-center justify-center mb-6 shadow-[0_0_32px_rgba(34,197,94,0.35)]">
+            <Store size={36} className="text-[#081C12]" />
           </div>
           <h1 className="text-3xl font-extrabold text-white text-center">Set up your store</h1>
           <p className="text-white/50 mt-2 text-center">Tell us about your business to get started</p>
@@ -74,7 +74,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: {
           </div>
           <button
             type="submit"
-            className="flex items-center justify-center gap-2 w-full btn-primary py-3 mt-2"
+            className="flex items-center justify-center gap-2 w-full bg-[#22C55E] hover:bg-[#16A34A] text-[#081C12] font-bold py-3 rounded-2xl mt-2 transition-colors"
           >
             <Store size={16} />Launch my store
           </button>

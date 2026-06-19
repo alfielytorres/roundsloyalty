@@ -26,8 +26,8 @@ export async function POST(req: NextRequest) {
   const { error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
-    return NextResponse.redirect(new URL(`/?error=${encodeURIComponent(error.message)}`, req.url))
+    return NextResponse.json({ error: error.message }, { status: 401 })
   }
 
-  return NextResponse.redirect(new URL('/dashboard', req.url))
+  return NextResponse.json({ redirect: '/dashboard' }, { status: 200 })
 }
