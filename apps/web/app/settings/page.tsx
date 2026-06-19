@@ -21,7 +21,7 @@ export default async function SettingsPage({
           <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-2xl text-red-300 text-sm">{searchParams.error}</div>
         )}
         {searchParams.success && (
-          <div className="mb-6 p-4 bg-[#8B5CF6]/20 border border-[#8B5CF6]/30 rounded-2xl text-white text-sm font-semibold">{searchParams.success}</div>
+          <div className="mb-6 p-4 bg-[#22C55E]/20 border border-[#22C55E]/30 rounded-2xl text-white text-sm font-semibold">{searchParams.success}</div>
         )}
 
         <div className="glass-card p-6 mb-4">
@@ -44,7 +44,7 @@ export default async function SettingsPage({
 
         <div className="glass-card p-6 mb-4">
           <h2 className="text-base font-bold text-white mb-1">Proof of purchase</h2>
-          <p className="text-white/50 text-sm mb-5">Let customers submit receipts to earn rewards when staff can't scan their card.</p>
+          <p className="text-white/50 text-sm mb-5">Let customers submit receipts to earn rewards when staff can&apos;t scan their card.</p>
           <form action="/api/settings/proof-of-purchase" method="POST" className="flex flex-col gap-4">
             <label className="flex items-center justify-between cursor-pointer">
               <span className="font-semibold text-white">Enable proof of purchase</span>
@@ -53,7 +53,7 @@ export default async function SettingsPage({
                 name="enabled"
                 value="true"
                 defaultChecked={vendor.proof_of_purchase_enabled ?? false}
-                className="w-5 h-5 rounded accent-[#8B5CF6]"
+                className="w-5 h-5 rounded accent-[#22C55E]"
               />
             </label>
             <div>
