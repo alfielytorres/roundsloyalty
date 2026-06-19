@@ -14,18 +14,18 @@ struct CustomerToolbarItems: ToolbarContent {
             Button(action: { tabSelection.tab = .profile }) {
                 ZStack {
                     Circle()
-                        .fill(Color.black)
+                        .fill(Color.accentDefault.opacity(0.2))
                         .frame(width: 32, height: 32)
                     Text(initials)
                         .font(.system(size: 13, weight: .bold))
-                        .foregroundColor(.white)
+                        .foregroundColor(.accentDefault)
                 }
             }
         }
         ToolbarItem(placement: .navigationBarTrailing) {
-            Button(action: { tabSelection.tab = .offers }) {
-                Image(systemName: "bell.fill")
-                    .foregroundColor(.black)
+            Button(action: { tabSelection.tab = .rewards }) {
+                Image(systemName: "gift")
+                    .foregroundColor(.primaryText)
             }
         }
     }

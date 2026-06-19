@@ -67,7 +67,7 @@ struct DiscoverMapView: View {
 
     var body: some View {
         NavigationStack {
-            GeometryReader { geo in
+            GeometryReader { _ in
                 ZStack(alignment: .bottom) {
                     Map(coordinateRegion: $region,
                         showsUserLocation: true,
@@ -79,7 +79,7 @@ struct DiscoverMapView: View {
                     }
                     .ignoresSafeArea()
 
-                    // Recenter button — floats above the sheet
+                    // Recenter button
                     VStack {
                         Spacer()
                         HStack {
@@ -87,18 +87,18 @@ struct DiscoverMapView: View {
                             Button(action: recenterMap) {
                                 Image(systemName: "location.fill")
                                     .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(.brandGreen)
+                                    .foregroundColor(.accentDefault)
                                     .frame(width: 44, height: 44)
-                                    .background(Color.white)
+                                    .background(Color(hex: "#1A1A1A"))
                                     .clipShape(Circle())
-                                    .shadow(color: .black.opacity(0.18), radius: 6, x: 0, y: 2)
+                                    .overlay(Circle().stroke(Color.glassBorder, lineWidth: 1))
+                                    .shadow(color: .black.opacity(0.4), radius: 6, x: 0, y: 2)
                             }
                             .padding(.trailing, 16)
                             .padding(.bottom, sheetHeight + 12)
                         }
                     }
 
-                    // Bottom sheet
                     bottomSheet
                         .frame(height: sheetHeight)
                 }
@@ -106,7 +106,6 @@ struct DiscoverMapView: View {
             }
             .navigationTitle("Discover")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar { CustomerToolbarItems() }
             .task { await loadVendors() }
             .onChange(of: locationManager.userLocation) { coord in
                 guard let coord = coord else { return }
@@ -143,38 +142,37 @@ struct DiscoverMapView: View {
         VStack(spacing: 0) {
             // Drag handle
             RoundedRectangle(cornerRadius: 3)
-                .fill(Color.gray.opacity(0.35))
+                .fill(Color.white.opacity(0.25))
                 .frame(width: 40, height: 5)
                 .padding(.top, 10)
                 .padding(.bottom, 8)
 
             if isLoading {
                 Spacer()
-                ProgressView().tint(.brandGreen)
+                ProgressView().tint(.white)
                 Spacer()
             } else if vendors.isEmpty {
                 Spacer()
                 VStack(spacing: 8) {
                     Image(systemName: "mappin.slash")
                         .font(.system(size: 32))
-                        .foregroundColor(.brandTaupe)
+                        .foregroundColor(.secondaryText)
                     Text("No stores nearby")
                         .font(.subheadline)
-                        .foregroundColor(.brandTaupe)
+                        .foregroundColor(.secondaryText)
                 }
                 Spacer()
             } else {
-                // Header count
                 HStack {
                     Text("\(vendors.count) store\(vendors.count == 1 ? "" : "s") nearby")
                         .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.black)
+                        .foregroundColor(.primaryText)
                     Spacer()
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 8)
 
-                Divider()
+                Divider().overlay(Color.glassBorder)
 
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 0) {
@@ -182,16 +180,20 @@ struct DiscoverMapView: View {
                             VendorListRow(vendor: vendor, isSelected: selectedVendor?.id == vendor.id)
                                 .onTapGesture { actionVendor = vendor }
                             if vendor.id != vendors.last?.id {
-                                Divider().padding(.leading, 60)
+                                Divider().padding(.leading, 60).overlay(Color.glassBorder)
                             }
                         }
                     }
                 }
             }
         }
-        .background(Color.white)
+        .background(Color(hex: "#141414"))
         .cornerRadius(20, corners: [.topLeft, .topRight])
-        .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: -4)
+        .overlay(
+            RoundedCorner(radius: 20, corners: [.topLeft, .topRight])
+                .stroke(Color.glassBorder, lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: -4)
         .gesture(
             DragGesture()
                 .onChanged { value in
@@ -233,12 +235,10 @@ struct DiscoverMapView: View {
                 .eq("status", value: "active")
                 .execute()
                 .value
-            // All vendors in the list
             vendors = rows.map { row in
                 VendorPin(id: row.id, name: row.businessName, address: row.address,
                           description: row.description, lat: row.lat ?? 0, lng: row.lng ?? 0)
             }
-            // Only vendors with real coordinates get a map pin
             mappableVendors = rows.compactMap { row in
                 guard let lat = row.lat, let lng = row.lng else { return nil }
                 return VendorPin(id: row.id, name: row.businessName, address: row.address,
@@ -259,27 +259,27 @@ struct VendorListRow: View {
         HStack(spacing: 14) {
             ZStack {
                 Circle()
-                    .fill(isSelected ? Color.brandGreen : Color.brandLightGreen)
+                    .fill(isSelected ? Color.accentDefault : Color.accentDefault.opacity(0.15))
                     .frame(width: 40, height: 40)
                 Image(systemName: "storefront.fill")
                     .font(.system(size: 16))
-                    .foregroundColor(isSelected ? .white : .brandGreen)
+                    .foregroundColor(isSelected ? .white : .accentDefault)
             }
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(vendor.name)
                     .font(.subheadline.weight(.semibold))
-                    .foregroundColor(.black)
+                    .foregroundColor(.primaryText)
                     .lineLimit(1)
                 if let address = vendor.address {
                     Text(address)
                         .font(.caption)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondaryText)
                         .lineLimit(1)
                 } else if let desc = vendor.description {
                     Text(desc)
                         .font(.caption)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondaryText)
                         .lineLimit(1)
                 }
             }
@@ -288,11 +288,11 @@ struct VendorListRow: View {
 
             Image(systemName: "chevron.right")
                 .font(.caption.weight(.semibold))
-                .foregroundColor(.gray.opacity(0.5))
+                .foregroundColor(.secondaryText)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(isSelected ? Color.brandGreen.opacity(0.05) : Color.clear)
+        .background(isSelected ? Color.accentDefault.opacity(0.08) : Color.clear)
     }
 }
 
@@ -303,13 +303,13 @@ struct VendorMapPin: View {
         VStack(spacing: 0) {
             ZStack {
                 Circle()
-                    .fill(isSelected ? Color.brandGreen : Color.white)
+                    .fill(isSelected ? Color.accentDefault : Color(hex: "#1A1A1A"))
                     .frame(width: 40, height: 40)
-                    .shadow(radius: 3)
-                RoundsLogoMark(size: 22, color: isSelected ? .white : .brandGreen)
+                    .shadow(radius: 4)
+                RoundsLogoMark(size: 22, color: isSelected ? .white : .accentDefault)
             }
             Triangle()
-                .fill(isSelected ? Color.brandGreen : Color.white)
+                .fill(isSelected ? Color.accentDefault : Color(hex: "#1A1A1A"))
                 .frame(width: 10, height: 6)
         }
         .scaleEffect(isSelected ? 1.2 : 1.0)

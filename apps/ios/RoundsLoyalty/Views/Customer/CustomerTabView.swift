@@ -7,21 +7,21 @@ struct CustomerTabView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            // Content
+            Color.appBackground.ignoresSafeArea()
+
             Group {
                 switch tabSelection.tab {
-                case .cards:   CardsView()
+                case .home:     HomeView()
                 case .discover: DiscoverMapView()
-                case .scan:    CardsView() // scan opens as modal
-                case .offers:  OffersView()
-                case .profile: CustomerProfileView()
+                case .scan:     HomeView() // scan opens as modal
+                case .rewards:  RewardsView()
+                case .profile:  CustomerProfileView()
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .environmentObject(tabSelection)
 
-            // Glassmorphic bottom nav
-            GlassTabBar(tabSelection: tabSelection, onScanTap: { showScan = true })
+            DarkTabBar(tabSelection: tabSelection, onScanTap: { showScan = true })
         }
         .ignoresSafeArea(edges: .bottom)
         .sheet(isPresented: $showScan) {
@@ -30,45 +30,45 @@ struct CustomerTabView: View {
     }
 }
 
-// MARK: - Glassmorphic Tab Bar
+// MARK: - Dark Tab Bar
 
-struct GlassTabBar: View {
+struct DarkTabBar: View {
     @ObservedObject var tabSelection: TabSelection
     var onScanTap: () -> Void
 
     var body: some View {
         ZStack {
-            // Glass background
+            // Dark glass background
             RoundedRectangle(cornerRadius: 28)
-                .fill(.ultraThinMaterial)
+                .fill(Color(hex: "#111111").opacity(0.95))
                 .overlay(
                     RoundedRectangle(cornerRadius: 28)
-                        .stroke(Color.white.opacity(0.4), lineWidth: 1)
+                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
                 )
-                .shadow(color: .black.opacity(0.12), radius: 20, x: 0, y: -4)
+                .shadow(color: .black.opacity(0.5), radius: 20, x: 0, y: -4)
                 .frame(height: 80)
 
             HStack(spacing: 0) {
-                GlassTabItem(icon: "creditcard.fill", label: "Cards", tab: .cards, tabSelection: tabSelection)
-                GlassTabItem(icon: "map.fill", label: "Discover", tab: .discover, tabSelection: tabSelection)
+                DarkTabItem(icon: "house.fill", label: "Home", tab: .home, tabSelection: tabSelection)
+                DarkTabItem(icon: "map.fill", label: "Discover", tab: .discover, tabSelection: tabSelection)
 
                 // Center scan button
                 Button(action: onScanTap) {
                     ZStack {
                         Circle()
-                            .fill(Color.black)
-                            .frame(width: 60, height: 60)
-                            .shadow(color: Color.black.opacity(0.3), radius: 12, x: 0, y: 4)
+                            .fill(Color.accentDefault)
+                            .frame(width: 58, height: 58)
+                            .shadow(color: Color.accentDefault.opacity(0.4), radius: 12, x: 0, y: 4)
                         Image(systemName: "qrcode.viewfinder")
-                            .font(.system(size: 26, weight: .medium))
+                            .font(.system(size: 24, weight: .semibold))
                             .foregroundColor(.white)
                     }
                 }
                 .offset(y: -16)
                 .frame(maxWidth: .infinity)
 
-                GlassTabItem(icon: "bell.fill", label: "Offers", tab: .offers, tabSelection: tabSelection)
-                GlassTabItem(icon: "person.fill", label: "Profile", tab: .profile, tabSelection: tabSelection)
+                DarkTabItem(icon: "gift.fill", label: "Rewards", tab: .rewards, tabSelection: tabSelection)
+                DarkTabItem(icon: "person.fill", label: "Profile", tab: .profile, tabSelection: tabSelection)
             }
             .padding(.horizontal, 8)
             .padding(.bottom, 8)
@@ -79,7 +79,7 @@ struct GlassTabBar: View {
     }
 }
 
-struct GlassTabItem: View {
+struct DarkTabItem: View {
     let icon: String
     let label: String
     let tab: CustomerTab
@@ -92,10 +92,10 @@ struct GlassTabItem: View {
             VStack(spacing: 3) {
                 Image(systemName: icon)
                     .font(.system(size: 20, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(isSelected ? .black : Color.brandTaupe)
+                    .foregroundColor(isSelected ? .accentDefault : Color.secondaryText)
                 Text(label)
                     .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(isSelected ? .black : Color.brandTaupe)
+                    .foregroundColor(isSelected ? .accentDefault : Color.secondaryText)
             }
             .frame(maxWidth: .infinity)
             .padding(.top, 12)

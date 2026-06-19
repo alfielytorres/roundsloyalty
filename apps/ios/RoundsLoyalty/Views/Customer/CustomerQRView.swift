@@ -4,49 +4,61 @@ import CoreImage.CIFilterBuiltins
 struct CustomerQRView: View {
     @EnvironmentObject var sessionManager: SessionManager
 
-    var userId: String? { sessionManager.session?.user.id.uuidString }
+    /// Prefer customer_token from profile, fall back to user UUID
+    private var qrValue: String? {
+        sessionManager.profile?.customerToken ?? sessionManager.session?.user.id.uuidString
+    }
 
     var body: some View {
-        VStack(spacing: 24) {
-            Text("My QR Code")
-                .font(.title2.bold())
-                .foregroundColor(.black)
+        NavigationStack {
+            ZStack {
+                Color.appBackground.ignoresSafeArea()
 
-            Text("Show this to the store to earn points")
-                .font(.subheadline)
-                .foregroundColor(.brandTaupe)
-                .multilineTextAlignment(.center)
+                VStack(spacing: 24) {
+                    Text("My Customer Code")
+                        .font(.title2.bold())
+                        .foregroundColor(.primaryText)
 
-            if let userId = userId, let qrImage = generateQR(from: userId) {
-                Image(uiImage: qrImage)
-                    .interpolation(.none)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 240, height: 240)
-                    .padding(20)
-                    .background(Color.white)
-                    .cornerRadius(20)
-                    .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 4)
+                    Text("Show this to the store to earn rounds")
+                        .font(.subheadline)
+                        .foregroundColor(.secondaryText)
+                        .multilineTextAlignment(.center)
 
-                Text(userId)
-                    .font(.system(size: 11, design: .monospaced))
-                    .foregroundColor(.brandSubtle)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-            } else {
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.brandAccent)
-                    .frame(width: 240, height: 240)
-                    .overlay(Text("Sign in to view QR").foregroundColor(.brandTaupe))
+                    if let value = qrValue, let qrImage = generateQR(from: value) {
+                        Image(uiImage: qrImage)
+                            .interpolation(.none)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 240, height: 240)
+                            .padding(20)
+                            .background(Color.white)
+                            .cornerRadius(20)
+                            .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: 4)
+
+                        Text(value)
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundColor(.secondaryText)
+                            .lineLimit(2)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 32)
+                    } else {
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color.glassCard)
+                            .frame(width: 240, height: 240)
+                            .overlay(
+                                Text("Sign in to view QR")
+                                    .foregroundColor(.secondaryText)
+                            )
+                    }
+
+                    Spacer()
+                }
+                .padding(.top, 32)
+                .padding(.horizontal, 24)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-
-            Spacer()
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .padding(.top, 32)
-        .padding(.horizontal, 24)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.brandCream.ignoresSafeArea())
     }
 
     private func generateQR(from string: String) -> UIImage? {
