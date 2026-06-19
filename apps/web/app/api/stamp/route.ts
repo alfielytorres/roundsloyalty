@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  // Resolve vendor via vendor_staff
+  // Try vendor_staff first, then fall back to owner lookup
   const { data: staffRecord } = await supabase
     .from('vendor_staff')
     .select('vendor_id')
@@ -29,9 +29,19 @@ export async function POST(req: NextRequest) {
     .limit(1)
     .maybeSingle()
 
-  if (!staffRecord) return NextResponse.json({ error: 'Vendor account not found' }, { status: 404 })
+  let vendorId: string | null = staffRecord?.vendor_id ?? null
 
-  const vendorId = staffRecord.vendor_id
+  if (!vendorId) {
+    const { data: owned } = await supabase
+      .from('vendors')
+      .select('id')
+      .eq('owner_id', user.id)
+      .limit(1)
+      .maybeSingle()
+    vendorId = owned?.id ?? null
+  }
+
+  if (!vendorId) return NextResponse.json({ error: 'Vendor account not found' }, { status: 404 })
 
   const body = await req.json()
   const customerToken: string = body.customer_token?.trim()

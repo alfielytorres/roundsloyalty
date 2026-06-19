@@ -14,7 +14,7 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  // Resolve vendor via vendor_staff
+  // Try vendor_staff first, then fall back to owner lookup
   const { data: staffRecord } = await supabase
     .from('vendor_staff')
     .select('vendor_id, vendors(id, business_name, join_token)')
@@ -23,14 +23,20 @@ export async function GET() {
     .limit(1)
     .maybeSingle()
 
-  if (!staffRecord) {
-    return NextResponse.json({ error: 'No vendor found. Complete setup first.' }, { status: 404 })
+  let vendor = staffRecord?.vendors as unknown as { id: string; business_name: string; join_token: string | null } | null
+
+  if (!vendor) {
+    const { data: owned } = await supabase
+      .from('vendors')
+      .select('id, business_name, join_token')
+      .eq('owner_id', user.id)
+      .limit(1)
+      .maybeSingle()
+    vendor = owned
   }
 
-  const vendor = staffRecord.vendors as unknown as {
-    id: string
-    business_name: string
-    join_token: string | null
+  if (!vendor) {
+    return NextResponse.json({ error: 'No vendor found. Complete setup first.' }, { status: 404 })
   }
 
   if (!vendor?.join_token) {
