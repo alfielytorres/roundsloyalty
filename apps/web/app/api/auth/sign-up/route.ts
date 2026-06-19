@@ -36,25 +36,22 @@ export async function POST(req: NextRequest) {
   })
 
   if (error) {
-    return NextResponse.redirect(
-      new URL(`/sign-up?error=${encodeURIComponent(error.message)}`, req.url),
-    )
+    return NextResponse.json({ error: error.message }, { status: 400 })
   }
 
-  // If email confirmation is required, session will be null
+  // Email confirmation required — session will be null
   if (!data.session) {
-    return NextResponse.redirect(
-      new URL('/sign-up?error=' + encodeURIComponent('Check your email to confirm your account, then sign in.'), req.url),
+    return NextResponse.json(
+      { message: 'Check your email to confirm your account, then sign in.' },
+      { status: 200 },
     )
   }
 
-  // Sign them in immediately (works when email confirmation is disabled)
+  // Sign in immediately (works when email confirmation is disabled)
   const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
   if (signInError) {
-    return NextResponse.redirect(
-      new URL(`/?error=${encodeURIComponent('Account created! Please sign in.')}`, req.url),
-    )
+    return NextResponse.json({ redirect: '/' }, { status: 200 })
   }
 
-  return NextResponse.redirect(new URL('/onboarding', req.url))
+  return NextResponse.json({ redirect: '/onboarding' }, { status: 200 })
 }
