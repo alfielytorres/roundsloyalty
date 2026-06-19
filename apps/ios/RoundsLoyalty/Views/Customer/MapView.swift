@@ -16,14 +16,20 @@ final class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObje
         super.init()
         manager.delegate = self
         manager.desiredAccuracy = kCLLocationAccuracyHundredMeters
-        manager.requestWhenInUseAuthorization()
-        manager.startUpdatingLocation()
+        let status = manager.authorizationStatus
+        if status == .notDetermined {
+            manager.requestWhenInUseAuthorization()
+        } else if status == .authorizedWhenInUse || status == .authorizedAlways {
+            manager.startUpdatingLocation()
+        }
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let loc = locations.last else { return }
-        if userLocation == nil {
-            userLocation = loc.coordinate
+        DispatchQueue.main.async {
+            if self.userLocation == nil {
+                self.userLocation = loc.coordinate
+            }
         }
         manager.stopUpdatingLocation()
     }
@@ -74,7 +80,6 @@ struct DiscoverMapView: View {
                     .onTapGesture { withAnimation { selectedBusiness = biz } }
             }
         }
-        .colorScheme(.light)
         .ignoresSafeArea(edges: .top)
     }
 

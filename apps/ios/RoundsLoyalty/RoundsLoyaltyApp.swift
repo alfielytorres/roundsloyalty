@@ -14,6 +14,7 @@ struct RoundsLoyaltyApp: App {
             RootView()
                 .environmentObject(sessionManager)
                 .appTypography()
+                .preferredColorScheme(.light)
         }
     }
 
