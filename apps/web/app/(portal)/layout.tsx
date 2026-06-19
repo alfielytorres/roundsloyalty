@@ -24,7 +24,23 @@ export default async function PortalLayout({ children }: { children: React.React
     .limit(1)
     .maybeSingle()
 
-  if (!staffRecord) redirect('/onboarding')
+  if (!staffRecord) {
+    // Fallback: check if user is a vendor owner (staff record may have failed to insert)
+    const { data: ownedVendor } = await supabase
+      .from('vendors')
+      .select('id')
+      .eq('owner_id', user.id)
+      .limit(1)
+      .maybeSingle()
+
+    if (!ownedVendor) redirect('/onboarding')
+
+    // Auto-repair missing staff record
+    await supabase.from('vendor_staff').upsert(
+      { vendor_id: ownedVendor.id, user_id: user.id, role: 'owner', status: 'active' },
+      { onConflict: 'vendor_id,user_id' }
+    )
+  }
 
   return (
     <>

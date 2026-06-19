@@ -14,30 +14,34 @@ export const getPortalData = cache(async () => {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/')
 
-  // Find vendor where user is owner or active staff member
+  // Find vendor via staff record
   const { data: staffRecord } = await supabase
     .from('vendor_staff')
     .select('vendor_id, role, vendors(id, business_name, description, category, status, brand_color, join_token, address, logo_url)')
     .eq('user_id', user.id)
     .eq('status', 'active')
     .limit(1)
-    .single()
+    .maybeSingle()
 
-  if (!staffRecord) redirect('/onboarding')
-
-  const vendor = staffRecord.vendors as unknown as {
-    id: string
-    business_name: string
-    description: string | null
-    category: string | null
-    status: string
-    brand_color: string | null
-    join_token: string | null
-    address: string | null
-    logo_url: string | null
+  type VendorShape = {
+    id: string; business_name: string; description: string | null
+    category: string | null; status: string; brand_color: string | null
+    join_token: string | null; address: string | null; logo_url: string | null
   }
 
-  if (!vendor) redirect('/onboarding')
+  if (staffRecord?.vendors) {
+    return { user, vendor: staffRecord.vendors as unknown as VendorShape, role: staffRecord.role as string, supabase }
+  }
 
-  return { user, vendor, role: staffRecord.role as string, supabase }
+  // Fallback: user is owner but staff record missing
+  const { data: ownedVendor } = await supabase
+    .from('vendors')
+    .select('id, business_name, description, category, status, brand_color, join_token, address, logo_url')
+    .eq('owner_id', user.id)
+    .limit(1)
+    .maybeSingle()
+
+  if (!ownedVendor) redirect('/onboarding')
+
+  return { user, vendor: ownedVendor as VendorShape, role: 'owner', supabase }
 })
