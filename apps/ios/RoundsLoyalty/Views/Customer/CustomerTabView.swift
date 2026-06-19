@@ -25,7 +25,7 @@ struct CustomerTabView: View {
         }
         .ignoresSafeArea(edges: .bottom)
         .sheet(isPresented: $showScan) {
-            ScanView()
+            ScanQRSheet()
         }
     }
 }

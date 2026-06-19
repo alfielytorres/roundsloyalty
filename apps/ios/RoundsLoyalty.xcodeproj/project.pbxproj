@@ -29,6 +29,8 @@
 		AA000013000000000000000A /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000013000000000000001A /* ProfileView.swift */; };
 		AA000020000000000000000A /* CustomerToolbarItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000020000000000000001A /* CustomerToolbarItems.swift */; };
 		AA000021000000000000000A /* CustomerShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000021000000000000001A /* CustomerShared.swift */; };
+		AA000023000000000000000A /* CustomerQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000023000000000000001A /* CustomerQRView.swift */; };
+		AA000024000000000000000A /* ScanQRSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000024000000000000001A /* ScanQRSheet.swift */; };
 		AA00001B000000000000000A /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = AA00001B000000000000002A /* Supabase */; };
 /* End PBXBuildFile section */
 
@@ -55,6 +57,8 @@
 		AA000013000000000000001A /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		AA000020000000000000001A /* CustomerToolbarItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerToolbarItems.swift; sourceTree = "<group>"; };
 		AA000021000000000000001A /* CustomerShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerShared.swift; sourceTree = "<group>"; };
+		AA000023000000000000001A /* CustomerQRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerQRView.swift; sourceTree = "<group>"; };
+		AA000024000000000000001A /* ScanQRSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanQRSheet.swift; sourceTree = "<group>"; };
 		AA00001C000000000000001A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AAFPRODUCT00000000000001A /* RoundsLoyalty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RoundsLoyalty.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -161,6 +165,8 @@
 				AA000013000000000000001A /* ProfileView.swift */,
 				AA000020000000000000001A /* CustomerToolbarItems.swift */,
 				AA000021000000000000001A /* CustomerShared.swift */,
+				AA000023000000000000001A /* CustomerQRView.swift */,
+				AA000024000000000000001A /* ScanQRSheet.swift */,
 			);
 			path = Customer;
 			sourceTree = "<group>";
@@ -261,6 +267,8 @@
 				AA000013000000000000000A /* ProfileView.swift in Sources */,
 				AA000020000000000000000A /* CustomerToolbarItems.swift in Sources */,
 				AA000021000000000000000A /* CustomerShared.swift in Sources */,
+				AA000023000000000000000A /* CustomerQRView.swift in Sources */,
+				AA000024000000000000000A /* ScanQRSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
