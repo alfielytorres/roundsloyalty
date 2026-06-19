@@ -26,14 +26,53 @@ export async function GET() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data: business } = await supabase
+  // Try to get existing businesses record
+  let { data: business } = await supabase
     .from('businesses')
     .select('id, name, qr_code_secret')
     .eq('owner_id', user.id)
     .maybeSingle()
 
-  if (!business?.qr_code_secret) {
-    return NextResponse.json({ error: 'Business not found or QR secret not configured' }, { status: 404 })
+  // If no businesses record exists, create one from the vendors record
+  if (!business) {
+    const { data: vendor } = await supabase
+      .from('vendors')
+      .select('business_name, description')
+      .eq('owner_id', user.id)
+      .maybeSingle()
+
+    if (!vendor) {
+      return NextResponse.json(
+        { error: 'No business found. Complete setup in Settings first.' },
+        { status: 404 },
+      )
+    }
+
+    const secret = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '')
+
+    const { data: created, error: createError } = await supabase
+      .from('businesses')
+      .insert({
+        owner_id: user.id,
+        name: vendor.business_name,
+        description: vendor.description ?? null,
+        qr_code_secret: secret,
+      })
+      .select('id, name, qr_code_secret')
+      .single()
+
+    if (createError || !created) {
+      return NextResponse.json(
+        { error: 'Failed to initialise business QR. Please try again.' },
+        { status: 500 },
+      )
+    }
+
+    business = created
+  }
+
+  if (!business.qr_code_secret) {
+    return NextResponse.json({ error: 'QR secret not configured.' }, { status: 500 })
   }
 
   const timestamp = Date.now()

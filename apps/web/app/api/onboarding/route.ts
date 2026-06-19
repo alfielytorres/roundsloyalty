@@ -65,5 +65,17 @@ export async function POST(req: NextRequest) {
     role: 'owner',
   })
 
+  // Create matching businesses record so the iOS QR system works
+  const secret = crypto.randomUUID().replace(/-/g, '') + crypto.randomUUID().replace(/-/g, '')
+  await supabase.from('businesses').upsert(
+    {
+      owner_id: user.id,
+      name: business_name,
+      description: description || null,
+      qr_code_secret: secret,
+    },
+    { onConflict: 'owner_id', ignoreDuplicates: true },
+  )
+
   return NextResponse.json({ redirect: '/dashboard' }, { status: 200 })
 }

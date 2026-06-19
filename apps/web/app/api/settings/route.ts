@@ -44,6 +44,12 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  // Keep businesses table in sync so iOS QR reflects the latest name
+  await supabase
+    .from('businesses')
+    .update({ name: business_name, description: description || null })
+    .eq('owner_id', user.id)
+
   return NextResponse.redirect(
     new URL('/settings?success=' + encodeURIComponent('Changes saved!'), req.url),
   )
