@@ -1,102 +1,12 @@
 import SwiftUI
+import CoreImage.CIFilterBuiltins
 
 struct CustomerProfileView: View {
     @EnvironmentObject var sessionManager: SessionManager
-    @State private var consents: [DataConsent] = []
-    @State private var isLoading = true
     @State private var isSigningOut = false
+    @State private var showQR = false
 
     var profile: Profile? { sessionManager.profile }
-
-    var body: some View {
-        NavigationStack {
-            ZStack {
-                Color.brandCream.ignoresSafeArea()
-
-                List {
-                    // Profile header
-                    Section {
-                        HStack(spacing: 16) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.black.opacity(0.08))
-                                    .frame(width: 64, height: 64)
-                                Text(initials)
-                                    .font(.title2.bold())
-                                    .foregroundColor(.black)
-                            }
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(profile?.displayName ?? "Customer")
-                                    .font(.headline)
-                                    .foregroundColor(.black)
-                                Text(sessionManager.session?.user.email ?? "")
-                                    .font(.subheadline)
-                                    .foregroundColor(.brandTaupe)
-                            }
-                        }
-                        .padding(.vertical, 8)
-                    }
-                    .listRowBackground(Color.white.opacity(0.7))
-
-                    // Data consents
-                    Section(header: Text("My Data").foregroundColor(.brandTaupe)) {
-                        if isLoading {
-                            HStack {
-                                Spacer()
-                                ProgressView().tint(.black)
-                                Spacer()
-                            }
-                        } else if consents.isEmpty {
-                            Text("You haven't shared data with any stores yet.")
-                                .font(.subheadline)
-                                .foregroundColor(.brandTaupe)
-                        } else {
-                            ForEach(consents) { consent in
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(consent.business?.name ?? "Unknown Store")
-                                            .font(.subheadline)
-                                            .foregroundColor(.black)
-                                        Text("Sharing visit data & eligible for offers")
-                                            .font(.caption)
-                                            .foregroundColor(.brandTaupe)
-                                    }
-                                    Spacer()
-                                    Button("Withdraw") {
-                                        Task { await withdrawConsent(consentId: consent.id) }
-                                    }
-                                    .font(.caption.weight(.semibold))
-                                    .foregroundColor(.red)
-                                }
-                            }
-                        }
-                    }
-                    .listRowBackground(Color.white.opacity(0.7))
-
-                    // Sign out
-                    Section {
-                        Button(role: .destructive) {
-                            Task { await signOut() }
-                        } label: {
-                            HStack {
-                                if isSigningOut {
-                                    ProgressView().tint(.red)
-                                } else {
-                                    Label("Sign Out", systemImage: "arrow.right.square")
-                                }
-                            }
-                        }
-                    }
-                    .listRowBackground(Color.white.opacity(0.7))
-                }
-                .listStyle(.insetGrouped)
-                .scrollContentBackground(.hidden)
-            }
-            .navigationTitle("Profile")
-            .toolbar { CustomerToolbarItems() }
-            .task { await loadConsents() }
-        }
-    }
 
     private var initials: String {
         let name = profile?.displayName ?? "C"
@@ -107,33 +17,102 @@ struct CustomerProfileView: View {
             .uppercased()
     }
 
-    private func loadConsents() async {
-        guard let userId = sessionManager.session?.user.id else { return }
-        do {
-            let fetched: [DataConsent] = try await supabase.database
-                .from("data_consents")
-                .select("*, businesses(id, name)")
-                .eq("customer_id", value: userId)
-                .is("withdrawn_at", value: "null")
-                .execute()
-                .value
-            consents = fetched
-        } catch {
-            print("Failed to load consents: \(error)")
-        }
-        isLoading = false
-    }
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.appBackground.ignoresSafeArea()
 
-    private func withdrawConsent(consentId: UUID) async {
-        do {
-            try await supabase.database
-                .from("data_consents")
-                .update(["withdrawn_at": Date().ISO8601Format()])
-                .eq("id", value: consentId)
-                .execute()
-            consents.removeAll { $0.id == consentId }
-        } catch {
-            print("Failed to withdraw consent: \(error)")
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 20) {
+                        // Avatar + name
+                        VStack(spacing: 12) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.accentDefault.opacity(0.2))
+                                    .frame(width: 80, height: 80)
+                                Text(initials)
+                                    .font(.system(size: 32, weight: .bold))
+                                    .foregroundColor(.accentDefault)
+                            }
+                            Text(profile?.displayName ?? "Customer")
+                                .font(.title3.bold())
+                                .foregroundColor(.primaryText)
+                            Text(sessionManager.session?.user.email ?? "")
+                                .font(.subheadline)
+                                .foregroundColor(.secondaryText)
+                        }
+                        .padding(.top, 20)
+
+                        // Customer QR
+                        Button {
+                            showQR = true
+                        } label: {
+                            HStack {
+                                Image(systemName: "qrcode")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(.accentDefault)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("My Customer Code")
+                                        .font(.subheadline.weight(.semibold))
+                                        .foregroundColor(.primaryText)
+                                    Text("Show to store to earn rounds")
+                                        .font(.caption)
+                                        .foregroundColor(.secondaryText)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundColor(.secondaryText)
+                            }
+                            .padding(16)
+                            .darkGlassCard()
+                        }
+                        .padding(.horizontal, 20)
+
+                        // Settings section
+                        VStack(spacing: 1) {
+                            ProfileRow(icon: "person.circle", label: "Account Details")
+                            ProfileRow(icon: "bell", label: "Notifications")
+                            ProfileRow(icon: "lock.shield", label: "Privacy")
+                        }
+                        .padding(.horizontal, 20)
+
+                        // Sign out
+                        Button(role: .destructive) {
+                            Task { await signOut() }
+                        } label: {
+                            HStack {
+                                if isSigningOut {
+                                    ProgressView().tint(.red)
+                                } else {
+                                    Image(systemName: "arrow.right.square")
+                                    Text("Sign Out")
+                                        .font(.subheadline.weight(.semibold))
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .foregroundColor(.red)
+                            .background(Color.red.opacity(0.1))
+                            .cornerRadius(12)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.red.opacity(0.2), lineWidth: 1)
+                            )
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.top, 8)
+
+                        Spacer(minLength: 80)
+                    }
+                }
+            }
+            .navigationTitle("Profile")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbarColorScheme(.dark, for: .navigationBar)
+            .sheet(isPresented: $showQR) {
+                CustomerQRView()
+            }
         }
     }
 
@@ -141,5 +120,35 @@ struct CustomerProfileView: View {
         isSigningOut = true
         try? await sessionManager.signOut()
         isSigningOut = false
+    }
+}
+
+struct ProfileRow: View {
+    let icon: String
+    let label: String
+
+    var body: some View {
+        HStack(spacing: 14) {
+            Image(systemName: icon)
+                .font(.system(size: 18))
+                .foregroundColor(.secondaryText)
+                .frame(width: 24)
+            Text(label)
+                .font(.subheadline)
+                .foregroundColor(.primaryText)
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.caption)
+                .foregroundColor(.secondaryText)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .background(Color.glassCard)
+        .overlay(
+            Rectangle()
+                .fill(Color.glassBorder)
+                .frame(height: 0.5),
+            alignment: .bottom
+        )
     }
 }

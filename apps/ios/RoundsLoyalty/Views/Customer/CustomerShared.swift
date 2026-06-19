@@ -1,9 +1,9 @@
 import SwiftUI
 
 enum CustomerTab: Equatable {
-    case cards, discover, scan, offers, profile
+    case home, discover, scan, rewards, profile
 }
 
 final class TabSelection: ObservableObject {
-    @Published var tab: CustomerTab = .cards
+    @Published var tab: CustomerTab = .home
 }

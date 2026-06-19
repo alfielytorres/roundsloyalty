@@ -10,11 +10,13 @@ struct Profile: Codable, Identifiable {
     let displayName: String?
     let email: String?
     let role: UserRole
+    let customerToken: String?
 
     enum CodingKeys: String, CodingKey {
         case id
         case displayName = "display_name"
         case email
         case role
+        case customerToken = "customer_token"
     }
 }

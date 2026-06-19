@@ -7,11 +7,11 @@ struct RootView: View {
         Group {
             if sessionManager.isLoading {
                 ZStack {
-                    Color.brandCream.ignoresSafeArea()
+                    Color.appBackground.ignoresSafeArea()
                     VStack(spacing: 16) {
-                        RoundsLogoMark(size: 48)
+                        RoundsLogoMark(size: 48, color: .white)
                         ProgressView()
-                            .tint(.black)
+                            .tint(.white)
                     }
                 }
             } else if sessionManager.session == nil {

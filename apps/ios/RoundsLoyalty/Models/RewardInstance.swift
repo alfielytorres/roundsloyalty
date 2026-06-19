@@ -1,32 +1,27 @@
 import Foundation
 
-enum RewardStatus: String, Codable {
-    case available
-    case redeemed
-    case expired
-    case voided
-}
-
 struct RewardInstance: Codable, Identifiable {
     let id: UUID
     let customerId: UUID
     let vendorId: UUID
-    let status: RewardStatus
-    let rewardName: String?
+    let rewardName: String
     let rewardDescription: String?
-    let earnedAt: Date?
-    let redeemedAt: Date?
+    let status: String // available, collection_requested, ready, collected, expired, cancelled
     let expiresAt: Date?
+    let createdAt: Date
+    var vendor: Vendor?
+    var collection: RewardCollection?
 
     enum CodingKeys: String, CodingKey {
         case id
         case customerId = "customer_id"
         case vendorId = "vendor_id"
-        case status
         case rewardName = "reward_name"
         case rewardDescription = "reward_description"
-        case earnedAt = "earned_at"
-        case redeemedAt = "redeemed_at"
+        case status
         case expiresAt = "expires_at"
+        case createdAt = "created_at"
+        case vendor = "vendors"
+        case collection = "reward_collections"
     }
 }
