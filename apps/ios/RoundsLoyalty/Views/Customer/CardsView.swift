@@ -1,8 +1,42 @@
 import SwiftUI
 
+struct VendorMembership: Codable, Identifiable {
+    let id: UUID
+    let vendorId: UUID
+    let status: String
+    let activatedAt: Date?
+    var vendor: VendorInfo?
+    var balance: LoyaltyBalance?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case vendorId = "vendor_id"
+        case status
+        case activatedAt = "activated_at"
+        case vendor = "vendors"
+        case balance = "loyalty_balances"
+    }
+}
+
+struct VendorInfo: Codable, Identifiable {
+    let id: UUID
+    let businessName: String
+    let description: String?
+    let logoUrl: String?
+    let address: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case businessName = "business_name"
+        case description
+        case logoUrl = "logo_url"
+        case address
+    }
+}
+
 struct CardsView: View {
     @EnvironmentObject var sessionManager: SessionManager
-    @State private var cards: [LoyaltyCard] = []
+    @State private var memberships: [VendorMembership] = []
     @State private var isLoading = true
     @State private var errorMessage: String?
 
@@ -12,53 +46,60 @@ struct CardsView: View {
                 Color.brandCream.ignoresSafeArea()
 
                 if isLoading {
-                    ProgressView()
-                        .tint(.brandGreen)
-                } else if cards.isEmpty {
-                    VStack(spacing: 16) {
-                        Image(systemName: "creditcard")
-                            .font(.system(size: 48))
-                            .foregroundColor(.brandTaupe)
-                        Text("No loyalty cards yet")
-                            .font(.headline)
-                            .foregroundColor(.brandDarkGreen)
-                        Text("Scan a store's QR code to get started")
-                            .font(.subheadline)
-                            .foregroundColor(.brandTaupe)
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding()
+                    ProgressView().tint(.brandGreen)
+                } else if memberships.isEmpty {
+                    emptyState
                 } else {
-                    ScrollView {
-                        LazyVStack(spacing: 16) {
-                            ForEach(cards) { card in
-                                LoyaltyCardRow(card: card)
-                            }
-                        }
-                        .padding()
-                    }
+                    cardList
                 }
             }
             .navigationTitle("My Cards")
             .navigationBarTitleDisplayMode(.large)
             .toolbar { CustomerToolbarItems() }
-            .task { await loadCards() }
-            .refreshable { await loadCards() }
+            .task { await loadMemberships() }
+            .refreshable { await loadMemberships() }
         }
     }
 
-    private func loadCards() async {
+    private var emptyState: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "creditcard")
+                .font(.system(size: 48))
+                .foregroundColor(.brandTaupe)
+            Text("No loyalty cards yet")
+                .font(.headline)
+                .foregroundColor(.black)
+            Text("Scan a store's QR code to get started")
+                .font(.subheadline)
+                .foregroundColor(.brandTaupe)
+                .multilineTextAlignment(.center)
+        }
+        .padding()
+    }
+
+    private var cardList: some View {
+        ScrollView {
+            LazyVStack(spacing: 16) {
+                ForEach(memberships) { membership in
+                    MembershipCardRow(membership: membership)
+                }
+            }
+            .padding()
+        }
+    }
+
+    private func loadMemberships() async {
         guard let userId = sessionManager.session?.user.id else { return }
         isLoading = true
         do {
-            let fetched: [LoyaltyCard] = try await supabase.database
-                .from("loyalty_cards")
-                .select("*, loyalty_programs(*, businesses(*))")
+            let fetched: [VendorMembership] = try await supabase.database
+                .from("customer_vendor_memberships")
+                .select("*, vendors(id, business_name, description, logo_url, address), loyalty_balances(stamps, points)")
                 .eq("customer_id", value: userId)
-                .order("last_visit", ascending: false)
+                .eq("status", value: "active")
                 .execute()
                 .value
-            cards = fetched
+            memberships = fetched
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -66,21 +107,18 @@ struct CardsView: View {
     }
 }
 
-struct LoyaltyCardRow: View {
-    let card: LoyaltyCard
-
-    var business: Business? { card.loyaltyProgram?.business }
-    var program: LoyaltyProgramWithBusiness? { card.loyaltyProgram }
+struct MembershipCardRow: View {
+    let membership: VendorMembership
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(business?.name ?? "Unknown Business")
+                    Text(membership.vendor?.businessName ?? "Unknown Store")
                         .font(.headline)
-                        .foregroundColor(.brandDarkGreen)
-                    if let reward = program?.rewardDescription {
-                        Text(reward)
+                        .foregroundColor(.black)
+                    if let address = membership.vendor?.address {
+                        Text(address)
                             .font(.caption)
                             .foregroundColor(.brandTaupe)
                     }
@@ -90,23 +128,13 @@ struct LoyaltyCardRow: View {
                     .foregroundColor(.brandTaupe)
             }
 
-            // Stamp grid for stamp programs
-            if program?.type == .stamp, let config = program?.config, let required = config.stampsRequired {
-                StampGrid(collected: card.stampsCollected, required: required)
-            } else if program?.type == .points {
-                HStack {
-                    Image(systemName: "star.fill")
-                        .foregroundColor(.brandGreen)
-                    Text("\(card.pointsAccumulated) points")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundColor(.brandDarkGreen)
-                }
-            }
-
-            if let lastVisit = card.lastVisit {
-                Text("Last visit: \(lastVisit.formatted(.relative(presentation: .named)))")
-                    .font(.caption2)
-                    .foregroundColor(.brandTaupe)
+            HStack(spacing: 20) {
+                Label("\(membership.balance?.stamps ?? 0) stamps", systemImage: "seal.fill")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.black)
+                Label("\(membership.balance?.points ?? 0) pts", systemImage: "star.fill")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.black)
             }
         }
         .padding()
@@ -126,10 +154,7 @@ struct StampGrid: View {
                 Circle()
                     .fill(index < collected ? Color.brandGreen : Color.brandLightGreen)
                     .frame(height: 28)
-                    .overlay(
-                        Circle()
-                            .stroke(Color.brandGreen.opacity(index < collected ? 0 : 0.3), lineWidth: 1)
-                    )
+                    .overlay(Circle().stroke(Color.brandGreen.opacity(index < collected ? 0 : 0.3), lineWidth: 1))
                     .overlay(
                         Image(systemName: index < collected ? "checkmark" : "")
                             .font(.caption2.weight(.bold))

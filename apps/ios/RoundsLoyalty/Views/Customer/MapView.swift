@@ -24,13 +24,13 @@ final class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObje
         }
     }
 
+    func recenter() {
+        manager.startUpdatingLocation()
+    }
+
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let loc = locations.last else { return }
-        DispatchQueue.main.async {
-            if self.userLocation == nil {
-                self.userLocation = loc.coordinate
-            }
-        }
+        DispatchQueue.main.async { self.userLocation = loc.coordinate }
         manager.stopUpdatingLocation()
     }
 
@@ -42,10 +42,19 @@ final class LocationManager: NSObject, CLLocationManagerDelegate, ObservableObje
     }
 }
 
+struct VendorPin: Identifiable {
+    let id: UUID
+    let name: String
+    let address: String?
+    let description: String?
+    let lat: Double
+    let lng: Double
+}
+
 struct DiscoverMapView: View {
     @StateObject private var locationManager = LocationManager()
-    @State private var businesses: [Business] = []
-    @State private var selectedBusiness: Business?
+    @State private var vendors: [VendorPin] = []
+    @State private var selectedVendor: VendorPin?
     @State private var isLoading = true
     @State private var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: -33.8688, longitude: 151.2093),
@@ -57,16 +66,17 @@ struct DiscoverMapView: View {
         NavigationStack {
             ZStack(alignment: .bottom) {
                 mapLayer
+                recenterButton
                 bottomSheet
             }
             .navigationTitle("Discover")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { CustomerToolbarItems() }
-            .task { await loadBusinesses() }
+            .task { await loadVendors() }
             .onChange(of: locationManager.userLocation) { coord in
                 guard let coord = coord, !didCenterOnUser else { return }
                 didCenterOnUser = true
-                region.center = coord
+                withAnimation { region.center = coord }
             }
         }
     }
@@ -74,41 +84,54 @@ struct DiscoverMapView: View {
     @ViewBuilder private var mapLayer: some View {
         Map(coordinateRegion: $region,
             showsUserLocation: true,
-            annotationItems: businesses.filter { $0.lat != nil && $0.lng != nil }) { biz in
-            MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: biz.lat ?? 0, longitude: biz.lng ?? 0)) {
-                BusinessMapPin(business: biz, isSelected: selectedBusiness?.id == biz.id)
-                    .onTapGesture { withAnimation { selectedBusiness = biz } }
+            annotationItems: vendors) { v in
+            MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: v.lat, longitude: v.lng)) {
+                VendorMapPin(isSelected: selectedVendor?.id == v.id)
+                    .onTapGesture { withAnimation { selectedVendor = v } }
             }
         }
         .ignoresSafeArea(edges: .top)
     }
 
-    @ViewBuilder private var bottomSheet: some View {
-        VStack(spacing: 0) {
-            if isLoading {
-                loadingIndicator
-            } else if !businesses.isEmpty {
-                businessCarousel
+    private var recenterButton: some View {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                Button(action: recenterMap) {
+                    Image(systemName: "location.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.brandGreen)
+                        .frame(width: 44, height: 44)
+                        .background(Color.white)
+                        .clipShape(Circle())
+                        .shadow(color: .black.opacity(0.15), radius: 6, x: 0, y: 2)
+                }
+                .padding(.trailing, 16)
+                .padding(.bottom, vendors.isEmpty ? 20 : 190)
             }
         }
     }
 
-    private var loadingIndicator: some View {
-        ProgressView()
-            .tint(.brandGreen)
-            .padding()
-            .background(Color.white.opacity(0.9))
-            .cornerRadius(16)
-            .padding()
+    @ViewBuilder private var bottomSheet: some View {
+        if isLoading {
+            ProgressView()
+                .tint(.brandGreen)
+                .padding()
+                .background(Color.white.opacity(0.9))
+                .cornerRadius(16)
+                .padding()
+        } else if !vendors.isEmpty {
+            vendorCarousel
+        }
     }
 
-    private var businessCarousel: some View {
+    private var vendorCarousel: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 12) {
-                ForEach(businesses) { biz in
-                    let selected = selectedBusiness?.id == biz.id
-                    BusinessCard(business: biz, isSelected: selected)
-                        .onTapGesture { selectBusiness(biz) }
+                ForEach(vendors) { vendor in
+                    VendorCard(vendor: vendor, isSelected: selectedVendor?.id == vendor.id)
+                        .onTapGesture { selectVendor(vendor) }
                 }
             }
             .padding(.horizontal, 16)
@@ -118,33 +141,58 @@ struct DiscoverMapView: View {
         .cornerRadius(20, corners: [.topLeft, .topRight])
     }
 
-    private func selectBusiness(_ biz: Business) {
-        let coord: CLLocationCoordinate2D? = (biz.lat != nil && biz.lng != nil)
-            ? CLLocationCoordinate2D(latitude: biz.lat!, longitude: biz.lng!)
-            : nil
+    private func selectVendor(_ vendor: VendorPin) {
         withAnimation {
-            selectedBusiness = biz
-            if let coord = coord { region.center = coord }
+            selectedVendor = vendor
+            region.center = CLLocationCoordinate2D(latitude: vendor.lat, longitude: vendor.lng)
         }
     }
 
-    private func loadBusinesses() async {
+    private func recenterMap() {
+        if let loc = locationManager.userLocation {
+            withAnimation { region.center = loc }
+        } else {
+            locationManager.recenter()
+        }
+    }
+
+    private func loadVendors() async {
+        struct VendorRow: Decodable {
+            let id: UUID
+            let businessName: String
+            let description: String?
+            let address: String?
+            let lat: Double?
+            let lng: Double?
+            enum CodingKeys: String, CodingKey {
+                case id
+                case businessName = "business_name"
+                case description
+                case address
+                case lat
+                case lng
+            }
+        }
         do {
-            let all: [Business] = try await supabase.database
-                .from("businesses")
-                .select("id, name, description, logo_url, address, lat, lng")
+            let rows: [VendorRow] = try await supabase.database
+                .from("vendors")
+                .select("id, business_name, description, address, lat, lng")
+                .eq("status", value: "active")
                 .execute()
                 .value
-            businesses = all.filter { $0.lat != nil && $0.lng != nil }
+            vendors = rows.compactMap { row in
+                guard let lat = row.lat, let lng = row.lng else { return nil }
+                return VendorPin(id: row.id, name: row.businessName, address: row.address,
+                                 description: row.description, lat: lat, lng: lng)
+            }
         } catch {
-            print("Failed to load businesses: \(error)")
+            print("Failed to load vendors: \(error)")
         }
         isLoading = false
     }
 }
 
-struct BusinessMapPin: View {
-    let business: Business
+struct VendorMapPin: View {
     let isSelected: Bool
 
     var body: some View {
@@ -165,19 +213,8 @@ struct BusinessMapPin: View {
     }
 }
 
-struct Triangle: Shape {
-    func path(in rect: CGRect) -> Path {
-        var path = Path()
-        path.move(to: CGPoint(x: rect.midX, y: rect.maxY))
-        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
-        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
-        path.closeSubpath()
-        return path
-    }
-}
-
-struct BusinessCard: View {
-    let business: Business
+struct VendorCard: View {
+    let vendor: VendorPin
     let isSelected: Bool
 
     var body: some View {
@@ -185,18 +222,18 @@ struct BusinessCard: View {
             HStack {
                 Image(systemName: "storefront.fill")
                     .foregroundColor(.brandGreen)
-                Text(business.name)
+                Text(vendor.name)
                     .font(.headline)
-                    .foregroundColor(.brandDarkGreen)
+                    .foregroundColor(.black)
                     .lineLimit(1)
             }
-            if let address = business.address {
+            if let address = vendor.address {
                 Text(address)
                     .font(.caption)
                     .foregroundColor(.brandTaupe)
                     .lineLimit(2)
             }
-            if let description = business.description {
+            if let description = vendor.description {
                 Text(description)
                     .font(.caption2)
                     .foregroundColor(.brandTaupe)
@@ -210,6 +247,17 @@ struct BusinessCard: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(isSelected ? Color.brandGreen : Color.clear, lineWidth: 2)
         )
+    }
+}
+
+struct Triangle: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.midX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+        path.closeSubpath()
+        return path
     }
 }
 
