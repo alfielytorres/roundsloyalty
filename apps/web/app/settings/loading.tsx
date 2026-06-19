@@ -1,25 +1,36 @@
 export default function Loading() {
   return (
-    <main className="px-6 pt-10 pb-32 animate-pulse">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-8">
-          <div className="h-8 w-28 bg-white/10 rounded-2xl mb-2" />
-          <div className="h-3 w-40 bg-white/5 rounded-lg" />
+    <main className="px-5 pt-10 pb-32 animate-pulse">
+      <div className="max-w-lg mx-auto">
+        <div className="mb-7">
+          <div className="h-3 w-20 bg-[#C8C0B4] rounded-full mb-2" />
+          <div className="h-8 w-28 bg-[#B8B0A4] rounded-2xl" />
         </div>
-        <div className="bg-white/[.07] border border-white/10 rounded-3xl p-8 mb-4">
-          <div className="h-5 w-36 bg-white/10 rounded-xl mb-6" />
-          {[0,1,2].map((i) => (
+        <div className="bg-white border border-[#E8E2D9] rounded-3xl p-6 mb-4 shadow-sm">
+          <div className="h-5 w-36 bg-[#C8C0B4] rounded-xl mb-6" />
+          {[0, 1, 2].map((i) => (
             <div key={i} className="mb-4">
-              <div className="h-3 w-24 bg-white/10 rounded-lg mb-2" />
-              <div className="h-12 w-full bg-white/10 rounded-2xl" />
+              <div className="h-3 w-24 bg-[#D8D0C8] rounded-lg mb-2" />
+              <div className="h-12 w-full bg-[#E8E2D9] rounded-2xl" />
             </div>
           ))}
-          <div className="h-12 w-36 bg-[#8B5CF6]/20 rounded-2xl mt-2" />
+          <div className="h-11 w-36 bg-[#C8C0B4] rounded-2xl mt-2" />
         </div>
-        <div className="bg-white/[.07] border border-white/10 rounded-3xl p-8">
-          <div className="h-5 w-24 bg-white/10 rounded-xl mb-2" />
-          <div className="h-3 w-44 bg-white/5 rounded-lg mb-5" />
-          <div className="h-10 w-24 bg-white/10 rounded-xl" />
+        <div className="bg-white border border-[#E8E2D9] rounded-3xl p-6 mb-4 shadow-sm">
+          <div className="h-5 w-40 bg-[#C8C0B4] rounded-xl mb-2" />
+          <div className="h-3 w-56 bg-[#D8D0C8] rounded-lg mb-5" />
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="mb-4">
+              <div className="h-3 w-32 bg-[#D8D0C8] rounded-lg mb-2" />
+              <div className="h-12 w-full bg-[#E8E2D9] rounded-2xl" />
+            </div>
+          ))}
+          <div className="h-11 w-36 bg-[#C8C0B4] rounded-2xl mt-2" />
+        </div>
+        <div className="bg-white border border-[#E8E2D9] rounded-3xl p-6 shadow-sm">
+          <div className="h-5 w-24 bg-[#C8C0B4] rounded-xl mb-2" />
+          <div className="h-3 w-44 bg-[#D8D0C8] rounded-lg mb-5" />
+          <div className="h-10 w-28 bg-[#E8E2D9] rounded-2xl" />
         </div>
       </div>
     </main>
