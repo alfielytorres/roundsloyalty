@@ -52,7 +52,7 @@ export default function SignUpPage() {
               <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">{f.label}</label>
               <input type={f.type} name={f.name} required minLength={f.name === 'password' ? 8 : undefined}
                 placeholder={f.placeholder} disabled={loading}
-                className="w-full bg-white/80 border border-black/8 rounded-2xl px-4 py-3 text-[#111] placeholder-black/25 text-sm focus:outline-none focus:border-[#E8805A]/50 transition-colors" />
+                className="w-full bg-white/80 border border-black/10 rounded-2xl px-4 py-3 text-[#111] placeholder-black/25 text-sm focus:outline-none focus:border-[#E8805A]/50 transition-colors" />
             </div>
           ))}
           <button type="submit" disabled={loading}

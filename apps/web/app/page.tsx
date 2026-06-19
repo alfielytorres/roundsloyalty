@@ -46,12 +46,12 @@ export default function RootPage() {
           <div>
             <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Email</label>
             <input type="email" name="email" required placeholder="you@example.com" disabled={loading}
-              className="w-full bg-white/80 border border-black/8 rounded-2xl px-4 py-3 text-[#111] placeholder-black/25 text-sm focus:outline-none focus:border-[#E8805A]/50 transition-colors" />
+              className="w-full bg-white/80 border border-black/10 rounded-2xl px-4 py-3 text-[#111] placeholder-black/25 text-sm focus:outline-none focus:border-[#E8805A]/50 transition-colors" />
           </div>
           <div>
             <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Password</label>
             <input type="password" name="password" required placeholder="••••••••" disabled={loading}
-              className="w-full bg-white/80 border border-black/8 rounded-2xl px-4 py-3 text-[#111] placeholder-black/25 text-sm focus:outline-none focus:border-[#E8805A]/50 transition-colors" />
+              className="w-full bg-white/80 border border-black/10 rounded-2xl px-4 py-3 text-[#111] placeholder-black/25 text-sm focus:outline-none focus:border-[#E8805A]/50 transition-colors" />
           </div>
           <button type="submit" disabled={loading}
             className="w-full bg-[#111] hover:bg-[#222] disabled:opacity-50 text-white font-bold py-3.5 rounded-2xl transition-colors text-sm tracking-wide mt-1">

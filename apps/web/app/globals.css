@@ -46,7 +46,8 @@ html {
   }
   /* Live campaign — warm coral accent */
   .card-gold {
-    @apply bg-gradient-to-br from-[#E8805A]/20 to-[#E8805A]/5 backdrop-blur-xl rounded-3xl p-6 border border-[#E8805A]/20 shadow-sm;
+    background: radial-gradient(ellipse at 30% 70%, rgba(232,128,90,0.18) 0%, rgba(232,128,90,0.05) 100%);
+    @apply backdrop-blur-xl rounded-3xl p-6 border border-[#E8805A]/20 shadow-sm;
   }
   .card-dark {
     @apply glass;
@@ -58,7 +59,7 @@ html {
     @apply bg-[#1A1A1A] rounded-2xl;
   }
   .dark-input {
-    @apply bg-white/80 border border-black/8 rounded-2xl px-4 py-3 text-[#111] placeholder:text-black/25 focus:outline-none focus:border-[#E8805A]/50 transition-colors w-full;
+    @apply bg-white/80 border border-black/10 rounded-2xl px-4 py-3 text-[#111] placeholder:text-black/25 focus:outline-none focus:border-[#E8805A]/50 transition-colors w-full;
   }
   .skel {
     @apply bg-white/10 rounded-lg animate-pulse;
