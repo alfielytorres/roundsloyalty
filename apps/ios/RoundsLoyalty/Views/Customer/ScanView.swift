@@ -270,7 +270,7 @@ struct ScanView: View {
         guard let userId = sessionManager.session?.user.id else { return }
         scanState = .processing
         do {
-            try await supabase.from("data_consents")
+            try await supabase.database.from("data_consents")
                 .insert(["customer_id": userId.uuidString, "business_id": businessId.uuidString])
                 .execute()
             await processQRPayload(qrPayload)

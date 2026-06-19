@@ -149,26 +149,26 @@ struct VendorSettingsView: View {
         isSaving = true; errorMessage = nil; successMessage = nil
         do {
             if let existing = existingBusiness {
-                try await supabase.from("businesses")
+                try await supabase.database.from("businesses")
                     .update(["name": businessName, "description": businessDescription, "address": businessAddress])
                     .eq("id", value: existing.id).execute()
                 if let program = existingProgram {
-                    try await supabase.from("loyalty_programs")
+                    try await supabase.database.from("loyalty_programs")
                         .update(["type": programType.rawValue, "reward_description": rewardDescription])
                         .eq("id", value: program.id).execute()
                 } else {
-                    try await supabase.from("loyalty_programs")
+                    try await supabase.database.from("loyalty_programs")
                         .insert(["business_id": existing.id.uuidString, "type": programType.rawValue,
                                  "reward_description": rewardDescription, "is_active": "true"]).execute()
                 }
                 successMessage = "Store updated!"
             } else {
-                let newBiz: Business = try await supabase.from("businesses")
+                let newBiz: Business = try await supabase.database.from("businesses")
                     .insert(["owner_id": userId.uuidString, "name": businessName,
                              "description": businessDescription, "address": businessAddress])
                     .select().single().execute().value
                 existingBusiness = newBiz
-                try await supabase.from("loyalty_programs")
+                try await supabase.database.from("loyalty_programs")
                     .insert(["business_id": newBiz.id.uuidString, "type": programType.rawValue,
                              "reward_description": rewardDescription, "is_active": "true"]).execute()
                 successMessage = "Store created!"
