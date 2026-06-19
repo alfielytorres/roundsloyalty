@@ -90,7 +90,6 @@ export default function StampScanner({ vendorId }: { vendorId: string }) {
 
   useEffect(() => () => { stopCamera() }, [stopCamera])
 
-  // When token changes and isn't empty, fetch customer preview
   useEffect(() => {
     if (!token.trim()) { setPreview(null); return }
     let cancelled = false
@@ -135,65 +134,67 @@ export default function StampScanner({ vendorId }: { vendorId: string }) {
   }
 
   return (
-    <div className="bg-white border border-[#E8E2D9] rounded-3xl p-6 shadow-sm">
+    <div className="card-dark">
       <div className="flex items-start justify-between mb-5">
         <div>
-          <h2 className="flex items-center gap-2 text-xl font-bold text-[#111111]">
+          <h2 className="flex items-center gap-2 text-xl font-bold text-white">
             <QrCode size={20} className="text-[#E8805A]" />
             Scan customer QR
           </h2>
-          <p className="text-[#6B7280] text-sm mt-1">Ask the customer to open the app and show their QR code.</p>
+          <p className="text-white/40 text-sm mt-1">Ask the customer to open the app and show their QR code.</p>
         </div>
         <button type="button" onClick={cameraOpen ? stopCamera : startCamera}
           className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold transition-colors shrink-0 ml-3 ${
-            cameraOpen ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200' : 'bg-orange-50 text-[#E8805A] hover:bg-orange-100 border border-orange-200'
+            cameraOpen
+              ? 'bg-red-900/40 text-red-400 hover:bg-red-900/60 border border-red-500/30'
+              : 'bg-white/10 text-white/70 hover:bg-white/20 border border-white/10'
           }`}>
           {cameraOpen ? <><X size={14} />Close</> : <><Camera size={14} />Camera</>}
         </button>
       </div>
 
-      {cameraError && <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm">{cameraError}</div>}
+      {cameraError && (
+        <div className="mb-4 p-3 bg-red-900/30 border border-red-500/30 rounded-2xl text-red-400 text-sm">{cameraError}</div>
+      )}
 
       {cameraOpen && (
         <div className="mb-5 relative rounded-2xl overflow-hidden bg-black aspect-video">
           <video ref={videoRef} className="w-full h-full object-cover" muted playsInline />
           <canvas ref={canvasRef} className="hidden" />
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-48 h-48 border-2 border-[#E8805A] rounded-2xl shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]" />
+            <div className="w-48 h-48 border-2 border-[#E8805A] rounded-2xl shadow-[0_0_0_9999px_rgba(0,0,0,0.6)]" />
           </div>
-          <p className="absolute bottom-3 left-0 right-0 text-center text-white/70 text-xs">Point at the customer&apos;s QR code</p>
+          <p className="absolute bottom-3 left-0 right-0 text-center text-white/50 text-xs">Point at the customer&apos;s QR code</p>
         </div>
       )}
 
-      {/* Result */}
       {result && (
-        <div className="mb-5 p-4 bg-green-50 border border-green-200 rounded-2xl">
-          <p className="font-black text-green-700 text-lg">+{result.rounds_awarded} Round{result.rounds_awarded !== 1 ? 's' : ''} Awarded!</p>
-          <p className="text-green-700 text-sm mt-1">New balance: {result.new_balance} rounds</p>
+        <div className="mb-5 bg-gradient-to-br from-[#1A3A1A] to-[#0A1A0A] border border-green-500/20 rounded-2xl p-4">
+          <p className="font-black text-green-400 text-lg">+{result.rounds_awarded} Round{result.rounds_awarded !== 1 ? 's' : ''} Awarded!</p>
+          <p className="text-green-400/70 text-sm mt-1">New balance: {result.new_balance} rounds</p>
           {result.campaign_name && (
-            <p className="text-green-600 text-sm mt-1 font-semibold">Campaign: {result.campaign_name}</p>
+            <p className="text-green-400/70 text-sm mt-1 font-semibold">Campaign: {result.campaign_name}</p>
           )}
           {result.reward_unlocked && (
             <p className="mt-2 font-bold text-[#E8805A]">Reward unlocked: {result.reward_name}!</p>
           )}
-          <button onClick={handleReset} className="mt-3 text-sm font-semibold text-green-700 underline">
+          <button onClick={handleReset} className="mt-3 text-sm font-semibold text-green-400/80 underline">
             Scan another
           </button>
         </div>
       )}
 
-      {/* Error */}
       {error && (
-        <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-2xl">
-          <p className="text-red-600 text-sm">{error}</p>
-          <button onClick={() => setError(null)} className="mt-2 text-sm font-semibold text-red-600 underline">Dismiss</button>
+        <div className="mb-5 p-4 bg-red-900/30 border border-red-500/30 rounded-2xl">
+          <p className="text-red-400 text-sm">{error}</p>
+          <button onClick={() => setError(null)} className="mt-2 text-sm font-semibold text-red-400/80 underline">Dismiss</button>
         </div>
       )}
 
       {!result && (
         <>
           <div className="mb-4">
-            <label className="block text-sm font-semibold text-[#374151] mb-1.5">Customer token</label>
+            <label className="block text-sm font-semibold text-white/50 mb-1.5">Customer token</label>
             <input
               ref={inputRef}
               value={token}
@@ -206,25 +207,24 @@ export default function StampScanner({ vendorId }: { vendorId: string }) {
             />
           </div>
 
-          {/* Customer preview */}
           {preview && (
-            <div className="mb-4 p-4 bg-[#F8F5F1] border border-[#E8E2D9] rounded-2xl">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-full bg-[#E8E2D9] flex items-center justify-center">
-                  <User size={18} className="text-[#374151]" />
+            <div className="mb-4 bg-gradient-to-br from-[#2A1A0A] to-[#1A0A00] border border-[#E8805A]/20 rounded-2xl p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+                  <User size={20} className="text-white/60" />
                 </div>
                 <div>
-                  <p className="font-bold text-[#111111]">{preview.display_name}</p>
-                  <p className="text-[#6B7280] text-sm">{preview.current_rounds} / {preview.rounds_required} rounds</p>
+                  <p className="font-black text-white text-lg">{preview.display_name}</p>
+                  <p className="text-white/50 text-sm">{preview.current_rounds} / {preview.rounds_required} rounds toward reward</p>
                 </div>
               </div>
-              <div className="w-full bg-[#E8E2D9] rounded-full h-2">
+              <div className="w-full bg-white/10 rounded-full h-2 mb-2">
                 <div
-                  className="bg-[#E8805A] rounded-full h-2 transition-all"
+                  className="bg-gradient-to-r from-[#E8805A] to-[#C96B6B] rounded-full h-2 transition-all"
                   style={{ width: `${Math.min((preview.current_rounds / preview.rounds_required) * 100, 100)}%` }}
                 />
               </div>
-              <p className="text-[#9CA3AF] text-xs mt-1.5">Next reward: {preview.reward_name}</p>
+              <p className="text-white/30 text-xs">Next reward: {preview.reward_name}</p>
             </div>
           )}
 
@@ -232,7 +232,7 @@ export default function StampScanner({ vendorId }: { vendorId: string }) {
             type="button"
             onClick={handleAward}
             disabled={loading || !token.trim()}
-            className="w-full py-4 rounded-2xl font-black text-white text-lg bg-[#E8805A] hover:bg-[#d4714e] transition-colors disabled:opacity-40 flex items-center justify-center gap-2"
+            className="w-full py-4 rounded-2xl font-black text-white text-lg bg-gradient-to-br from-[#E8805A] to-[#8B3A1A] hover:opacity-90 transition-opacity disabled:opacity-40 flex items-center justify-center gap-2 shadow-lg"
           >
             <Award size={20} />
             {loading ? 'Processing…' : 'Award Round'}
