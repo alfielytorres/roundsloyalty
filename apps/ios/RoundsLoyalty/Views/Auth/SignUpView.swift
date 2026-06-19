@@ -1,5 +1,4 @@
 import SwiftUI
-import Supabase
 
 struct SignUpView: View {
     @Binding var showSignUp: Bool
@@ -122,14 +121,16 @@ struct SignUpView: View {
         errorMessage = nil
         successMessage = nil
         do {
-            try await supabase.auth.signUp(
-                email: email,
-                password: password,
-                data: [
-                    "display_name": AnyJSON.string(displayName),
-                    "role": AnyJSON.string("customer")
-                ]
-            )
+            let response = try await supabase.auth.signUp(email: email, password: password)
+            // Update display_name in profiles (DB trigger creates the row with role='customer')
+            if let userId = response.user?.id {
+                struct ProfileUpdate: Encodable { let display_name: String }
+                try? await supabase.database
+                    .from("profiles")
+                    .update(ProfileUpdate(display_name: displayName))
+                    .eq("id", value: userId.uuidString)
+                    .execute()
+            }
             successMessage = "Account created! Please check your email to confirm your account."
         } catch {
             errorMessage = error.localizedDescription
