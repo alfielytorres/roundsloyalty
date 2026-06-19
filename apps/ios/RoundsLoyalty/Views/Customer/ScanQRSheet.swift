@@ -41,7 +41,7 @@ struct ScanQRSheet: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 10)
             .background(activeTab == tab ? Color.white : Color.clear)
-            .foregroundColor(activeTab == tab ? .brandGreen : .brandTaupe)
+            .foregroundColor(activeTab == tab ? .black : .brandTaupe)
             .cornerRadius(10)
             .shadow(color: activeTab == tab ? .black.opacity(0.06) : .clear, radius: 4)
         }

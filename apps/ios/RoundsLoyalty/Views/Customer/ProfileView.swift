@@ -19,11 +19,11 @@ struct CustomerProfileView: View {
                         HStack(spacing: 16) {
                             ZStack {
                                 Circle()
-                                    .fill(Color.brandGreen.opacity(0.2))
+                                    .fill(Color.black.opacity(0.08))
                                     .frame(width: 64, height: 64)
                                 Text(initials)
                                     .font(.title2.bold())
-                                    .foregroundColor(.brandGreen)
+                                    .foregroundColor(.black)
                             }
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(profile?.displayName ?? "Customer")
@@ -43,7 +43,7 @@ struct CustomerProfileView: View {
                         if isLoading {
                             HStack {
                                 Spacer()
-                                ProgressView().tint(.brandGreen)
+                                ProgressView().tint(.black)
                                 Spacer()
                             }
                         } else if consents.isEmpty {

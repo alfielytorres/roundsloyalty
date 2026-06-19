@@ -14,7 +14,7 @@ struct CustomerToolbarItems: ToolbarContent {
             Button(action: { tabSelection.tab = .profile }) {
                 ZStack {
                     Circle()
-                        .fill(Color.brandGreen)
+                        .fill(Color.black)
                         .frame(width: 32, height: 32)
                     Text(initials)
                         .font(.system(size: 13, weight: .bold))

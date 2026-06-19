@@ -98,7 +98,7 @@ struct ScanView: View {
                 VStack {
                     Spacer()
                     RoundedRectangle(cornerRadius: 16)
-                        .stroke(Color.brandGreen, lineWidth: 3)
+                        .stroke(Color.black, lineWidth: 3)
                         .frame(width: 240, height: 240)
                     Text("Point camera at a store QR code")
                         .font(.subheadline)
@@ -140,7 +140,7 @@ struct ScanView: View {
             VStack(spacing: 20) {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 64))
-                    .foregroundColor(.brandGreen)
+                    .foregroundColor(.black)
                 Text("+\(result.stampsAdded) stamp\(result.stampsAdded == 1 ? "" : "s")!")
                     .font(.largeTitle.bold())
                     .foregroundColor(.white)
@@ -153,7 +153,7 @@ struct ScanView: View {
                         Text("Reward unlocked!")
                     }
                     .font(.subheadline.weight(.semibold))
-                    .foregroundColor(.brandGreen)
+                    .foregroundColor(.black)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 8)
                     .background(Color.brandDarkGreen.opacity(0.85))
@@ -162,7 +162,7 @@ struct ScanView: View {
                 Button("Scan Another") { reset() }
                     .padding(.horizontal, 32)
                     .padding(.vertical, 12)
-                    .background(Color.brandGreen)
+                    .background(Color.black)
                     .foregroundColor(.white)
                     .font(.headline)
                     .cornerRadius(12)
@@ -178,7 +178,7 @@ struct ScanView: View {
             VStack(spacing: 20) {
                 Image(systemName: "hand.raised.fill")
                     .font(.system(size: 48))
-                    .foregroundColor(.brandGreen)
+                    .foregroundColor(.black)
                 Text("Share your data?")
                     .font(.title2.bold())
                     .foregroundColor(.white)
@@ -195,14 +195,14 @@ struct ScanView: View {
                         Task { await grantConsentAndStamp(businessId: businessId, qrPayload: qrPayload) }
                     }
                     .frame(maxWidth: .infinity).padding()
-                    .background(Color.brandGreen).foregroundColor(.white).cornerRadius(12)
+                    .background(Color.black).foregroundColor(.white).cornerRadius(12)
                 }
                 .font(.headline)
             }
             .padding(28)
             .background(Color.brandDarkGreen.opacity(0.85))
             .cornerRadius(24)
-            .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.brandGreen.opacity(0.18), lineWidth: 0.5))
+            .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.black.opacity(0.08), lineWidth: 0.5))
             .padding(.horizontal, 24)
         }
     }

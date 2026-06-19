@@ -39,7 +39,7 @@ struct SignInView: View {
                                 .padding()
                                 .background(Color.white.opacity(0.7))
                                 .cornerRadius(12)
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.brandGreen.opacity(0.3), lineWidth: 1))
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.black.opacity(0.15), lineWidth: 1))
                         }
 
                         VStack(alignment: .leading, spacing: 6) {
@@ -50,7 +50,7 @@ struct SignInView: View {
                                 .padding()
                                 .background(Color.white.opacity(0.7))
                                 .cornerRadius(12)
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.brandGreen.opacity(0.3), lineWidth: 1))
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.black.opacity(0.15), lineWidth: 1))
                         }
 
                         if let errorMessage {
@@ -74,7 +74,7 @@ struct SignInView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.brandGreen)
+                            .background(Color.black)
                             .foregroundColor(.white)
                             .cornerRadius(12)
                         }
@@ -89,7 +89,7 @@ struct SignInView: View {
                         Button("Sign up") {
                             showSignUp = true
                         }
-                        .foregroundColor(.brandGreen)
+                        .foregroundColor(.black)
                         .fontWeight(.semibold)
                     }
                     .font(.subheadline)

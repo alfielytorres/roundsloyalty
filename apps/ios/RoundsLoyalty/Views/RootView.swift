@@ -11,7 +11,7 @@ struct RootView: View {
                     VStack(spacing: 16) {
                         RoundsLogoMark(size: 48)
                         ProgressView()
-                            .tint(.brandGreen)
+                            .tint(.black)
                     }
                 }
             } else if sessionManager.session == nil {

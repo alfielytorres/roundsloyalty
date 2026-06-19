@@ -37,7 +37,7 @@ struct SignUpView: View {
                                 .padding()
                                 .background(Color.white.opacity(0.7))
                                 .cornerRadius(12)
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.brandGreen.opacity(0.3), lineWidth: 1))
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.black.opacity(0.15), lineWidth: 1))
                         }
 
                         VStack(alignment: .leading, spacing: 6) {
@@ -51,7 +51,7 @@ struct SignUpView: View {
                                 .padding()
                                 .background(Color.white.opacity(0.7))
                                 .cornerRadius(12)
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.brandGreen.opacity(0.3), lineWidth: 1))
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.black.opacity(0.15), lineWidth: 1))
                         }
 
                         VStack(alignment: .leading, spacing: 6) {
@@ -62,7 +62,7 @@ struct SignUpView: View {
                                 .padding()
                                 .background(Color.white.opacity(0.7))
                                 .cornerRadius(12)
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.brandGreen.opacity(0.3), lineWidth: 1))
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.black.opacity(0.15), lineWidth: 1))
                         }
 
                         if let errorMessage {
@@ -75,7 +75,7 @@ struct SignUpView: View {
                         if let successMessage {
                             Text(successMessage)
                                 .font(.caption)
-                                .foregroundColor(.brandGreen)
+                                .foregroundColor(.black)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
 
@@ -91,7 +91,7 @@ struct SignUpView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.brandGreen)
+                            .background(Color.black)
                             .foregroundColor(.white)
                             .cornerRadius(12)
                         }
@@ -103,7 +103,7 @@ struct SignUpView: View {
                         Text("Already have an account?")
                             .foregroundColor(.brandTaupe)
                         Button("Sign in") { showSignUp = false }
-                            .foregroundColor(.brandGreen)
+                            .foregroundColor(.black)
                             .fontWeight(.semibold)
                     }
                     .font(.subheadline)

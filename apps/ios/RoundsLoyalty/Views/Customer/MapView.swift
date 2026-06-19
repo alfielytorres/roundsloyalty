@@ -57,11 +57,12 @@ struct DiscoverMapView: View {
     @State private var selectedVendor: VendorPin?
     @State private var isLoading = true
     @State private var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: -33.8688, longitude: 151.2093),
+        center: CLLocationCoordinate2D(latitude: -37.8136, longitude: 144.9631),
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
     @State private var didCenterOnUser = false
     @State private var sheetHeight: CGFloat = 260
+    @State private var actionVendor: VendorPin?
 
     var body: some View {
         NavigationStack {
@@ -72,12 +73,7 @@ struct DiscoverMapView: View {
                         annotationItems: vendors) { v in
                         MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: v.lat, longitude: v.lng)) {
                             VendorMapPin(isSelected: selectedVendor?.id == v.id)
-                                .onTapGesture {
-                                    withAnimation(.spring(response: 0.35)) {
-                                        selectedVendor = v
-                                        region.center = CLLocationCoordinate2D(latitude: v.lat, longitude: v.lng)
-                                    }
-                                }
+                                .onTapGesture { actionVendor = v }
                         }
                     }
                     .ignoresSafeArea()
@@ -117,6 +113,27 @@ struct DiscoverMapView: View {
                     didCenterOnUser = true
                     withAnimation { region.center = coord }
                 }
+            }
+            .confirmationDialog(
+                actionVendor?.name ?? "",
+                isPresented: Binding(get: { actionVendor != nil }, set: { if !$0 { actionVendor = nil } }),
+                titleVisibility: .visible
+            ) {
+                if let v = actionVendor {
+                    Button("Get Directions") {
+                        let url = URL(string: "maps://?daddr=\(v.lat),\(v.lng)")!
+                        UIApplication.shared.open(url)
+                    }
+                    Button("Centre on Map") {
+                        withAnimation(.spring(response: 0.35)) {
+                            selectedVendor = v
+                            region.center = CLLocationCoordinate2D(latitude: v.lat, longitude: v.lng)
+                        }
+                    }
+                    Button("Cancel", role: .cancel) {}
+                }
+            } message: {
+                if let address = actionVendor?.address { Text(address) }
             }
         }
     }
@@ -162,12 +179,7 @@ struct DiscoverMapView: View {
                     LazyVStack(spacing: 0) {
                         ForEach(vendors) { vendor in
                             VendorListRow(vendor: vendor, isSelected: selectedVendor?.id == vendor.id)
-                                .onTapGesture {
-                                    withAnimation(.spring(response: 0.35)) {
-                                        selectedVendor = vendor
-                                        region.center = CLLocationCoordinate2D(latitude: vendor.lat, longitude: vendor.lng)
-                                    }
-                                }
+                                .onTapGesture { actionVendor = vendor }
                             if vendor.id != vendors.last?.id {
                                 Divider().padding(.leading, 60)
                             }

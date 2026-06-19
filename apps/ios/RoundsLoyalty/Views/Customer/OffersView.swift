@@ -11,7 +11,7 @@ struct OffersView: View {
                 Color.brandCream.ignoresSafeArea()
 
                 if isLoading {
-                    ProgressView().tint(.brandGreen)
+                    ProgressView().tint(.black)
                 } else if recipients.isEmpty {
                     VStack(spacing: 16) {
                         Image(systemName: "bell.slash")
@@ -30,7 +30,7 @@ struct OffersView: View {
                     List {
                         ForEach(recipients) { recipient in
                             OfferRow(recipient: recipient)
-                                .listRowBackground(recipient.openedAt == nil ? Color.brandGreen.opacity(0.08) : Color.white.opacity(0.7))
+                                .listRowBackground(recipient.openedAt == nil ? Color.black.opacity(0.08) : Color.white.opacity(0.7))
                                 .onTapGesture {
                                     if recipient.openedAt == nil {
                                         Task { await markOpened(recipient: recipient) }
@@ -99,10 +99,10 @@ struct OfferRow: View {
         HStack(spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(Color.brandGreen.opacity(0.2))
+                    .fill(Color.black.opacity(0.08))
                     .frame(width: 44, height: 44)
                 Image(systemName: "tag.fill")
-                    .foregroundColor(.brandGreen)
+                    .foregroundColor(.black)
             }
 
             VStack(alignment: .leading, spacing: 4) {
@@ -129,7 +129,7 @@ struct OfferRow: View {
 
             if isUnread {
                 Circle()
-                    .fill(Color.brandGreen)
+                    .fill(Color.black)
                     .frame(width: 8, height: 8)
             }
         }

@@ -56,9 +56,9 @@ struct GlassTabBar: View {
                 Button(action: onScanTap) {
                     ZStack {
                         Circle()
-                            .fill(Color.brandGreen)
+                            .fill(Color.black)
                             .frame(width: 60, height: 60)
-                            .shadow(color: Color.brandGreen.opacity(0.4), radius: 12, x: 0, y: 4)
+                            .shadow(color: Color.black.opacity(0.3), radius: 12, x: 0, y: 4)
                         Image(systemName: "qrcode.viewfinder")
                             .font(.system(size: 26, weight: .medium))
                             .foregroundColor(.white)
@@ -75,7 +75,7 @@ struct GlassTabBar: View {
             .frame(height: 80)
         }
         .padding(.horizontal, 16)
-        .padding(.bottom, 8)
+        .padding(.bottom, 24)
     }
 }
 
@@ -92,10 +92,10 @@ struct GlassTabItem: View {
             VStack(spacing: 3) {
                 Image(systemName: icon)
                     .font(.system(size: 20, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(isSelected ? .brandGreen : Color.brandTaupe)
+                    .foregroundColor(isSelected ? .black : Color.brandTaupe)
                 Text(label)
                     .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(isSelected ? .brandGreen : Color.brandTaupe)
+                    .foregroundColor(isSelected ? .black : Color.brandTaupe)
             }
             .frame(maxWidth: .infinity)
             .padding(.top, 12)
