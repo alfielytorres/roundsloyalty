@@ -5,7 +5,7 @@ import { QrCode, ScanLine } from 'lucide-react'
 import QRDisplay from '../qr/QRDisplay'
 import StampScanner from './StampScanner'
 
-export default function StampQRTabs() {
+export default function StampQRTabs({ vendorId }: { vendorId: string }) {
   const [tab, setTab] = useState<'qr' | 'scan'>('qr')
 
   return (
@@ -31,7 +31,7 @@ export default function StampQRTabs() {
         </button>
       </div>
 
-      {tab === 'qr' ? <QRDisplay /> : <StampScanner />}
+      {tab === 'qr' ? <QRDisplay /> : <StampScanner vendorId={vendorId} />}
     </div>
   )
 }
