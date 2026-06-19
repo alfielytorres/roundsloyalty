@@ -61,17 +61,51 @@ struct DiscoverMapView: View {
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
     @State private var didCenterOnUser = false
-    @State private var isLocating = true
+    @State private var sheetHeight: CGFloat = 260
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottom) {
-                mapLayer
-                VStack(spacing: 0) {
-                    Spacer()
-                    recenterButton
+            GeometryReader { geo in
+                ZStack(alignment: .bottom) {
+                    Map(coordinateRegion: $region,
+                        showsUserLocation: true,
+                        annotationItems: vendors) { v in
+                        MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: v.lat, longitude: v.lng)) {
+                            VendorMapPin(isSelected: selectedVendor?.id == v.id)
+                                .onTapGesture {
+                                    withAnimation(.spring(response: 0.35)) {
+                                        selectedVendor = v
+                                        region.center = CLLocationCoordinate2D(latitude: v.lat, longitude: v.lng)
+                                    }
+                                }
+                        }
+                    }
+                    .ignoresSafeArea()
+
+                    // Recenter button — floats above the sheet
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Button(action: recenterMap) {
+                                Image(systemName: "location.fill")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.brandGreen)
+                                    .frame(width: 44, height: 44)
+                                    .background(Color.white)
+                                    .clipShape(Circle())
+                                    .shadow(color: .black.opacity(0.18), radius: 6, x: 0, y: 2)
+                            }
+                            .padding(.trailing, 16)
+                            .padding(.bottom, sheetHeight + 12)
+                        }
+                    }
+
+                    // Bottom sheet
                     bottomSheet
+                        .frame(height: sheetHeight)
                 }
+                .ignoresSafeArea(edges: .bottom)
             }
             .navigationTitle("Discover")
             .navigationBarTitleDisplayMode(.inline)
@@ -79,79 +113,79 @@ struct DiscoverMapView: View {
             .task { await loadVendors() }
             .onChange(of: locationManager.userLocation) { coord in
                 guard let coord = coord else { return }
-                isLocating = false
                 if !didCenterOnUser {
                     didCenterOnUser = true
-                    region.center = coord
+                    withAnimation { region.center = coord }
                 }
             }
-        }
-    }
-
-    @ViewBuilder private var mapLayer: some View {
-        Map(coordinateRegion: $region,
-            showsUserLocation: true,
-            annotationItems: vendors) { v in
-            MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: v.lat, longitude: v.lng)) {
-                VendorMapPin(isSelected: selectedVendor?.id == v.id)
-                    .onTapGesture { withAnimation { selectedVendor = v } }
-            }
-        }
-        .ignoresSafeArea(edges: .top)
-    }
-
-    private var recenterButton: some View {
-        HStack {
-            Spacer()
-            Button(action: recenterMap) {
-                Image(systemName: "location.fill")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.brandGreen)
-                    .frame(width: 44, height: 44)
-                    .background(Color.white)
-                    .clipShape(Circle())
-                    .shadow(color: .black.opacity(0.15), radius: 6, x: 0, y: 2)
-            }
-            .padding(.trailing, 16)
-            .padding(.bottom, 12)
         }
     }
 
     @ViewBuilder private var bottomSheet: some View {
-        if isLoading {
-            ProgressView()
-                .tint(.brandGreen)
-                .padding()
-                .background(Color.white.opacity(0.9))
-                .cornerRadius(16)
-                .padding()
-        } else if !vendors.isEmpty {
-            vendorCarousel
-        }
-    }
+        VStack(spacing: 0) {
+            // Drag handle
+            RoundedRectangle(cornerRadius: 3)
+                .fill(Color.gray.opacity(0.35))
+                .frame(width: 40, height: 5)
+                .padding(.top, 10)
+                .padding(.bottom, 8)
 
-    private var vendorCarousel: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 12) {
-                ForEach(vendors) { vendor in
-                    VendorCard(vendor: vendor, isSelected: selectedVendor?.id == vendor.id)
-                        .onTapGesture { selectVendor(vendor) }
+            if isLoading {
+                Spacer()
+                ProgressView().tint(.brandGreen)
+                Spacer()
+            } else if vendors.isEmpty {
+                Spacer()
+                VStack(spacing: 8) {
+                    Image(systemName: "mappin.slash")
+                        .font(.system(size: 32))
+                        .foregroundColor(.brandTaupe)
+                    Text("No stores nearby")
+                        .font(.subheadline)
+                        .foregroundColor(.brandTaupe)
+                }
+                Spacer()
+            } else {
+                // Header count
+                HStack {
+                    Text("\(vendors.count) store\(vendors.count == 1 ? "" : "s") nearby")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(.black)
+                    Spacer()
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 8)
+
+                Divider()
+
+                ScrollView(showsIndicators: false) {
+                    LazyVStack(spacing: 0) {
+                        ForEach(vendors) { vendor in
+                            VendorListRow(vendor: vendor, isSelected: selectedVendor?.id == vendor.id)
+                                .onTapGesture {
+                                    withAnimation(.spring(response: 0.35)) {
+                                        selectedVendor = vendor
+                                        region.center = CLLocationCoordinate2D(latitude: vendor.lat, longitude: vendor.lng)
+                                    }
+                                }
+                            if vendor.id != vendors.last?.id {
+                                Divider().padding(.leading, 60)
+                            }
+                        }
+                    }
                 }
             }
-            .padding(.horizontal, 16)
-            .padding(.top, 12)
-            .padding(.bottom, 20)
         }
-        .background(Color.brandCream.opacity(0.97))
+        .background(Color.white)
         .cornerRadius(20, corners: [.topLeft, .topRight])
-        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: -2)
-    }
-
-    private func selectVendor(_ vendor: VendorPin) {
-        withAnimation {
-            selectedVendor = vendor
-            region.center = CLLocationCoordinate2D(latitude: vendor.lat, longitude: vendor.lng)
-        }
+        .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: -4)
+        .gesture(
+            DragGesture()
+                .onChanged { value in
+                    let newHeight = sheetHeight - value.translation.height
+                    sheetHeight = min(max(newHeight, 120), 520)
+                }
+        )
     }
 
     private func recenterMap() {
@@ -191,7 +225,6 @@ struct DiscoverMapView: View {
                 return VendorPin(id: row.id, name: row.businessName, address: row.address,
                                  description: row.description, lat: lat, lng: lng)
             }
-            // If no vendors have coordinates, show a fallback with all vendors still in carousel
             if vendors.isEmpty {
                 vendors = rows.map { row in
                     VendorPin(id: row.id, name: row.businessName, address: row.address,
@@ -203,6 +236,51 @@ struct DiscoverMapView: View {
             print("Failed to load vendors: \(error)")
         }
         isLoading = false
+    }
+}
+
+struct VendorListRow: View {
+    let vendor: VendorPin
+    let isSelected: Bool
+
+    var body: some View {
+        HStack(spacing: 14) {
+            ZStack {
+                Circle()
+                    .fill(isSelected ? Color.brandGreen : Color.brandLightGreen)
+                    .frame(width: 40, height: 40)
+                Image(systemName: "storefront.fill")
+                    .font(.system(size: 16))
+                    .foregroundColor(isSelected ? .white : .brandGreen)
+            }
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(vendor.name)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.black)
+                    .lineLimit(1)
+                if let address = vendor.address {
+                    Text(address)
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .lineLimit(1)
+                } else if let desc = vendor.description {
+                    Text(desc)
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .lineLimit(1)
+                }
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.semibold))
+                .foregroundColor(.gray.opacity(0.5))
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(isSelected ? Color.brandGreen.opacity(0.05) : Color.clear)
     }
 }
 
@@ -224,43 +302,6 @@ struct VendorMapPin: View {
         }
         .scaleEffect(isSelected ? 1.2 : 1.0)
         .animation(.spring(response: 0.3), value: isSelected)
-    }
-}
-
-struct VendorCard: View {
-    let vendor: VendorPin
-    let isSelected: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: "storefront.fill")
-                    .foregroundColor(.brandGreen)
-                Text(vendor.name)
-                    .font(.headline)
-                    .foregroundColor(.black)
-                    .lineLimit(1)
-            }
-            if let address = vendor.address {
-                Text(address)
-                    .font(.caption)
-                    .foregroundColor(.brandTaupe)
-                    .lineLimit(2)
-            }
-            if let description = vendor.description {
-                Text(description)
-                    .font(.caption2)
-                    .foregroundColor(.brandTaupe)
-                    .lineLimit(2)
-            }
-        }
-        .padding(14)
-        .frame(width: 220, alignment: .leading)
-        .glassCard(cornerRadius: 14)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(isSelected ? Color.brandGreen : Color.clear, lineWidth: 2)
-        )
     }
 }
 
