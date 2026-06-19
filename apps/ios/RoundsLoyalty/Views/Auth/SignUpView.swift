@@ -136,13 +136,11 @@ struct SignUpView: View {
         errorMessage = nil
         successMessage = nil
         do {
+            struct SignUpMeta: Encodable { let display_name: String; let role: String }
             try await supabase.auth.signUp(
                 email: email,
                 password: password,
-                data: [
-                    "display_name": AnyJSON.string(displayName),
-                    "role": AnyJSON.string(role.rawValue)
-                ]
+                data: SignUpMeta(display_name: displayName, role: role.rawValue)
             )
             successMessage = "Account created! Please check your email to confirm your account."
         } catch {
