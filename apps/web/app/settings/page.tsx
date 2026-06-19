@@ -1,9 +1,25 @@
 import { getPortalData } from '@/lib/portal-data'
 import { LogOut, QrCode } from 'lucide-react'
 import Link from 'next/link'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+import AddressAutocomplete from './AddressAutocomplete'
 
 export default async function SettingsPage({ searchParams }: { searchParams: { error?: string; success?: string } }) {
   const { user, vendor } = await getPortalData()
+
+  const cookieStore = cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { getAll: () => cookieStore.getAll() } },
+  )
+  const { data: business } = await supabase
+    .from('businesses')
+    .select('address')
+    .eq('owner_id', user.id)
+    .limit(1)
+    .then(r => ({ data: r.data?.[0] ?? null }))
 
   return (
     <main className="px-5 pt-10 pb-32">
@@ -27,6 +43,11 @@ export default async function SettingsPage({ searchParams }: { searchParams: { e
             <div>
               <label className="block text-sm font-semibold text-[#374151] mb-1.5">Description</label>
               <textarea name="description" rows={3} defaultValue={vendor.description ?? ''} placeholder="Tell customers what you do" className="w-full dark-input resize-none" />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-[#374151] mb-1.5">Business address</label>
+              <AddressAutocomplete defaultValue={business?.address ?? ''} />
+              <p className="text-[#9CA3AF] text-xs mt-1.5">Customers will see your location on the map in the app.</p>
             </div>
             <button type="submit" className="btn-primary self-start">Save changes</button>
           </form>

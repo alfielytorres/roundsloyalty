@@ -23,6 +23,9 @@ export async function POST(req: NextRequest) {
   const formData = await req.formData()
   const business_name = (formData.get('business_name') as string)?.trim()
   const description = (formData.get('description') as string)?.trim()
+  const address = (formData.get('address') as string)?.trim() || null
+  const lat = formData.get('lat') ? parseFloat(formData.get('lat') as string) : null
+  const lng = formData.get('lng') ? parseFloat(formData.get('lng') as string) : null
 
   if (!business_name) {
     return NextResponse.redirect(
@@ -44,10 +47,15 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  // Keep businesses table in sync so iOS QR reflects the latest name
+  // Keep businesses table in sync (name, description, address, lat/lng for iOS map)
+  const businessUpdate: Record<string, unknown> = { name: business_name, description: description || null }
+  if (address !== null) businessUpdate.address = address
+  if (lat !== null && !isNaN(lat)) businessUpdate.lat = lat
+  if (lng !== null && !isNaN(lng)) businessUpdate.lng = lng
+
   await supabase
     .from('businesses')
-    .update({ name: business_name, description: description || null })
+    .update(businessUpdate)
     .eq('owner_id', user.id)
 
   return NextResponse.redirect(
