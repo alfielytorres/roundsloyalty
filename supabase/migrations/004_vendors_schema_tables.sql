@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS vendor_staff (
 ALTER TABLE vendor_staff ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Vendors manage own staff" ON vendor_staff;
 CREATE POLICY "Vendors manage own staff" ON vendor_staff FOR ALL USING (
-  EXISTS (SELECT 1 FROM vendors WHERE id = vendor_id AND owner_id = auth.uid())
+  EXISTS (SELECT 1 FROM vendors v WHERE v.id = vendor_staff.vendor_id AND v.owner_id = auth.uid())
 );
 
 -- CUSTOMER VENDOR MEMBERSHIPS
@@ -57,10 +57,10 @@ CREATE TABLE IF NOT EXISTS customer_vendor_memberships (
 
 ALTER TABLE customer_vendor_memberships ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Customer sees own memberships" ON customer_vendor_memberships;
-CREATE POLICY "Customer sees own memberships" ON customer_vendor_memberships FOR SELECT USING (customer_id = auth.uid());
+CREATE POLICY "Customer sees own memberships" ON customer_vendor_memberships FOR SELECT USING (customer_vendor_memberships.customer_id = auth.uid());
 DROP POLICY IF EXISTS "Vendor sees own memberships" ON customer_vendor_memberships;
 CREATE POLICY "Vendor sees own memberships" ON customer_vendor_memberships FOR SELECT USING (
-  EXISTS (SELECT 1 FROM vendors WHERE id = vendor_id AND owner_id = auth.uid())
+  EXISTS (SELECT 1 FROM vendors v WHERE v.id = customer_vendor_memberships.vendor_id AND v.owner_id = auth.uid())
 );
 
 -- LOYALTY BALANCES
@@ -76,7 +76,7 @@ CREATE TABLE IF NOT EXISTS loyalty_balances (
 
 ALTER TABLE loyalty_balances ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Customer sees own balance" ON loyalty_balances;
-CREATE POLICY "Customer sees own balance" ON loyalty_balances FOR SELECT USING (customer_id = auth.uid());
+CREATE POLICY "Customer sees own balance" ON loyalty_balances FOR SELECT USING (loyalty_balances.customer_id = auth.uid());
 DROP POLICY IF EXISTS "Vendor sees own balances" ON loyalty_balances;
 CREATE POLICY "Vendor sees own balances" ON loyalty_balances FOR SELECT USING (
   EXISTS (SELECT 1 FROM vendors v WHERE v.id = loyalty_balances.vendor_id AND v.owner_id = auth.uid())
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS loyalty_ledger (
 
 ALTER TABLE loyalty_ledger ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Customer sees own ledger" ON loyalty_ledger;
-CREATE POLICY "Customer sees own ledger" ON loyalty_ledger FOR SELECT USING (customer_id = auth.uid());
+CREATE POLICY "Customer sees own ledger" ON loyalty_ledger FOR SELECT USING (loyalty_ledger.customer_id = auth.uid());
 DROP POLICY IF EXISTS "Vendor sees own ledger" ON loyalty_ledger;
 CREATE POLICY "Vendor sees own ledger" ON loyalty_ledger FOR SELECT USING (
   EXISTS (SELECT 1 FROM vendors v WHERE v.id = loyalty_ledger.vendor_id AND v.owner_id = auth.uid())
@@ -144,7 +144,7 @@ CREATE TABLE IF NOT EXISTS reward_instances (
 
 ALTER TABLE reward_instances ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Customer sees own rewards" ON reward_instances;
-CREATE POLICY "Customer sees own rewards" ON reward_instances FOR SELECT USING (customer_id = auth.uid());
+CREATE POLICY "Customer sees own rewards" ON reward_instances FOR SELECT USING (reward_instances.customer_id = auth.uid());
 
 -- PROOF OF PURCHASE CLAIMS
 CREATE TABLE IF NOT EXISTS proof_of_purchase_claims (
@@ -166,7 +166,7 @@ CREATE TABLE IF NOT EXISTS proof_of_purchase_claims (
 
 ALTER TABLE proof_of_purchase_claims ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Customer sees own claims" ON proof_of_purchase_claims;
-CREATE POLICY "Customer sees own claims" ON proof_of_purchase_claims FOR SELECT USING (customer_id = auth.uid());
+CREATE POLICY "Customer sees own claims" ON proof_of_purchase_claims FOR SELECT USING (proof_of_purchase_claims.customer_id = auth.uid());
 DROP POLICY IF EXISTS "Vendor sees own claims" ON proof_of_purchase_claims;
 CREATE POLICY "Vendor sees own claims" ON proof_of_purchase_claims FOR ALL USING (
   EXISTS (SELECT 1 FROM vendors v WHERE v.id = proof_of_purchase_claims.vendor_id AND v.owner_id = auth.uid())
