@@ -21,7 +21,7 @@ async function RecentActivity({ vendorId }: { vendorId: string }) {
     .limit(10)
 
   if (!entries?.length) {
-    return <div className="glass-row px-5 py-10 text-center text-white/40">No recent activity.</div>
+    return <div className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-10 text-center text-[#9CA3AF] shadow-sm">No recent activity.</div>
   }
 
   return (
@@ -30,17 +30,18 @@ async function RecentActivity({ vendorId }: { vendorId: string }) {
         const profile = Array.isArray(e.profiles) ? e.profiles[0] : e.profiles
         const name = (profile as { display_name?: string | null } | null)?.display_name ?? 'Customer'
         const label = eventLabel(e.event_type, e.delta)
+        const color = e.event_type === 'stamp_added' ? '#16A34A' : e.event_type === 'points_added' ? '#2563EB' : '#D97706'
         return (
-          <div key={e.id} className="glass-row px-5 py-3 flex items-center justify-between">
+          <div key={e.id} className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-3 flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#22C55E]/20 flex items-center justify-center font-bold text-[#22C55E] text-sm">
+              <div className="w-9 h-9 rounded-full bg-[#F0EDE6] flex items-center justify-center font-bold text-[#374151] text-sm">
                 {name.charAt(0).toUpperCase()}
               </div>
-              <span className="font-semibold text-white">{name}</span>
+              <span className="font-semibold text-[#111111]">{name}</span>
             </div>
             <div className="flex items-center gap-4">
-              <span className="text-[#22C55E] font-bold text-sm">{label}</span>
-              <span className="text-white/40 text-xs">{new Date(e.created_at).toLocaleTimeString()}</span>
+              <span className="font-bold text-sm" style={{ color }}>{label}</span>
+              <span className="text-[#9CA3AF] text-xs">{new Date(e.created_at).toLocaleTimeString()}</span>
             </div>
           </div>
         )
@@ -62,45 +63,41 @@ function RecentActivitySkeleton() {
   return (
     <div className="flex flex-col gap-2 animate-pulse">
       {[...Array(3)].map((_, i) => (
-        <div key={i} className="glass-row px-5 py-3 flex items-center justify-between">
+        <div key={i} className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-white/10" />
-            <div className="h-4 w-24 bg-white/10 rounded" />
+            <div className="w-9 h-9 rounded-full bg-[#E8E2D9]" />
+            <div className="h-4 w-24 bg-[#E8E2D9] rounded" />
           </div>
-          <div className="h-4 w-20 bg-white/5 rounded" />
+          <div className="h-4 w-20 bg-[#F0EDE6] rounded" />
         </div>
       ))}
     </div>
   )
 }
 
-export default async function StampPage({
-  searchParams,
-}: {
-  searchParams: { error?: string; success?: string }
-}) {
+export default async function StampPage({ searchParams }: { searchParams: { error?: string; success?: string } }) {
   const { vendor } = await getPortalData()
 
   return (
-    <main className="px-6 pt-10 pb-32">
+    <main className="px-5 pt-10 pb-32">
       <div className="max-w-lg mx-auto">
-        <div className="mb-8">
-          <p className="text-white/40 text-xs font-semibold tracking-widest uppercase mb-1">{vendor.business_name}</p>
-          <h1 className="text-3xl font-extrabold text-white">Scan Card</h1>
-          <p className="text-white/50 mt-1">Scan or enter a customer&apos;s membership token</p>
+        <div className="mb-7">
+          <p className="text-[#9CA3AF] text-xs font-semibold tracking-widest uppercase mb-0.5">{vendor.business_name}</p>
+          <h1 className="text-3xl font-extrabold text-[#111111]">Scan Card</h1>
+          <p className="text-[#6B7280] mt-1">Scan or enter a customer&apos;s membership token</p>
         </div>
 
         {searchParams.error && (
-          <div className="mb-6 p-4 bg-red-500/20 border border-red-500/30 rounded-2xl text-red-300 text-sm">{searchParams.error}</div>
+          <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm">{searchParams.error}</div>
         )}
         {searchParams.success && (
-          <div className="mb-6 p-4 bg-[#22C55E]/20 border border-[#22C55E]/30 rounded-2xl text-[#86EFAC] font-semibold">{searchParams.success}</div>
+          <div className="mb-5 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 font-semibold">{searchParams.success}</div>
         )}
 
         <StampScanner />
 
-        <div className="mt-8">
-          <h2 className="text-base font-bold text-white mb-3">Recent activity</h2>
+        <div className="mt-7">
+          <h2 className="text-base font-bold text-[#111111] mb-3">Recent activity</h2>
           <Suspense fallback={<RecentActivitySkeleton />}>
             <RecentActivity vendorId={vendor.id} />
           </Suspense>

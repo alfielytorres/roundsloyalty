@@ -5,17 +5,6 @@ import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
 import { Download } from 'lucide-react'
 
-type MemberRow = {
-  id: string
-  customer_id: string
-  status: string
-  stamps_balance: number
-  points_balance: number
-  total_visits: number
-  last_visit_at: string | null
-  profiles: { display_name: string | null } | null
-}
-
 async function CustomerTable({ vendorId, segment }: { vendorId: string; segment: string }) {
   const cookieStore = cookies()
   const supabase = createServerClient(
@@ -36,12 +25,12 @@ async function CustomerTable({ vendorId, segment }: { vendorId: string; segment:
   const { data: members } = await query.order('total_visits', { ascending: false }).limit(100)
 
   return (
-    <div className="bg-white/[.07] backdrop-blur-md border border-white/10 rounded-3xl overflow-hidden">
+    <div className="bg-white border border-[#E8E2D9] rounded-3xl overflow-hidden shadow-sm">
       <table className="w-full">
         <thead>
-          <tr className="border-b border-white/10">
+          <tr className="border-b border-[#F0EDE6]">
             {['Customer', 'Status', 'Visits', 'Stamps', 'Last visit'].map((h) => (
-              <th key={h} className="text-left px-6 py-4 text-sm font-semibold text-white/40">{h}</th>
+              <th key={h} className="text-left px-6 py-4 text-sm font-semibold text-[#9CA3AF]">{h}</th>
             ))}
           </tr>
         </thead>
@@ -52,32 +41,26 @@ async function CustomerTable({ vendorId, segment }: { vendorId: string; segment:
             const name = (profile as { display_name?: string | null } | null)?.display_name ?? 'Anonymous'
             const stamps = (balance as { stamps_balance?: number } | null)?.stamps_balance ?? 0
             return (
-              <tr key={m.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
+              <tr key={m.id} className="border-b border-[#F8F5F1] hover:bg-[#FAFAF8] transition-colors">
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-[#22C55E]/20 flex items-center justify-center font-bold text-[#22C55E] text-sm">
+                    <div className="w-9 h-9 rounded-full bg-[#F0EDE6] flex items-center justify-center font-bold text-[#374151] text-sm">
                       {name.charAt(0).toUpperCase()}
                     </div>
-                    <span className="font-semibold text-white">{name}</span>
+                    <span className="font-semibold text-[#111111]">{name}</span>
                   </div>
                 </td>
                 <td className="px-6 py-4">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${statusClass(m.status)}`}>
-                    {m.status}
-                  </span>
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${statusClass(m.status)}`}>{m.status}</span>
                 </td>
-                <td className="px-6 py-4 text-white font-medium">{m.total_visits ?? 0}</td>
-                <td className="px-6 py-4 text-white">{stamps}</td>
-                <td className="px-6 py-4 text-white/50 text-sm">
-                  {m.last_visit_at ? new Date(m.last_visit_at).toLocaleDateString() : '—'}
-                </td>
+                <td className="px-6 py-4 text-[#374151] font-medium">{m.total_visits ?? 0}</td>
+                <td className="px-6 py-4 text-[#374151]">{stamps}</td>
+                <td className="px-6 py-4 text-[#9CA3AF] text-sm">{m.last_visit_at ? new Date(m.last_visit_at).toLocaleDateString() : '—'}</td>
               </tr>
             )
           })}
           {!members?.length && (
-            <tr>
-              <td colSpan={5} className="px-6 py-12 text-center text-white/40">No customers in this segment.</td>
-            </tr>
+            <tr><td colSpan={5} className="px-6 py-12 text-center text-[#9CA3AF]">No customers in this segment.</td></tr>
           )}
         </tbody>
       </table>
@@ -87,25 +70,21 @@ async function CustomerTable({ vendorId, segment }: { vendorId: string; segment:
 
 function TableSkeleton() {
   return (
-    <div className="bg-white/[.07] backdrop-blur-md border border-white/10 rounded-3xl overflow-hidden animate-pulse">
+    <div className="bg-white border border-[#E8E2D9] rounded-3xl overflow-hidden shadow-sm animate-pulse">
       <table className="w-full">
         <thead>
-          <tr className="border-b border-white/10">
+          <tr className="border-b border-[#F0EDE6]">
             {['Customer', 'Status', 'Visits', 'Stamps', 'Last visit'].map((h) => (
-              <th key={h} className="text-left px-6 py-4">
-                <div className="h-4 w-16 bg-white/10 rounded" />
-              </th>
+              <th key={h} className="text-left px-6 py-4"><div className="h-4 w-16 bg-[#E8E2D9] rounded" /></th>
             ))}
           </tr>
         </thead>
         <tbody>
           {[...Array(5)].map((_, i) => (
-            <tr key={i} className="border-b border-white/5">
-              <td className="px-6 py-4"><div className="h-5 w-32 bg-white/10 rounded" /></td>
-              <td className="px-6 py-4"><div className="h-5 w-16 bg-white/10 rounded" /></td>
-              <td className="px-6 py-4"><div className="h-5 w-8 bg-white/10 rounded" /></td>
-              <td className="px-6 py-4"><div className="h-5 w-8 bg-white/10 rounded" /></td>
-              <td className="px-6 py-4"><div className="h-5 w-24 bg-white/10 rounded" /></td>
+            <tr key={i} className="border-b border-[#F8F5F1]">
+              {[32, 16, 8, 8, 24].map((w, j) => (
+                <td key={j} className="px-6 py-4"><div className={`h-5 w-${w} bg-[#E8E2D9] rounded`} /></td>
+              ))}
             </tr>
           ))}
         </tbody>
@@ -114,38 +93,42 @@ function TableSkeleton() {
   )
 }
 
-export default async function CustomersPage({
-  searchParams,
-}: {
-  searchParams: { segment?: string }
-}) {
+export default async function CustomersPage({ searchParams }: { searchParams: { segment?: string } }) {
   const { vendor } = await getPortalData()
   const segment = searchParams.segment ?? 'all'
 
   return (
-    <main className="px-6 pt-10 pb-32">
+    <main className="px-5 pt-10 pb-32">
       <div className="max-w-5xl mx-auto">
-        <div className="flex items-start justify-between mb-8">
+        <div className="flex items-start justify-between mb-7">
           <div>
-            <p className="text-white/40 text-xs font-semibold tracking-widest uppercase mb-1">{vendor.business_name}</p>
-            <h1 className="text-3xl font-extrabold text-white">Customers</h1>
+            <p className="text-[#9CA3AF] text-xs font-semibold tracking-widest uppercase mb-0.5">{vendor.business_name}</p>
+            <h1 className="text-3xl font-extrabold text-[#111111]">Customers</h1>
           </div>
           <div className="flex gap-2 mt-1">
-            <a href={`/api/export?vendor_id=${vendor.id}&format=csv`} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/20 text-white/60 text-sm font-semibold hover:border-[#22C55E] hover:text-white transition-colors">
+            <a href={`/api/export?vendor_id=${vendor.id}&format=csv`} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#E8E2D9] text-[#6B7280] text-sm font-semibold hover:border-[#16A34A] hover:text-[#16A34A] transition-colors bg-white">
               <Download size={13} />CSV
             </a>
-            <a href={`/api/export?vendor_id=${vendor.id}&format=json`} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-white/20 text-white/60 text-sm font-semibold hover:border-[#22C55E] hover:text-white transition-colors">
+            <a href={`/api/export?vendor_id=${vendor.id}&format=json`} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#E8E2D9] text-[#6B7280] text-sm font-semibold hover:border-[#16A34A] hover:text-[#16A34A] transition-colors bg-white">
               <Download size={13} />JSON
             </a>
           </div>
         </div>
 
-        <div className="flex gap-2 mb-6">
-          {['all', 'active', 'pending', 'inactive'].map((seg) => (
+        <div className="flex gap-2 mb-5">
+          {[
+            { seg: 'all', color: '#111111', bg: '#111111' },
+            { seg: 'active', color: '#16A34A', bg: '#16A34A' },
+            { seg: 'pending', color: '#D97706', bg: '#D97706' },
+            { seg: 'inactive', color: '#6B7280', bg: '#6B7280' },
+          ].map(({ seg, bg }) => (
             <Link key={seg} href={`/customers?segment=${seg}`}
-              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
-                segment === seg ? 'bg-[#22C55E] text-[#081C12]' : 'bg-white/[.07] border border-white/10 text-white/50 hover:text-white'
-              }`}>
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors border ${
+                segment === seg
+                  ? 'text-white border-transparent'
+                  : 'bg-white text-[#6B7280] border-[#E8E2D9] hover:border-[#111111] hover:text-[#111111]'
+              }`}
+              style={segment === seg ? { backgroundColor: bg, borderColor: bg } : undefined}>
               {seg.charAt(0).toUpperCase() + seg.slice(1)}
             </Link>
           ))}
@@ -161,9 +144,9 @@ export default async function CustomersPage({
 
 function statusClass(status: string) {
   switch (status) {
-    case 'active': return 'bg-emerald-500/20 text-emerald-300'
-    case 'pending': return 'bg-yellow-500/20 text-yellow-300'
-    case 'inactive': return 'bg-white/10 text-white/50'
-    default: return 'bg-white/10 text-white/50'
+    case 'active': return 'bg-green-100 text-green-700'
+    case 'pending': return 'bg-amber-100 text-amber-700'
+    case 'inactive': return 'bg-gray-100 text-gray-500'
+    default: return 'bg-gray-100 text-gray-500'
   }
 }

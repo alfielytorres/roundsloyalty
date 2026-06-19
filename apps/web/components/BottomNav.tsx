@@ -5,19 +5,19 @@ import { usePathname } from 'next/navigation'
 import { LayoutDashboard, QrCode, Users, FileCheck, Settings2 } from 'lucide-react'
 
 const items = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Home' },
-  { href: '/customers', icon: Users, label: 'Customers' },
-  { href: '/stamp', icon: QrCode, label: 'Scan', primary: true },
-  { href: '/claims', icon: FileCheck, label: 'Claims' },
-  { href: '/settings', icon: Settings2, label: 'Settings' },
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Home', color: '#2563EB' },
+  { href: '/customers', icon: Users, label: 'Customers', color: '#D97706' },
+  { href: '/stamp', icon: QrCode, label: 'Scan', primary: true, color: '#16A34A' },
+  { href: '/claims', icon: FileCheck, label: 'Claims', color: '#DC2626' },
+  { href: '/settings', icon: Settings2, label: 'Settings', color: '#6B7280' },
 ]
 
 export default function BottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-[#0A1A0E]/90 backdrop-blur-xl border border-white/[.08] rounded-full px-4 py-3 shadow-2xl">
-      {items.map(({ href, icon: Icon, label, primary }) => {
+    <nav className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 bg-white/95 backdrop-blur-xl border border-[#E8E2D9] rounded-full px-3 py-2.5 shadow-lg shadow-black/10">
+      {items.map(({ href, icon: Icon, label, primary, color }) => {
         const active = pathname === href || (!primary && href !== '/dashboard' && pathname.startsWith(href))
         const scanActive = primary && pathname.startsWith('/stamp')
 
@@ -27,13 +27,9 @@ export default function BottomNav() {
               key={href}
               href={href}
               title={label}
-              className={`flex items-center justify-center w-14 h-14 -mt-8 rounded-full shadow-xl transition-all mx-3 ${
-                scanActive
-                  ? 'bg-[#22C55E] shadow-[0_0_24px_rgba(34,197,94,0.6)]'
-                  : 'bg-[#22C55E] shadow-[0_0_16px_rgba(34,197,94,0.35)] hover:shadow-[0_0_24px_rgba(34,197,94,0.55)]'
-              }`}
+              className="flex items-center justify-center w-14 h-14 -mt-8 rounded-full shadow-lg transition-all mx-2 bg-[#16A34A] hover:bg-[#15803D] shadow-green-200"
             >
-              <Icon size={24} strokeWidth={2.5} className="text-[#081C12]" />
+              <Icon size={24} strokeWidth={2.5} className="text-white" />
             </Link>
           )
         }
@@ -43,13 +39,12 @@ export default function BottomNav() {
             key={href}
             href={href}
             title={label}
-            className={`flex items-center justify-center w-12 h-12 rounded-full transition-all ${
-              active
-                ? 'bg-[#22C55E]/15 text-[#22C55E]'
-                : 'text-white/35 hover:text-white/70 hover:bg-white/[.07]'
+            style={active ? { color } : undefined}
+            className={`flex items-center justify-center w-11 h-11 rounded-full transition-all text-sm ${
+              active ? 'bg-gray-100' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
             }`}
           >
-            <Icon size={21} strokeWidth={active ? 2.2 : 1.7} />
+            <Icon size={20} strokeWidth={active ? 2.2 : 1.7} />
           </Link>
         )
       })}
