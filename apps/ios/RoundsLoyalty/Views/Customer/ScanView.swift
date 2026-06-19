@@ -240,12 +240,13 @@ struct ScanView: View {
                     case businessName = "business_name"
                 }
             }
+            struct StampCardBody: Encodable { let qr_payload: String }
             let response: StampResponse = try await supabase.functions
                 .invoke(
                     "stamp-card",
                     options: .init(
                         headers: ["Authorization": "Bearer \(session.accessToken)"],
-                        body: ["qr_payload": AnyJSON(payload)]
+                        body: StampCardBody(qr_payload: payload)
                     )
                 )
             if response.requiresConsent == true,

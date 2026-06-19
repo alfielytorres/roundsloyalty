@@ -150,14 +150,15 @@ struct ComposeOfferView: View {
         errorMessage = nil
         do {
             struct InsertedOffer: Codable { let id: UUID }
-            let inserted: InsertedOffer = try await supabase
+            let inserted: InsertedOffer = try await supabase.database
                 .from("offers")
                 .insert(["business_id": businessId.uuidString, "title": title, "body": body_, "target_segment": targetSegment])
                 .select().single().execute().value
 
+            struct SendOfferBody: Encodable { let offer_id: String }
             try await supabase.functions.invoke(
                 "send-offer",
-                options: .init(body: ["offer_id": AnyJSON(inserted.id.uuidString)])
+                options: .init(body: SendOfferBody(offer_id: inserted.id.uuidString))
             )
             dismiss()
         } catch {

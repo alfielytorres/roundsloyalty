@@ -140,8 +140,8 @@ struct SignUpView: View {
                 email: email,
                 password: password,
                 data: [
-                    "display_name": AnyJSON(displayName),
-                    "role": AnyJSON(role.rawValue)
+                    "display_name": AnyJSON.string(displayName),
+                    "role": AnyJSON.string(role.rawValue)
                 ]
             )
             successMessage = "Account created! Please check your email to confirm your account."
