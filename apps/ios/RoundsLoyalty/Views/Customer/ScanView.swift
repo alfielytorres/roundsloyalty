@@ -271,8 +271,9 @@ struct ScanView: View {
         guard let userId = sessionManager.session?.user.id else { return }
         scanState = .processing
         do {
+            struct ConsentBody: Encodable { let customer_id: String; let business_id: String }
             try await supabase.database.from("data_consents")
-                .insert(["customer_id": userId.uuidString, "business_id": businessId.uuidString])
+                .insert(ConsentBody(customer_id: userId.uuidString, business_id: businessId.uuidString))
                 .execute()
             await processQRPayload(qrPayload)
         } catch {

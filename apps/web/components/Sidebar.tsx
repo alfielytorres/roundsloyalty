@@ -2,13 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, QrCode, ScanLine, Users, FileCheck, Settings2 } from 'lucide-react'
+import { LayoutDashboard, QrCode, Users, FileCheck, Settings2 } from 'lucide-react'
 
 const items = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Home', color: '#2563EB' },
-  { href: '/qr', icon: QrCode, label: 'My QR Code', color: '#16A34A' },
+  { href: '/stamp', icon: QrCode, label: 'QR & Scan', color: '#16A34A' },
   { href: '/customers', icon: Users, label: 'Customers', color: '#D97706' },
-  { href: '/stamp', icon: ScanLine, label: 'Scan Card', color: '#16A34A' },
   { href: '/claims', icon: FileCheck, label: 'Claims', color: '#DC2626' },
   { href: '/settings', icon: Settings2, label: 'Settings', color: '#6B7280' },
 ]

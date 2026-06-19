@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
-import StampScanner from './StampScanner'
+import StampQRTabs from './StampQRTabs'
 
 async function RecentActivity({ vendorId }: { vendorId: string }) {
   const cookieStore = cookies()
@@ -83,8 +83,8 @@ export default async function StampPage({ searchParams }: { searchParams: { erro
       <div className="max-w-lg mx-auto">
         <div className="mb-7">
           <p className="text-[#9CA3AF] text-xs font-semibold tracking-widest uppercase mb-0.5">{vendor.business_name}</p>
-          <h1 className="text-3xl font-extrabold text-[#111111]">Scan Card</h1>
-          <p className="text-[#6B7280] mt-1">Scan or enter a customer&apos;s membership token</p>
+          <h1 className="text-3xl font-extrabold text-[#111111]">QR & Scan</h1>
+          <p className="text-[#6B7280] mt-1">Show your QR code or scan a customer</p>
         </div>
 
         {searchParams.error && (
@@ -94,7 +94,7 @@ export default async function StampPage({ searchParams }: { searchParams: { erro
           <div className="mb-5 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 font-semibold">{searchParams.success}</div>
         )}
 
-        <StampScanner />
+        <StampQRTabs />
 
         <div className="mt-7">
           <h2 className="text-base font-bold text-[#111111] mb-3">Recent activity</h2>

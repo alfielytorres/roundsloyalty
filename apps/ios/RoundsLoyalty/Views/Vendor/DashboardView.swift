@@ -109,7 +109,7 @@ struct DashboardView: View {
         guard let userId = sessionManager.session?.user.id else { return }
         isLoading = true
         do {
-            let biz: Business? = try await supabase
+            let biz: Business? = try await supabase.database
                 .from("businesses")
                 .select()
                 .eq("owner_id", value: userId)
@@ -123,24 +123,24 @@ struct DashboardView: View {
                 return
             }
 
-            let customerCount = try await supabase
+            let customerCount = try await supabase.database
                 .from("vendor_customer_segments")
-                .select("customer_id", head: true, count: .exact)
+                .select("customer_id", head: true, count: CountOption.exact)
                 .eq("business_id", value: bizId)
                 .execute()
                 .count ?? 0
 
             let weekAgo = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date()) ?? Date(timeIntervalSinceNow: -7 * 24 * 3600)
-            let weekVisits = try await supabase
+            let weekVisits = try await supabase.database
                 .from("visit_events")
-                .select("id", head: true, count: .exact)
+                .select("id", head: true, count: CountOption.exact)
                 .eq("business_id", value: bizId)
                 .gte("created_at", value: weekAgo.ISO8601Format())
                 .execute()
                 .count ?? 0
 
             struct StampRow: Codable { let stampsAdded: Int; enum CodingKeys: String, CodingKey { case stampsAdded = "stamps_added" } }
-            let stampRows: [StampRow] = try await supabase
+            let stampRows: [StampRow] = try await supabase.database
                 .from("visit_events")
                 .select("stamps_added")
                 .eq("business_id", value: bizId)
@@ -170,7 +170,7 @@ struct DashboardView: View {
                 enum CodingKeys: String, CodingKey { case displayName = "display_name" }
             }
 
-            let rawActivities: [RawActivity] = try await supabase
+            let rawActivities: [RawActivity] = try await supabase.database
                 .from("visit_events")
                 .select("id, created_at, stamps_added, loyalty_cards!inner(profiles!inner(display_name))")
                 .eq("business_id", value: bizId)
