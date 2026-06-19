@@ -1,1 +1,6 @@
-ewogICJidWlsZENvbW1hbmQiOiAicG5wbSBidWlsZCIsCiAgIm91dHB1dERpcmVjdG9yeSI6ICIubmV4dCIsCiAgImluc3RhbGxDb21tYW5kIjogIm5weCBwbnBtQDEwIGluc3RhbGwiLAogICJkZXZDb21tYW5kIjogInBucG0gZGV2Igp9Cg==
+{
+  "buildCommand": "pnpm build",
+  "outputDirectory": ".next",
+  "installCommand": "npx pnpm@10 install",
+  "devCommand": "pnpm dev"
+}
