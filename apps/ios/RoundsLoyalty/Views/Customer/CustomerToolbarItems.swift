@@ -1,10 +1,5 @@
 import SwiftUI
 
-/// Shared tab selection passed through the environment so toolbar items can switch tabs.
-final class TabSelection: ObservableObject {
-    @Published var tab: CustomerTab = .cards
-}
-
 struct CustomerToolbarItems: ToolbarContent {
     @EnvironmentObject var sessionManager: SessionManager
     @EnvironmentObject var tabSelection: TabSelection
