@@ -9,15 +9,11 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: '#7DB542',
-        'primary-light': '#D4EDBE',
-        'primary-dark': '#0D1F0D',
-        cream: '#EDE9DF',
-        taupe: '#C4BAA8',
-        forest: {
-          DEFAULT: '#0D1F0D',
-          light: '#D4EDBE',
-        },
+        primary: '#22C55E',
+        'primary-light': '#86EFAC',
+        'primary-dark': '#16A34A',
+        bg: '#081C12',
+        surface: '#0D2418',
       },
       fontFamily: {
         sans: ['DM Sans', 'system-ui', 'sans-serif'],
