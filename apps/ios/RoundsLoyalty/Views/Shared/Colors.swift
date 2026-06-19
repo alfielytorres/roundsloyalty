@@ -1,36 +1,46 @@
 import SwiftUI
 
 extension Color {
-    /// Primary green: #7DB542
-    static let brandGreen = Color(red: 0x7D / 255, green: 0xB5 / 255, blue: 0x42 / 255)
-    /// Light green: #D4EDBE
-    static let brandLightGreen = Color(red: 0xD4 / 255, green: 0xED / 255, blue: 0xBE / 255)
-    /// Dark green: #0D1F0D
-    static let brandDarkGreen = Color(red: 0x0D / 255, green: 0x1F / 255, blue: 0x0D / 255)
-    /// Cream: #EDE9DF
-    static let brandCream = Color(red: 0xED / 255, green: 0xE9 / 255, blue: 0xDF / 255)
-    /// Taupe: #C4BAA8
-    static let brandTaupe = Color(red: 0xC4 / 255, green: 0xBA / 255, blue: 0xA8 / 255)
+    /// Primary green matching web portal #16A34A
+    static let brandGreen = Color(red: 0x16 / 255, green: 0xA3 / 255, blue: 0x4A / 255)
+    /// Light green #D1FAE5
+    static let brandLightGreen = Color(red: 0xD1 / 255, green: 0xFA / 255, blue: 0xE5 / 255)
+    /// Dark green #15803D
+    static let brandDarkGreen = Color(red: 0x15 / 255, green: 0x80 / 255, blue: 0x3D / 255)
+    /// Background cream matching web #F8F5F1
+    static let brandCream = Color(red: 0xF8 / 255, green: 0xF5 / 255, blue: 0xF1 / 255)
+    /// Card background #FFFFFF
+    static let brandCard = Color.white
+    /// Border #E8E2D9
+    static let brandBorder = Color(red: 0xE8 / 255, green: 0xE2 / 255, blue: 0xD9 / 255)
+    /// Muted accent #F0EDE6
+    static let brandAccent = Color(red: 0xF0 / 255, green: 0xED / 255, blue: 0xE6 / 255)
+    /// Primary text #111111
+    static let brandText = Color(red: 0x11 / 255, green: 0x11 / 255, blue: 0x11 / 255)
+    /// Secondary text #6B7280
+    static let brandTaupe = Color(red: 0x6B / 255, green: 0x72 / 255, blue: 0x80 / 255)
+    /// Subtle text #9CA3AF
+    static let brandSubtle = Color(red: 0x9C / 255, green: 0xA3 / 255, blue: 0xAF / 255)
 }
 
-struct GlassCard: ViewModifier {
-    var cornerRadius: CGFloat = 18
+struct CardStyle: ViewModifier {
+    var cornerRadius: CGFloat = 20
     func body(content: Content) -> some View {
         content
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(.ultraThinMaterial)
+                    .fill(Color.brandCard)
                     .overlay(
                         RoundedRectangle(cornerRadius: cornerRadius)
-                            .stroke(Color.brandGreen.opacity(0.28), lineWidth: 0.8)
+                            .stroke(Color.brandBorder, lineWidth: 1)
                     )
-                    .shadow(color: Color.brandGreen.opacity(0.08), radius: 10, x: 0, y: 3)
+                    .shadow(color: Color.black.opacity(0.04), radius: 8, x: 0, y: 2)
             )
     }
 }
 
 extension View {
-    func glassCard(cornerRadius: CGFloat = 18) -> some View {
-        modifier(GlassCard(cornerRadius: cornerRadius))
+    func glassCard(cornerRadius: CGFloat = 20) -> some View {
+        modifier(CardStyle(cornerRadius: cornerRadius))
     }
 }

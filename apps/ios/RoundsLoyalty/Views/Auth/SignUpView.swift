@@ -6,7 +6,6 @@ struct SignUpView: View {
     @State private var displayName = ""
     @State private var email = ""
     @State private var password = ""
-    @State private var role: UserRole = .customer
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var successMessage: String?
@@ -17,7 +16,6 @@ struct SignUpView: View {
 
             ScrollView {
                 VStack(spacing: 32) {
-                    // Header
                     VStack(spacing: 8) {
                         Image(systemName: "cup.and.saucer.fill")
                             .font(.system(size: 56))
@@ -25,23 +23,13 @@ struct SignUpView: View {
                         Text("Create Account")
                             .font(.largeTitle.bold())
                             .foregroundColor(.brandDarkGreen)
+                        Text("Join your favourite loyalty programs")
+                            .font(.subheadline)
+                            .foregroundColor(.brandTaupe)
                     }
                     .padding(.top, 60)
 
-                    // Form
                     VStack(spacing: 16) {
-                        // Role picker
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("I am a...")
-                                .font(.caption.weight(.semibold))
-                                .foregroundColor(.brandDarkGreen)
-                            Picker("Role", selection: $role) {
-                                Text("Customer").tag(UserRole.customer)
-                                Text("Vendor").tag(UserRole.vendor)
-                            }
-                            .pickerStyle(.segmented)
-                        }
-
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Name")
                                 .font(.caption.weight(.semibold))
@@ -113,15 +101,12 @@ struct SignUpView: View {
                     }
                     .padding(.horizontal, 24)
 
-                    // Sign in link
                     HStack {
                         Text("Already have an account?")
                             .foregroundColor(.brandTaupe)
-                        Button("Sign in") {
-                            showSignUp = false
-                        }
-                        .foregroundColor(.brandGreen)
-                        .fontWeight(.semibold)
+                        Button("Sign in") { showSignUp = false }
+                            .foregroundColor(.brandGreen)
+                            .fontWeight(.semibold)
                     }
                     .font(.subheadline)
 
@@ -140,7 +125,7 @@ struct SignUpView: View {
             try await supabase.auth.signUp(
                 email: email,
                 password: password,
-                data: SignUpMeta(display_name: displayName, role: role.rawValue)
+                data: SignUpMeta(display_name: displayName, role: "customer")
             )
             successMessage = "Account created! Please check your email to confirm your account."
         } catch {

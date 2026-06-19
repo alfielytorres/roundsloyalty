@@ -19,12 +19,7 @@ struct RootView: View {
             } else if sessionManager.session == nil {
                 AuthView()
             } else {
-                switch sessionManager.profile?.role {
-                case .vendor:
-                    VendorTabView()
-                default:
-                    CustomerTabView()
-                }
+                CustomerTabView()
             }
         }
         .animation(.easeInOut, value: sessionManager.session?.user.id)
