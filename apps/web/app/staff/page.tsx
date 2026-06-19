@@ -10,7 +10,7 @@ interface StaffMember {
   role: string
   status: string
   created_at: string
-  profiles: { display_name: string | null; email: string | null } | null
+  profiles: { display_name: string | null; email: string | null } | { display_name: string | null; email: string | null }[] | null
 }
 
 function RoleBadge({ role }: { role: string }) {
