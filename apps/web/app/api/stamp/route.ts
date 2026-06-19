@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -71,19 +71,27 @@ export async function POST(req: NextRequest) {
 
   const result = data as {
     rounds_awarded: number
-    new_balance: number
     campaign_name: string | null
-    reward_unlocked: boolean
-    reward_name: string | null
+    rewards_unlocked: number
+    balance: {
+      current_rounds: number
+      lifetime_rounds: number
+    }
+    vendor: {
+      id: string
+      business_name: string
+      brand_color: string
+    }
   } | null
 
+  const rewardsUnlocked = result?.rewards_unlocked ?? 0
   return NextResponse.json({
     success: true,
     rounds_awarded: result?.rounds_awarded ?? 1,
-    new_balance: result?.new_balance ?? 0,
+    new_balance: result?.balance.current_rounds ?? 0,
     campaign_name: result?.campaign_name ?? null,
-    reward_unlocked: result?.reward_unlocked ?? false,
-    reward_name: result?.reward_name ?? null,
-    message: `${result?.rounds_awarded ?? 1} round${(result?.rounds_awarded ?? 1) !== 1 ? 's' : ''} awarded!${result?.reward_unlocked ? ` Reward unlocked: ${result.reward_name}!` : ''}`,
+    reward_unlocked: rewardsUnlocked > 0,
+    rewards_unlocked: rewardsUnlocked,
+    message: `${result?.rounds_awarded ?? 1} round${(result?.rounds_awarded ?? 1) !== 1 ? 's' : ''} awarded!${rewardsUnlocked > 0 ? ` ${rewardsUnlocked} reward${rewardsUnlocked === 1 ? '' : 's'} unlocked!` : ''}`,
   })
 }

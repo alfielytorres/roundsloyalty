@@ -6,7 +6,7 @@ import StampScanner from './StampScanner'
 import { Zap } from 'lucide-react'
 
 async function RecentActivity({ vendorId }: { vendorId: string }) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -49,7 +49,7 @@ async function RecentActivity({ vendorId }: { vendorId: string }) {
 }
 
 async function CampaignBanner({ vendorId }: { vendorId: string }) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -80,8 +80,9 @@ async function CampaignBanner({ vendorId }: { vendorId: string }) {
   )
 }
 
-export default async function StampPage({ searchParams }: { searchParams: { error?: string; success?: string } }) {
+export default async function StampPage({ searchParams }: { searchParams: Promise<{ error?: string; success?: string }> }) {
   const { vendor } = await getPortalData()
+  const query = await searchParams
 
   return (
     <main className="px-5 pt-10 pb-32">
@@ -92,11 +93,11 @@ export default async function StampPage({ searchParams }: { searchParams: { erro
           <p className="text-[#6B7280] mt-1">Scan customer QR to award rounds</p>
         </div>
 
-        {searchParams.error && (
-          <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm">{searchParams.error}</div>
+        {query.error && (
+          <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm">{query.error}</div>
         )}
-        {searchParams.success && (
-          <div className="mb-5 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 font-semibold">{searchParams.success}</div>
+        {query.success && (
+          <div className="mb-5 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 font-semibold">{query.success}</div>
         )}
 
         <Suspense fallback={null}>

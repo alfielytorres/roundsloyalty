@@ -3,12 +3,13 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import OnboardingForm from './OnboardingForm'
 
-export default async function OnboardingPage({ searchParams }: { searchParams: { error?: string } }) {
+export default async function OnboardingPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const query = await searchParams
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   if (!supabaseUrl || !supabaseKey) redirect('/')
 
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const supabase = createServerClient(supabaseUrl, supabaseKey, {
     cookies: { getAll: () => cookieStore.getAll() },
   })
@@ -27,5 +28,5 @@ export default async function OnboardingPage({ searchParams }: { searchParams: {
 
   const defaultBusinessName = (user.user_metadata?.display_name as string) ?? ''
 
-  return <OnboardingForm error={searchParams.error} defaultBusinessName={defaultBusinessName} />
+  return <OnboardingForm error={query.error} defaultBusinessName={defaultBusinessName} />
 }

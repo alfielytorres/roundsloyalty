@@ -28,7 +28,7 @@ function RoleBadge({ role }: { role: string }) {
 }
 
 async function StaffList({ vendorId, currentRole }: { vendorId: string; currentRole: string }) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -120,8 +120,9 @@ async function StaffList({ vendorId, currentRole }: { vendorId: string; currentR
   )
 }
 
-export default async function StaffPage({ searchParams }: { searchParams: { error?: string; success?: string } }) {
+export default async function StaffPage({ searchParams }: { searchParams: Promise<{ error?: string; success?: string }> }) {
   const { vendor, role } = await getPortalData()
+  const query = await searchParams
   const canManage = role === 'owner' || role === 'manager'
 
   return (
@@ -133,8 +134,8 @@ export default async function StaffPage({ searchParams }: { searchParams: { erro
           <p className="text-[#6B7280] mt-1">Manage who has access to the vendor portal</p>
         </div>
 
-        {searchParams?.error && <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm">{searchParams.error}</div>}
-        {searchParams?.success && <div className="mb-5 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 text-sm font-semibold">{searchParams.success}</div>}
+        {query.error && <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm">{query.error}</div>}
+        {query.success && <div className="mb-5 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 text-sm font-semibold">{query.success}</div>}
 
         {canManage && (
           <div className="bg-white border border-[#E8E2D9] rounded-3xl p-6 shadow-sm mb-6">

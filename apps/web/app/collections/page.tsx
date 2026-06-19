@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { PackageCheck, Clock, CheckCircle, Loader2 } from 'lucide-react'
 
@@ -82,14 +82,18 @@ export default function CollectionsPage() {
   const [collections, setCollections] = useState<Collection[]>([])
   const [loading, setLoading] = useState(true)
   const [vendorId, setVendorId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  )
+  const supabase = useMemo(() => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    return url && key ? createBrowserClient(url, key) : null
+  }, [])
 
   const fetchCollections = useCallback(async (vid: string) => {
-    const { data } = await supabase
+    if (!supabase) throw new Error('Supabase is not configured.')
+
+    const { data, error: fetchError } = await supabase
       .from('reward_collections')
       .select(`
         id, status, collection_code, selected_option, requested_at,
@@ -101,41 +105,89 @@ export default function CollectionsPage() {
       .order('requested_at', { ascending: false })
       .limit(100)
 
-    if (data) setCollections(data as unknown as Collection[])
+    if (fetchError) throw fetchError
+    setCollections((data ?? []) as unknown as Collection[])
   }, [supabase])
 
   useEffect(() => {
-    async function init() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      const { data: staffRecord } = await supabase
-        .from('vendor_staff')
-        .select('vendor_id')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .single()
-      if (!staffRecord) return
-      setVendorId(staffRecord.vendor_id)
-      await fetchCollections(staffRecord.vendor_id)
+    if (!supabase) {
+      setError('Supabase is not configured.')
       setLoading(false)
+      return
     }
-    init()
+    const client = supabase
+
+    async function init() {
+      try {
+        const { data: { user }, error: authError } = await client.auth.getUser()
+        if (authError || !user) throw new Error('Please sign in again.')
+
+        const { data: staffRecord } = await client
+          .from('vendor_staff')
+          .select('vendor_id')
+          .eq('user_id', user.id)
+          .eq('status', 'active')
+          .limit(1)
+          .maybeSingle()
+
+        let resolvedVendorId = staffRecord?.vendor_id ?? null
+        if (!resolvedVendorId) {
+          const { data: ownedVendor, error: ownerError } = await client
+            .from('vendors')
+            .select('id')
+            .eq('owner_id', user.id)
+            .limit(1)
+            .maybeSingle()
+          if (ownerError) throw ownerError
+          resolvedVendorId = ownedVendor?.id ?? null
+        }
+
+        if (!resolvedVendorId) throw new Error('No vendor account was found.')
+
+        setVendorId(resolvedVendorId)
+        await fetchCollections(resolvedVendorId)
+      } catch (initError) {
+        setError(initError instanceof Error ? initError.message : 'Collections could not be loaded.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    void init()
   }, [supabase, fetchCollections])
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
     if (!vendorId) return
-    const interval = setInterval(() => fetchCollections(vendorId), 30000)
+    const interval = setInterval(() => {
+      void fetchCollections(vendorId).catch((refreshError) => {
+        setError(refreshError instanceof Error ? refreshError.message : 'Collections could not be refreshed.')
+      })
+    }, 30000)
     return () => clearInterval(interval)
   }, [vendorId, fetchCollections])
 
   async function handleAction(id: string, action: 'ready' | 'collected') {
-    if (action === 'ready') {
-      await supabase.rpc('mark_collection_ready', { p_collection_id: id })
-    } else {
-      await supabase.rpc('complete_reward_collection', { p_collection_id: id })
+    setError(null)
+    if (!supabase) {
+      setError('Supabase is not configured.')
+      return
     }
-    if (vendorId) await fetchCollections(vendorId)
+    const { error: actionError } = action === 'ready'
+      ? await supabase.rpc('mark_collection_ready', { p_collection_id: id })
+      : await supabase.rpc('complete_reward_collection', { p_collection_id: id })
+
+    if (actionError) {
+      setError(actionError.message)
+      return
+    }
+
+    if (vendorId) {
+      try {
+        await fetchCollections(vendorId)
+      } catch (refreshError) {
+        setError(refreshError instanceof Error ? refreshError.message : 'Collections could not be refreshed.')
+      }
+    }
   }
 
   const requested = collections.filter((c) => c.status === 'requested')
@@ -166,6 +218,12 @@ export default function CollectionsPage() {
           <h1 className="text-3xl font-extrabold text-[#111111]">Reward Collections</h1>
           <p className="text-[#6B7280] mt-1">Click-and-collect board — auto-refreshes every 30s</p>
         </div>
+
+        {error && (
+          <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
+            {error}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Requested */}

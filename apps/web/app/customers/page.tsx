@@ -25,7 +25,7 @@ function statusClass(status: string) {
 }
 
 async function CustomerTable({ vendorId, segment }: { vendorId: string; segment: string }) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -114,9 +114,10 @@ function TableSkeleton() {
   )
 }
 
-export default async function CustomersPage({ searchParams }: { searchParams: { segment?: string } }) {
+export default async function CustomersPage({ searchParams }: { searchParams: Promise<{ segment?: string }> }) {
   const { vendor } = await getPortalData()
-  const segment = searchParams.segment ?? 'all'
+  const query = await searchParams
+  const segment = query.segment ?? 'all'
 
   return (
     <main className="px-5 pt-10 pb-32">

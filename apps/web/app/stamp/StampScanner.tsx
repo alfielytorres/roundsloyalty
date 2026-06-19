@@ -72,7 +72,6 @@ export default function StampScanner({ vendorId }: { vendorId: string }) {
     }
     if (detected) { stopCamera(); setToken(detected); return }
     rafRef.current = requestAnimationFrame(scanFrame)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stopCamera])
 
   const startCamera = useCallback(async () => {

@@ -8,7 +8,7 @@ export default async function PortalLayout({ children }: { children: React.React
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   if (!supabaseUrl || !supabaseKey) redirect('/')
 
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const supabase = createServerClient(supabaseUrl, supabaseKey, {
     cookies: { getAll: () => cookieStore.getAll() },
   })

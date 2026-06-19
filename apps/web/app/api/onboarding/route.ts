@@ -3,7 +3,7 @@ import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -65,9 +65,6 @@ export async function POST(req: NextRequest) {
     role: 'owner',
     status: 'active',
   })
-
-  // Update profile role to vendor
-  await supabase.from('profiles').update({ role: 'vendor' }).eq('id', user.id)
 
   return NextResponse.json({ success: true }, { status: 200 })
 }

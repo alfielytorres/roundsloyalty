@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 export default function SignUpPage() {
@@ -63,7 +64,7 @@ export default function SignUpPage() {
 
         <p className="text-center text-[13px] text-black/30 mt-5">
           Already have an account?{' '}
-          <a href="/" className="font-semibold text-black/60 hover:text-black">Sign in</a>
+          <Link href="/" className="font-semibold text-black/60 hover:text-black">Sign in</Link>
         </p>
       </div>
     </main>

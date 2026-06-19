@@ -30,7 +30,7 @@ const statusBadge = {
 }
 
 async function CampaignList({ vendorId }: { vendorId: string }) {
-  const cookieStore = cookies()
+  const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -100,8 +100,9 @@ async function CampaignList({ vendorId }: { vendorId: string }) {
   )
 }
 
-export default async function CampaignsPage({ searchParams }: { searchParams: { error?: string; success?: string } }) {
+export default async function CampaignsPage({ searchParams }: { searchParams: Promise<{ error?: string; success?: string }> }) {
   const { vendor } = await getPortalData()
+  const query = await searchParams
 
   return (
     <main className="min-h-screen px-6 pt-10 pb-32">
@@ -112,11 +113,11 @@ export default async function CampaignsPage({ searchParams }: { searchParams: { 
           <p className="text-black/40 mt-1">Run bonus round events to reward loyal customers</p>
         </div>
 
-        {searchParams?.error && (
-          <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-500 text-sm">{searchParams.error}</div>
+        {query.error && (
+          <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-500 text-sm">{query.error}</div>
         )}
-        {searchParams?.success && (
-          <div className="mb-5 p-4 bg-[#E8805A]/10 border border-[#E8805A]/20 rounded-2xl text-[#E8805A] text-sm font-semibold">{searchParams.success}</div>
+        {query.success && (
+          <div className="mb-5 p-4 bg-[#E8805A]/10 border border-[#E8805A]/20 rounded-2xl text-[#E8805A] text-sm font-semibold">{query.success}</div>
         )}
 
         <div className="glass mb-6">
