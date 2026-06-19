@@ -14,14 +14,30 @@ export const getPortalData = cache(async () => {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/')
 
-  const { data: vendor, error } = await supabase
-    .from('vendors')
-    .select('id, business_name, description, category, status, proof_of_purchase_enabled, proof_of_purchase_instructions, proof_of_purchase_max_claim_age_days, brand_color')
-    .eq('owner_id', user.id)
+  // Find vendor where user is owner or active staff member
+  const { data: staffRecord } = await supabase
+    .from('vendor_staff')
+    .select('vendor_id, role, vendors(id, business_name, description, category, status, brand_color, join_token, address, logo_url)')
+    .eq('user_id', user.id)
+    .eq('status', 'active')
     .limit(1)
     .single()
 
-  if (error || !vendor) redirect('/onboarding')
+  if (!staffRecord) redirect('/onboarding')
 
-  return { user, vendor, supabase }
+  const vendor = staffRecord.vendors as unknown as {
+    id: string
+    business_name: string
+    description: string | null
+    category: string | null
+    status: string
+    brand_color: string | null
+    join_token: string | null
+    address: string | null
+    logo_url: string | null
+  }
+
+  if (!vendor) redirect('/onboarding')
+
+  return { user, vendor, role: staffRecord.role as string, supabase }
 })

@@ -17,20 +17,32 @@ export async function POST(req: NextRequest) {
     },
   )
 
-  const { data: { user } } = await supabase.auth.getUser()  
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.redirect(new URL('/', req.url))
+
+  // Resolve vendor via vendor_staff
+  const { data: staffRecord } = await supabase
+    .from('vendor_staff')
+    .select('vendor_id, role')
+    .eq('user_id', user.id)
+    .eq('status', 'active')
+    .limit(1)
+    .maybeSingle()
+
+  if (!staffRecord || (staffRecord.role !== 'owner' && staffRecord.role !== 'manager')) {
+    return NextResponse.redirect(new URL('/settings?error=' + encodeURIComponent('Permission denied.'), req.url))
+  }
 
   const formData = await req.formData()
   const business_name = (formData.get('business_name') as string)?.trim()
   const description = (formData.get('description') as string)?.trim()
+  const category = (formData.get('category') as string)?.trim() || null
   const address = (formData.get('address') as string)?.trim() || null
-  const lat = formData.get('lat') ? parseFloat(formData.get('lat') as string) : null
-  const lng = formData.get('lng') ? parseFloat(formData.get('lng') as string) : null
+  const logo_url = (formData.get('logo_url') as string)?.trim() || null
+  const brand_color = (formData.get('brand_color_text') as string)?.trim() || (formData.get('brand_color') as string)?.trim() || null
 
   if (!business_name) {
-    return NextResponse.redirect(
-      new URL('/settings?error=' + encodeURIComponent('Business name is required.'), req.url),
-    )
+    return NextResponse.redirect(new URL('/settings?error=' + encodeURIComponent('Business name is required.'), req.url))
   }
 
   const { error } = await supabase
@@ -38,27 +50,16 @@ export async function POST(req: NextRequest) {
     .update({
       business_name,
       description: description || null,
+      category,
+      address,
+      logo_url,
+      brand_color,
     })
-    .eq('owner_id', user.id)
+    .eq('id', staffRecord.vendor_id)
 
   if (error) {
-    return NextResponse.redirect(
-      new URL(`/settings?error=${encodeURIComponent(error.message)}`, req.url),
-    )
+    return NextResponse.redirect(new URL('/settings?error=' + encodeURIComponent(error.message), req.url))
   }
 
-  // Keep businesses table in sync (name, description, address, lat/lng for iOS map)
-  const businessUpdate: Record<string, unknown> = { name: business_name, description: description || null }
-  if (address !== null) businessUpdate.address = address
-  if (lat !== null && !isNaN(lat)) businessUpdate.lat = lat
-  if (lng !== null && !isNaN(lng)) businessUpdate.lng = lng
-
-  await supabase
-    .from('businesses')
-    .update(businessUpdate)
-    .eq('owner_id', user.id)
-
-  return NextResponse.redirect(
-    new URL('/settings?success=' + encodeURIComponent('Changes saved!'), req.url),
-  )
+  return NextResponse.redirect(new URL('/settings?success=' + encodeURIComponent('Changes saved!'), req.url))
 }

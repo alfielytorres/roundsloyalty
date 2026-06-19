@@ -2,7 +2,8 @@ import { Suspense } from 'react'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
-import StampQRTabs from './StampQRTabs'
+import StampScanner from './StampScanner'
+import { Zap } from 'lucide-react'
 
 async function RecentActivity({ vendorId }: { vendorId: string }) {
   const cookieStore = cookies()
@@ -12,27 +13,24 @@ async function RecentActivity({ vendorId }: { vendorId: string }) {
     { cookies: { getAll: () => cookieStore.getAll() } },
   )
 
-  const { data: entries } = await supabase
-    .from('loyalty_ledger')
-    .select('id, event_type, delta, created_at, profiles(display_name)')
+  const { data: txns } = await supabase
+    .from('round_transactions')
+    .select('id, rounds_awarded, created_at, source, profiles(display_name)')
     .eq('vendor_id', vendorId)
-    .in('event_type', ['stamp_added', 'points_added', 'reward_redeemed'])
     .order('created_at', { ascending: false })
     .limit(10)
 
-  if (!entries?.length) {
+  if (!txns?.length) {
     return <div className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-10 text-center text-[#6B7280] shadow-sm">No recent activity.</div>
   }
 
   return (
     <div className="flex flex-col gap-2">
-      {entries.map((e) => {
-        const profile = Array.isArray(e.profiles) ? e.profiles[0] : e.profiles
+      {txns.map((t) => {
+        const profile = Array.isArray(t.profiles) ? t.profiles[0] : t.profiles
         const name = (profile as { display_name?: string | null } | null)?.display_name ?? 'Customer'
-        const label = eventLabel(e.event_type, e.delta)
-        const color = e.event_type === 'stamp_added' ? '#16A34A' : e.event_type === 'points_added' ? '#2563EB' : '#D97706'
         return (
-          <div key={e.id} className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-3 flex items-center justify-between shadow-sm">
+          <div key={t.id} className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-3 flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-[#F0EDE6] flex items-center justify-center font-bold text-[#374151] text-sm">
                 {name.charAt(0).toUpperCase()}
@@ -40,8 +38,8 @@ async function RecentActivity({ vendorId }: { vendorId: string }) {
               <span className="font-semibold text-[#111111]">{name}</span>
             </div>
             <div className="flex items-center gap-4">
-              <span className="font-bold text-sm" style={{ color }}>{label}</span>
-              <span className="text-[#9CA3AF] text-xs">{new Date(e.created_at).toLocaleTimeString()}</span>
+              <span className="font-bold text-sm text-[#E8805A]">+{t.rounds_awarded} round{t.rounds_awarded !== 1 ? 's' : ''}</span>
+              <span className="text-[#9CA3AF] text-xs">{new Date(t.created_at).toLocaleTimeString()}</span>
             </div>
           </div>
         )
@@ -50,27 +48,34 @@ async function RecentActivity({ vendorId }: { vendorId: string }) {
   )
 }
 
-function eventLabel(type: string, delta: number) {
-  switch (type) {
-    case 'stamp_added': return `+${delta} stamp${delta !== 1 ? 's' : ''}`
-    case 'points_added': return `+${delta} pts`
-    case 'reward_redeemed': return 'Reward redeemed'
-    default: return type
-  }
-}
+async function CampaignBanner({ vendorId }: { vendorId: string }) {
+  const cookieStore = cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { getAll: () => cookieStore.getAll() } },
+  )
 
-function RecentActivitySkeleton() {
+  const now = new Date().toISOString()
+  const { data: campaign } = await supabase
+    .from('round_campaigns')
+    .select('name, round_value, ends_at')
+    .eq('vendor_id', vendorId)
+    .eq('status', 'scheduled')
+    .lte('starts_at', now)
+    .gt('ends_at', now)
+    .limit(1)
+    .maybeSingle()
+
+  if (!campaign) return null
+
   return (
-    <div className="flex flex-col gap-2 animate-pulse">
-      {[...Array(3)].map((_, i) => (
-        <div key={i} className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-3 flex items-center justify-between shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[#C8C0B4]" />
-            <div className="h-4 w-28 bg-[#C8C0B4] rounded" />
-          </div>
-          <div className="h-4 w-20 bg-[#D8D0C8] rounded" />
-        </div>
-      ))}
+    <div className="mb-5 p-4 bg-[#E8805A] rounded-2xl text-white flex items-center gap-3">
+      <Zap size={20} className="text-white shrink-0" />
+      <div>
+        <p className="font-black text-sm uppercase tracking-wide">Campaign Live: {campaign.name}</p>
+        <p className="text-white/90 text-sm">This scan awards {campaign.round_value} rounds!</p>
+      </div>
     </div>
   )
 }
@@ -83,8 +88,8 @@ export default async function StampPage({ searchParams }: { searchParams: { erro
       <div className="max-w-lg mx-auto">
         <div className="mb-7">
           <p className="text-[#9CA3AF] text-xs font-semibold tracking-widest uppercase mb-0.5">{vendor.business_name}</p>
-          <h1 className="text-3xl font-extrabold text-[#111111]">QR & Scan</h1>
-          <p className="text-[#6B7280] mt-1">Show your QR code or scan a customer</p>
+          <h1 className="text-3xl font-extrabold text-[#111111]">Award Round</h1>
+          <p className="text-[#6B7280] mt-1">Scan customer QR to award rounds</p>
         </div>
 
         {searchParams.error && (
@@ -94,11 +99,27 @@ export default async function StampPage({ searchParams }: { searchParams: { erro
           <div className="mb-5 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 font-semibold">{searchParams.success}</div>
         )}
 
-        <StampQRTabs />
+        <Suspense fallback={null}>
+          <CampaignBanner vendorId={vendor.id} />
+        </Suspense>
+
+        <StampScanner vendorId={vendor.id} />
 
         <div className="mt-7">
           <h2 className="text-base font-bold text-[#111111] mb-3">Recent activity</h2>
-          <Suspense fallback={<RecentActivitySkeleton />}>
+          <Suspense fallback={
+            <div className="flex flex-col gap-2 animate-pulse">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="bg-white border border-[#E8E2D9] rounded-2xl px-5 py-3 flex items-center justify-between shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-[#C8C0B4]" />
+                    <div className="h-4 w-28 bg-[#C8C0B4] rounded" />
+                  </div>
+                  <div className="h-4 w-20 bg-[#D8D0C8] rounded" />
+                </div>
+              ))}
+            </div>
+          }>
             <RecentActivity vendorId={vendor.id} />
           </Suspense>
         </div>

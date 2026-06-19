@@ -5,6 +5,25 @@ import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
 import { Download } from 'lucide-react'
 
+interface Membership {
+  id: string
+  customer_id: string
+  status: string
+  current_rounds: number
+  lifetime_rounds: number
+  activated_at: string | null
+  profiles: { display_name: string | null } | null
+}
+
+function statusClass(status: string) {
+  switch (status) {
+    case 'active': return 'bg-green-100 text-green-700'
+    case 'pending': return 'bg-amber-100 text-amber-700'
+    case 'inactive': return 'bg-gray-100 text-gray-500'
+    default: return 'bg-gray-100 text-gray-500'
+  }
+}
+
 async function CustomerTable({ vendorId, segment }: { vendorId: string; segment: string }) {
   const cookieStore = cookies()
   const supabase = createServerClient(
@@ -15,31 +34,29 @@ async function CustomerTable({ vendorId, segment }: { vendorId: string; segment:
 
   let query = supabase
     .from('customer_vendor_memberships')
-    .select('id, customer_id, status, total_visits, last_visit_at, profiles(display_name), loyalty_balances(stamps_balance, points_balance)')
+    .select('id, customer_id, status, current_rounds, lifetime_rounds, activated_at, profiles(display_name)')
     .eq('vendor_id', vendorId)
 
   if (segment === 'active') query = query.eq('status', 'active')
   else if (segment === 'pending') query = query.eq('status', 'pending')
   else if (segment === 'inactive') query = query.eq('status', 'inactive')
 
-  const { data: members } = await query.order('total_visits', { ascending: false }).limit(100)
+  const { data: members } = await query.order('lifetime_rounds', { ascending: false }).limit(100)
 
   return (
     <div className="bg-white border border-[#E8E2D9] rounded-3xl overflow-hidden shadow-sm">
       <table className="w-full">
         <thead>
           <tr className="border-b border-[#F0EDE6]">
-            {['Customer', 'Status', 'Visits', 'Stamps', 'Last visit'].map((h) => (
+            {['Customer', 'Status', 'Current rounds', 'Lifetime rounds', 'Joined'].map((h) => (
               <th key={h} className="text-left px-6 py-4 text-sm font-semibold text-[#9CA3AF]">{h}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {members?.map((m) => {
+          {(members as Membership[] | null)?.map((m) => {
             const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles
-            const balance = Array.isArray(m.loyalty_balances) ? m.loyalty_balances[0] : m.loyalty_balances
             const name = (profile as { display_name?: string | null } | null)?.display_name ?? 'Anonymous'
-            const stamps = (balance as { stamps_balance?: number } | null)?.stamps_balance ?? 0
             return (
               <tr key={m.id} className="border-b border-[#F8F5F1] hover:bg-[#FAFAF8] transition-colors">
                 <td className="px-6 py-4">
@@ -49,13 +66,13 @@ async function CustomerTable({ vendorId, segment }: { vendorId: string; segment:
                     </div>
                     <span className="font-semibold text-[#111111]">{name}</span>
                   </div>
-          </td>
+                </td>
                 <td className="px-6 py-4">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${statusClass(m.status)}`}>{m.status}</span>
                 </td>
-                <td className="px-6 py-4 text-[#374151] font-medium">{m.total_visits ?? 0}</td>
-                <td className="px-6 py-4 text-[#374151]">{stamps}</td>
-                <td className="px-6 py-4 text-[#9CA3AF] text-sm">{m.last_visit_at ? new Date(m.last_visit_at).toLocaleDateString() : '—'}</td>
+                <td className="px-6 py-4 text-[#374151] font-bold">{m.current_rounds ?? 0}</td>
+                <td className="px-6 py-4 text-[#374151]">{m.lifetime_rounds ?? 0}</td>
+                <td className="px-6 py-4 text-[#9CA3AF] text-sm">{m.activated_at ? new Date(m.activated_at).toLocaleDateString() : '—'}</td>
               </tr>
             )
           })}
@@ -74,7 +91,7 @@ function TableSkeleton() {
       <table className="w-full">
         <thead>
           <tr className="border-b border-[#F0EDE6]">
-            {['Customer', 'Status', 'Visits', 'Stamps', 'Last visit'].map((h) => (
+            {['Customer', 'Status', 'Current rounds', 'Lifetime rounds', 'Joined'].map((h) => (
               <th key={h} className="text-left px-6 py-4">
                 <div className="h-4 w-16 bg-[#C8C0B4] rounded" />
               </th>
@@ -110,21 +127,21 @@ export default async function CustomersPage({ searchParams }: { searchParams: { 
             <h1 className="text-3xl font-extrabold text-[#111111]">Customers</h1>
           </div>
           <div className="flex gap-2 mt-1">
-            <a href={`/api/export?vendor_id=${vendor.id}&format=csv`} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#E8E2D9] text-[#6B7280] text-sm font-semibold hover:border-[#16A34A] hover:text-[#16A34A] transition-colors bg-white">
+            <a href={`/api/export?vendor_id=${vendor.id}&format=csv`} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#E8E2D9] text-[#6B7280] text-sm font-semibold hover:border-[#E8805A] hover:text-[#E8805A] transition-colors bg-white">
               <Download size={13} />CSV
             </a>
-            <a href={`/api/export?vendor_id=${vendor.id}&format=json`} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#E8E2D9] text-[#6B7280] text-sm font-semibold hover:border-[#16A34A] hover:text-[#16A34A] transition-colors bg-white">
+            <a href={`/api/export?vendor_id=${vendor.id}&format=json`} className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#E8E2D9] text-[#6B7280] text-sm font-semibold hover:border-[#E8805A] hover:text-[#E8805A] transition-colors bg-white">
               <Download size={13} />JSON
             </a>
           </div>
         </div>
 
-        <div className="flex gap-2 mb-5">
+        <div className="flex gap-2 mb-5 flex-wrap">
           {[
-            { seg: 'all', color: '#111111', bg: '#111111' },
-            { seg: 'active', color: '#16A34A', bg: '#16A34A' },
-            { seg: 'pending', color: '#D97706', bg: '#D97706' },
-            { seg: 'inactive', color: '#6B7280', bg: '#6B7280' },
+            { seg: 'all', bg: '#111111' },
+            { seg: 'active', bg: '#16A34A' },
+            { seg: 'pending', bg: '#D97706' },
+            { seg: 'inactive', bg: '#6B7280' },
           ].map(({ seg, bg }) => (
             <Link key={seg} href={`/customers?segment=${seg}`}
               className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors border ${
@@ -144,13 +161,4 @@ export default async function CustomersPage({ searchParams }: { searchParams: { 
       </div>
     </main>
   )
-}
-
-function statusClass(status: string) {
-  switch (status) {
-    case 'active': return 'bg-green-100 text-green-700'
-    case 'pending': return 'bg-amber-100 text-amber-700'
-    case 'inactive': return 'bg-gray-100 text-gray-500'
-    default: return 'bg-gray-100 text-gray-500'
-  }
 }

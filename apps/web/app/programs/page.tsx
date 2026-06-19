@@ -2,26 +2,21 @@ import { Suspense } from 'react'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
-import { Settings2, Award, Plus } from 'lucide-react'
+import { Award } from 'lucide-react'
 
-interface Program {
+interface LoyaltyProgram {
   id: string
   name: string
-  program_type: string
-  config: Record<string, unknown>
-  is_active: boolean
-  reward_rules: Array<{
-    id: string
-    name: string
-    description: string | null
-    stamp_threshold: number | null
-    points_threshold: number | null
-    reward_type: string
-    is_active: boolean
-  }>
+  rounds_required: number
+  reward_name: string
+  reward_description: string | null
+  reward_expiry_days: number | null
+  default_round_value: number
+  max_round_value: number
+  status: string
 }
 
-async function ProgramView({ vendorId }: { vendorId: string }) {
+async function ProgramView({ vendorId, role }: { vendorId: string; role: string }) {
   const cookieStore = cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -29,145 +24,138 @@ async function ProgramView({ vendorId }: { vendorId: string }) {
     { cookies: { getAll: () => cookieStore.getAll() } },
   )
 
-  const { data: programs } = await supabase
+  const { data: program } = await supabase
     .from('loyalty_programs')
-    .select(`
-      id, name, program_type, config, is_active,
-      reward_rules (id, name, description, stamp_threshold, points_threshold, reward_type, is_active)
-    `)
+    .select('id, name, rounds_required, reward_name, reward_description, reward_expiry_days, default_round_value, max_round_value, status')
     .eq('vendor_id', vendorId)
-    .order('is_active', { ascending: false })
+    .eq('status', 'active')
+    .limit(1)
+    .maybeSingle()
 
-  if (!programs?.length) {
+  const canEdit = role === 'owner' || role === 'manager'
+
+  if (!program) {
+    if (!canEdit) {
+      return (
+        <div className="bg-white border border-[#E8E2D9] rounded-3xl px-6 py-16 text-center shadow-sm">
+          <Award className="mx-auto text-[#9CA3AF] mb-4" size={40} />
+          <h3 className="text-[#374151] font-semibold mb-2">No program yet</h3>
+          <p className="text-[#9CA3AF] text-sm">Contact your manager to set up a loyalty program.</p>
+        </div>
+      )
+    }
     return (
-      <div className="bg-white/[.07] border border-white/10 rounded-3xl px-6 py-16 text-center">
-        <Settings2 className="mx-auto text-white/20 mb-4" size={40} />
-        <h3 className="text-white/60 font-semibold mb-2">No programs yet</h3>
-        <p className="text-white/30 text-sm mb-6">Create your first loyalty program to start rewarding customers.</p>
-        <form action="/api/programs/create" method="POST">
-          <button type="submit" className="btn-primary inline-flex items-center gap-2">
-            <Plus size={16} /> Create program
-          </button>
+      <div className="bg-white border border-[#E8E2D9] rounded-3xl px-6 py-16 text-center shadow-sm">
+        <Award className="mx-auto text-[#9CA3AF] mb-4" size={40} />
+        <h3 className="text-[#374151] font-semibold mb-2">No program yet</h3>
+        <p className="text-[#9CA3AF] text-sm mb-6">Create your loyalty program to start rewarding customers.</p>
+        <form action="/api/programs/upsert" method="POST">
+          <input type="hidden" name="vendor_id" value={vendorId} />
+          <button type="submit" className="btn-primary">Create program</button>
         </form>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      {(programs as Program[]).map((program) => (
-        <div
-          key={program.id}
-          className={`bg-white/[.07] border rounded-3xl p-6 ${
-            program.is_active ? 'border-[#8B5CF6]/30' : 'border-white/10 opacity-60'
-          }`}
-        >
-          <div className="flex items-start justify-between gap-4 mb-4">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-lg font-bold text-white">{program.name}</h3>
-                {program.is_active && (
-                  <span className="text-xs font-bold bg-[#8B5CF6]/20 text-[#8B5CF6] px-2.5 py-0.5 rounded-full border border-[#8B5CF6]/30">
-                    Active
-                  </span>
-                )}
-              </div>
-              <p className="text-white/50 text-sm capitalize">{program.program_type.replace('_', ' ')} program</p>
-            </div>
-            <form action="/api/programs/update" method="POST">
-              <input type="hidden" name="program_id" value={program.id} />
-              <input type="hidden" name="is_active" value={program.is_active ? 'false' : 'true'} />
-              <button
-                type="submit"
-                className={`text-xs font-semibold rounded-xl px-3 py-1.5 border transition-colors ${
-                  program.is_active
-                    ? 'border-red-500/30 text-red-400 hover:bg-red-500/10'
-                    : 'border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10'
-                }`}
-              >
-                {program.is_active ? 'Deactivate' : 'Activate'}
-              </button>
-            </form>
-          </div>
+    <div className="bg-white border border-[#E8E2D9] rounded-3xl p-6 shadow-sm">
+      <div className="flex items-center gap-2 mb-6">
+        <span className="text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-1 rounded-full">Active</span>
+        <h2 className="text-lg font-bold text-[#111111]">{program.name}</h2>
+      </div>
 
-          {/* Config summary */}
-          {program.config && (
-            <div className="bg-white/5 rounded-2xl px-4 py-3 mb-4">
-              <pre className="text-white/50 text-xs font-mono whitespace-pre-wrap">
-                {JSON.stringify(program.config, null, 2)}
-              </pre>
-            </div>
-          )}
+      {canEdit ? (
+        <form action="/api/programs/upsert" method="POST" className="flex flex-col gap-5">
+          <input type="hidden" name="program_id" value={program.id} />
+          <input type="hidden" name="vendor_id" value={vendorId} />
 
-          {/* Reward rules */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-semibold text-white/60 uppercase tracking-wide flex items-center gap-2">
-                <Award size={14} /> Reward rules
-              </h4>
-              <span className="text-white/30 text-xs">{program.reward_rules?.length ?? 0} rules</span>
-            </div>
-            {program.reward_rules?.length ? (
-              <div className="flex flex-col gap-2">
-                {program.reward_rules.map((rule) => (
-                  <div
-                    key={rule.id}
-                    className={`glass-row flex items-center justify-between px-4 py-3 rounded-xl ${
-                      !rule.is_active && 'opacity-50'
-                    }`}
-                  >
-                    <div>
-                      <p className="font-semibold text-white text-sm">{rule.name}</p>
-                      {rule.description && (
-                        <p className="text-white/50 text-xs mt-0.5">{rule.description}</p>
-                      )}
-                    </div>
-                    <div className="text-right shrink-0">
-                      {rule.stamp_threshold != null && (
-                        <p className="text-[#8B5CF6] font-bold text-sm">{rule.stamp_threshold} stamps</p>
-                      )}
-                      {rule.points_threshold != null && (
-                        <p className="text-[#8B5CF6] font-bold text-sm">{rule.points_threshold} pts</p>
-                      )}
-                      <p className="text-white/30 text-xs capitalize">{rule.reward_type}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-white/30 text-sm py-2">No reward rules yet.</p>
-            )}
+            <label className="block text-sm font-semibold text-[#374151] mb-1.5">Program name</label>
+            <input name="name" required defaultValue={program.name} className="w-full dark-input" />
           </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-semibold text-[#374151] mb-1.5">Rounds required</label>
+              <input type="number" name="rounds_required" min="1" max="200" required defaultValue={program.rounds_required} className="w-full dark-input" />
+              <p className="text-[#9CA3AF] text-xs mt-1">Rounds needed to earn reward</p>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-[#374151] mb-1.5">Default round value</label>
+              <input type="number" name="default_round_value" min="1" max="5" required defaultValue={program.default_round_value} className="w-full dark-input" />
+              <p className="text-[#9CA3AF] text-xs mt-1">Rounds per scan</p>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-[#374151] mb-1.5">Maximum round value</label>
+            <input type="number" name="max_round_value" min="1" max="10" required defaultValue={program.max_round_value} className="w-full dark-input" />
+            <p className="text-[#9CA3AF] text-xs mt-1">Maximum rounds that can be awarded per scan (e.g. during campaigns)</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-[#374151] mb-1.5">Reward name</label>
+            <input name="reward_name" required defaultValue={program.reward_name} className="w-full dark-input" placeholder="e.g. Free Coffee" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-[#374151] mb-1.5">Reward description</label>
+            <textarea name="reward_description" rows={3} defaultValue={program.reward_description ?? ''} placeholder="Describe the reward for customers" className="w-full dark-input resize-none" />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-[#374151] mb-1.5">Reward expiry (days)</label>
+            <input type="number" name="reward_expiry_days" min="1" max="365" defaultValue={program.reward_expiry_days ?? 30} className="w-full dark-input" />
+            <p className="text-[#9CA3AF] text-xs mt-1">Days until an unlocked reward expires</p>
+          </div>
+
+          <button type="submit" className="btn-primary self-start">Save changes</button>
+        </form>
+      ) : (
+        <div className="flex flex-col gap-4 text-sm">
+          <Row label="Rounds required" value={String(program.rounds_required)} />
+          <Row label="Default round value" value={String(program.default_round_value)} />
+          <Row label="Max round value" value={String(program.max_round_value)} />
+          <Row label="Reward" value={program.reward_name} />
+          {program.reward_description && <Row label="Description" value={program.reward_description} />}
+          {program.reward_expiry_days && <Row label="Expiry" value={`${program.reward_expiry_days} days`} />}
         </div>
-      ))}
+      )}
     </div>
   )
 }
 
-function ProgramSkeleton() {
+function Row({ label, value }: { label: string; value: string }) {
   return (
-    <div className="animate-pulse flex flex-col gap-6">
-      <div className="bg-white/[.07] border border-white/10 rounded-3xl p-6 h-48" />
+    <div className="flex justify-between items-start gap-4 py-2 border-b border-[#F0EDE6] last:border-0">
+      <span className="text-[#6B7280] font-medium shrink-0">{label}</span>
+      <span className="text-[#111111] font-semibold text-right">{value}</span>
     </div>
   )
 }
 
-export default async function ProgramsPage() {
-  const { vendor } = await getPortalData()
+export default async function ProgramsPage({ searchParams }: { searchParams: { error?: string; success?: string } }) {
+  const { vendor, role } = await getPortalData()
 
   return (
     <main className="px-6 pt-10 pb-32">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-lg mx-auto">
         <div className="mb-8">
-          <p className="text-white/40 text-xs font-semibold tracking-widest uppercase mb-1">
-            {vendor.business_name}
-          </p>
-          <h1 className="text-3xl font-extrabold text-white">Programs</h1>
-          <p className="text-white/50 mt-1">Manage your loyalty program structure and rewards</p>
+          <p className="text-[#9CA3AF] text-xs font-semibold tracking-widest uppercase mb-1">{vendor.business_name}</p>
+          <h1 className="text-3xl font-extrabold text-[#111111]">Program</h1>
+          <p className="text-[#6B7280] mt-1">Manage your loyalty program and reward structure</p>
         </div>
 
-        <Suspense fallback={<ProgramSkeleton />}>
-          <ProgramView vendorId={vendor.id} />
+        {searchParams?.error && <div className="mb-5 p-4 bg-red-50 border border-red-200 rounded-2xl text-red-600 text-sm">{searchParams.error}</div>}
+        {searchParams?.success && <div className="mb-5 p-4 bg-green-50 border border-green-200 rounded-2xl text-green-700 text-sm font-semibold">{searchParams.success}</div>}
+
+        <Suspense fallback={
+          <div className="bg-white border border-[#E8E2D9] rounded-3xl p-6 shadow-sm animate-pulse">
+            <div className="h-6 w-40 bg-[#C8C0B4] rounded mb-4" />
+            {[...Array(5)].map((_, i) => <div key={i} className="h-10 bg-[#D8D0C8] rounded-2xl mb-3" />)}
+          </div>
+        }>
+          <ProgramView vendorId={vendor.id} role={role} />
         </Suspense>
       </div>
     </main>
