@@ -109,13 +109,15 @@ struct DashboardView: View {
         guard let userId = sessionManager.session?.user.id else { return }
         isLoading = true
         do {
-            let biz: Business? = try await supabase.database
+            struct BusinessId: Codable { let id: UUID }
+            let businesses: [Business] = try await supabase.database
                 .from("businesses")
                 .select()
                 .eq("owner_id", value: userId)
-                .maybeSingle()
+                .limit(1)
                 .execute()
                 .value
+            let biz = businesses.first
             business = biz
 
             guard let bizId = biz?.id else {
@@ -123,21 +125,25 @@ struct DashboardView: View {
                 return
             }
 
-            let customerCount = try await supabase.database
+            struct IdRow: Codable { let id: UUID }
+            let customerRows: [IdRow] = try await supabase.database
                 .from("vendor_customer_segments")
-                .select("customer_id", head: true, count: CountOption.exact)
+                .select("customer_id")
                 .eq("business_id", value: bizId)
                 .execute()
-                .count ?? 0
+                .value
+            let customerCount = customerRows.count
 
             let weekAgo = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date()) ?? Date(timeIntervalSinceNow: -7 * 24 * 3600)
-            let weekVisits = try await supabase.database
+            struct VisitId: Codable { let id: UUID }
+            let weekVisitRows: [VisitId] = try await supabase.database
                 .from("visit_events")
-                .select("id", head: true, count: CountOption.exact)
+                .select("id")
                 .eq("business_id", value: bizId)
                 .gte("created_at", value: weekAgo.ISO8601Format())
                 .execute()
-                .count ?? 0
+                .value
+            let weekVisits = weekVisitRows.count
 
             struct StampRow: Codable { let stampsAdded: Int; enum CodingKeys: String, CodingKey { case stampsAdded = "stamps_added" } }
             let stampRows: [StampRow] = try await supabase.database
