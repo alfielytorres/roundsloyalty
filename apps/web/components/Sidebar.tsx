@@ -51,10 +51,10 @@ export default function Sidebar() {
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
                 active
-                  ? 'bg-[#111] text-white font-semibold'
-                  : 'text-black/50 hover:bg-black/5 hover:text-black/80'
+                  ? 'bg-[#1D1D1F] text-white font-semibold'
+                  : 'text-black/40 font-medium hover:bg-black/5 hover:text-black/70'
               }`}
             >
               <Icon size={18} strokeWidth={active ? 2.2 : 1.7} />

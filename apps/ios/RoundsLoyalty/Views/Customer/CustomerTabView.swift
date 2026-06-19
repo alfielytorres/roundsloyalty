@@ -38,29 +38,23 @@ struct DarkTabBar: View {
 
     var body: some View {
         ZStack {
-            // Light glass background
             RoundedRectangle(cornerRadius: 28)
-                .fill(Color.white.opacity(0.80))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 28)
-                        .stroke(Color.black.opacity(0.06), lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.10), radius: 20, x: 0, y: -4)
+                .fill(Color.white.opacity(0.85))
+                .overlay(RoundedRectangle(cornerRadius: 28).stroke(Color.white, lineWidth: 1))
+                .shadow(color: .black.opacity(0.08), radius: 20, x: 0, y: -4)
                 .frame(height: 80)
 
             HStack(spacing: 0) {
                 DarkTabItem(icon: "house.fill", label: "Home", tab: .home, tabSelection: tabSelection)
                 DarkTabItem(icon: "map.fill", label: "Discover", tab: .discover, tabSelection: tabSelection)
 
-                // Center scan button
                 Button(action: onScanTap) {
                     ZStack {
                         Circle()
-                            .fill(Color.accentDefault)
-                            .frame(width: 58, height: 58)
-                            .shadow(color: Color.accentDefault.opacity(0.4), radius: 12, x: 0, y: 4)
+                            .fill(Color.black)
+                            .frame(width: 56, height: 56)
                         Image(systemName: "qrcode.viewfinder")
-                            .font(.system(size: 24, weight: .semibold))
+                            .font(.system(size: 22, weight: .semibold))
                             .foregroundColor(.white)
                     }
                 }
@@ -92,10 +86,10 @@ struct DarkTabItem: View {
             VStack(spacing: 3) {
                 Image(systemName: icon)
                     .font(.system(size: 20, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(isSelected ? Color(hex: "#111111") : Color.black.opacity(0.35))
+                    .foregroundColor(isSelected ? Color.black : Color.black.opacity(0.28))
                 Text(label)
                     .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(isSelected ? Color(hex: "#111111") : Color.black.opacity(0.35))
+                    .foregroundColor(isSelected ? Color.black : Color.black.opacity(0.28))
             }
             .frame(maxWidth: .infinity)
             .padding(.top, 12)

@@ -27,44 +27,44 @@ export default function RootPage() {
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-6 bg-[#F0EDE8]">
-      <div className="w-full max-w-sm">
-        <div className="flex flex-col items-center mb-10">
-          <div className="w-16 h-16 rounded-2xl bg-[#111] flex items-center justify-center mb-5 shadow-lg">
-            <span className="text-white text-2xl font-black tracking-tight">R</span>
+    <main className="min-h-screen flex flex-col items-center justify-center px-6 bg-[#F5F5F7]">
+      <div className="w-full max-w-xs">
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-12 h-12 rounded-2xl bg-[#1D1D1F] flex items-center justify-center mb-4">
+            <span className="text-white text-lg font-black tracking-tight">R</span>
           </div>
-          <p className="text-xs font-bold tracking-widest text-black/30 uppercase mb-2">Rounds Vendor</p>
-          <h1 className="text-3xl font-extrabold text-[#111]">Welcome back</h1>
-          <p className="text-black/40 mt-1 text-sm">Sign in to your vendor portal</p>
+          <p className="text-[11px] font-semibold tracking-widest text-black/25 uppercase mb-1.5">Rounds Vendor</p>
+          <h1 className="text-2xl font-bold text-[#1D1D1F]">Welcome back</h1>
+          <p className="text-black/40 mt-0.5 text-sm">Sign in to your vendor portal</p>
         </div>
 
         {error && (
-          <div className="mb-4 rounded-2xl bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-500">{error}</div>
+          <div className="mb-4 rounded-2xl bg-black/5 border border-black/10 px-4 py-3 text-sm text-black/60">{error}</div>
         )}
 
-        <form onSubmit={handleSubmit} className="bg-white/60 backdrop-blur-xl rounded-3xl border border-white/80 shadow-sm p-6 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="bg-white/70 backdrop-blur-xl rounded-3xl border border-white/90 shadow-sm p-5 flex flex-col gap-3">
           <div>
-            <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Email</label>
+            <label className="block text-[11px] font-semibold text-black/35 tracking-widest uppercase mb-1.5">Email</label>
             <input type="email" name="email" required placeholder="you@example.com" disabled={loading}
-              className="w-full bg-white/80 border border-black/10 rounded-2xl px-4 py-3 text-[#111] placeholder-black/25 text-sm focus:outline-none focus:border-[#E8805A]/50 transition-colors" />
+              className="w-full bg-white/80 border border-black/10 rounded-xl px-3.5 py-2.5 text-[#1D1D1F] placeholder-black/25 text-sm focus:outline-none focus:border-black/25 transition-colors" />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Password</label>
+            <label className="block text-[11px] font-semibold text-black/35 tracking-widest uppercase mb-1.5">Password</label>
             <input type="password" name="password" required placeholder="••••••••" disabled={loading}
-              className="w-full bg-white/80 border border-black/10 rounded-2xl px-4 py-3 text-[#111] placeholder-black/25 text-sm focus:outline-none focus:border-[#E8805A]/50 transition-colors" />
+              className="w-full bg-white/80 border border-black/10 rounded-xl px-3.5 py-2.5 text-[#1D1D1F] placeholder-black/25 text-sm focus:outline-none focus:border-black/25 transition-colors" />
           </div>
           <button type="submit" disabled={loading}
-            className="w-full bg-[#111] hover:bg-[#222] disabled:opacity-50 text-white font-bold py-3.5 rounded-2xl transition-colors text-sm tracking-wide mt-1">
-            {loading ? 'Signing in…' : 'Sign in →'}
+            className="w-full bg-[#1D1D1F] hover:bg-black disabled:opacity-40 text-white font-semibold py-3 rounded-xl transition-colors text-sm mt-1">
+            {loading ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
 
-        <p className="text-center text-sm text-black/30 mt-6">
+        <p className="text-center text-[13px] text-black/30 mt-5">
           No account?{' '}
-          <Link href="/sign-up" className="font-semibold text-[#E8805A] hover:opacity-80">Create one free</Link>
+          <Link href="/sign-up" className="font-semibold text-black/60 hover:text-black">Create one free</Link>
         </p>
-        <p className="text-center text-xs text-black/25 mt-2">
-          Customers — use the <span className="text-black/40 font-semibold">Rounds</span> mobile app
+        <p className="text-center text-xs text-black/20 mt-1.5">
+          Customers — use the <span className="text-black/35 font-medium">Rounds</span> mobile app
         </p>
       </div>
     </main>

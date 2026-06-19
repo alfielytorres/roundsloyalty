@@ -3,86 +3,51 @@
 @tailwind utilities;
 
 body {
-  background-color: #F0EDE8;
-  color: #111111;
+  background-color: #F5F5F7;
+  color: #1D1D1F;
   letter-spacing: -0.025em;
 }
 
 html {
-  background-color: #F0EDE8;
+  background-color: #F5F5F7;
 }
 
 :root {
-  --color-bg: #F0EDE8;
-  --color-surface: rgba(255,255,255,0.6);
-  --color-border: rgba(0,0,0,0.06);
-  --color-primary: #E8805A;
-  --color-text: #111111;
+  --color-bg: #F5F5F7;
+  --color-surface: rgba(255,255,255,0.72);
+  --color-border: rgba(0,0,0,0.08);
+  --color-text: #1D1D1F;
   --color-text-secondary: rgba(0,0,0,0.45);
-  --color-text-muted: rgba(0,0,0,0.3);
+  --color-text-muted: rgba(0,0,0,0.28);
 }
 
 @layer components {
-  /* Glass card — frosted white on warm light background */
   .glass {
-    @apply bg-white/60 backdrop-blur-xl rounded-3xl p-6 border border-white/80 shadow-sm;
+    @apply bg-white/70 backdrop-blur-xl rounded-3xl p-6 border border-white/90 shadow-sm;
   }
-  /* Stat cards — radial glow on base colour (iOS widget style) */
-  .card-rose {
-    background: radial-gradient(ellipse at 30% 70%, rgba(251,113,133,0.95) 0%, rgba(190,18,60,0.85) 100%);
-    @apply rounded-3xl p-6 shadow-sm;
-  }
-  .card-teal {
-    background: radial-gradient(ellipse at 30% 70%, rgba(167,139,250,0.95) 0%, rgba(109,40,217,0.85) 100%);
-    @apply rounded-3xl p-6 shadow-sm;
-  }
-  .card-coral {
-    background: radial-gradient(ellipse at 30% 70%, rgba(125,211,252,0.95) 0%, rgba(2,132,199,0.85) 100%);
-    @apply rounded-3xl p-6 shadow-sm;
-  }
-  .card-blue {
-    background: radial-gradient(ellipse at 30% 70%, rgba(203,213,225,0.95) 0%, rgba(71,85,105,0.85) 100%);
-    @apply rounded-3xl p-6 shadow-sm;
-  }
-  /* Live campaign — warm coral accent */
-  .card-gold {
-    background: radial-gradient(ellipse at 30% 70%, rgba(232,128,90,0.18) 0%, rgba(232,128,90,0.05) 100%);
-    @apply backdrop-blur-xl rounded-3xl p-6 border border-[#E8805A]/20 shadow-sm;
-  }
-  .card-dark {
-    @apply glass;
-  }
-  .glass-card {
-    @apply bg-[#1A1A1A] rounded-3xl shadow-sm;
-  }
-  .glass-row {
-    @apply bg-[#1A1A1A] rounded-2xl;
-  }
+  .card-rose  { @apply glass; }
+  .card-teal  { @apply glass; }
+  .card-coral { @apply glass; }
+  .card-blue  { @apply glass; }
+  .card-gold  { @apply glass; }
+  .card-dark  { @apply glass; }
+  .glass-card { @apply glass; }
+  .glass-row  { @apply bg-white/70 backdrop-blur-xl rounded-2xl border border-white/90; }
+
   .dark-input {
-    @apply bg-white/80 border border-black/10 rounded-2xl px-4 py-3 text-[#111] placeholder:text-black/25 focus:outline-none focus:border-[#E8805A]/50 transition-colors w-full;
+    @apply bg-white/80 border border-black/10 rounded-2xl px-4 py-3 text-[#1D1D1F] placeholder:text-black/25 focus:outline-none focus:border-black/30 transition-colors w-full;
   }
-  .skel {
-    @apply bg-white/10 rounded-lg animate-pulse;
-  }
-  .skel-dark {
-    @apply bg-white/5 rounded-lg animate-pulse;
-  }
+  .skel      { @apply bg-black/5 rounded-lg animate-pulse; }
+  .skel-dark { @apply bg-black/5 rounded-lg animate-pulse; }
+
   .btn-primary {
-    @apply bg-[#111] hover:bg-[#222] text-white font-semibold rounded-2xl px-6 py-3 transition-colors;
+    @apply bg-[#1D1D1F] hover:bg-black text-white font-semibold rounded-2xl px-6 py-3 transition-colors;
   }
-  .btn-green {
-    @apply bg-[#E8805A] hover:bg-[#D4724E] text-white font-semibold rounded-2xl px-6 py-3 transition-colors;
-  }
+  .btn-green  { @apply btn-primary; }
   .btn-danger {
-    @apply border border-red-500/30 text-red-400 hover:bg-red-900/30 font-semibold rounded-2xl px-5 py-2.5 transition-colors;
+    @apply border border-black/15 text-black/50 hover:bg-black/5 font-semibold rounded-2xl px-5 py-2.5 transition-colors;
   }
-  .status-pending {
-    @apply bg-amber-900/30 text-amber-400 border border-amber-500/30 text-xs font-semibold px-2.5 py-1 rounded-full;
-  }
-  .status-active {
-    @apply bg-emerald-900/30 text-emerald-400 border border-emerald-500/30 text-xs font-semibold px-2.5 py-1 rounded-full;
-  }
-  .status-inactive {
-    @apply bg-white/5 text-white/30 text-xs font-semibold px-2.5 py-1 rounded-full;
-  }
+  .status-pending  { @apply bg-black/5 text-black/50 border border-black/10 text-xs font-semibold px-2.5 py-1 rounded-full; }
+  .status-active   { @apply bg-black/5 text-black/70 border border-black/10 text-xs font-semibold px-2.5 py-1 rounded-full; }
+  .status-inactive { @apply bg-black/5 text-black/30 text-xs font-semibold px-2.5 py-1 rounded-full; }
 }
