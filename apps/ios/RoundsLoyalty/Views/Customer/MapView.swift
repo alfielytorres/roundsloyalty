@@ -66,13 +66,12 @@ struct DiscoverMapView: View {
 
     private func loadBusinesses() async {
         do {
-            let fetched: [Business] = try await supabase.database
+            let all: [Business] = try await supabase.database
                 .from("businesses")
                 .select("id, name, description, logo_url, address, lat, lng")
-                .not("lat", operator: "is", value: "null")
-                .not("lng", operator: "is", value: "null")
                 .execute()
                 .value
+            let fetched = all.filter { $0.lat != nil && $0.lng != nil }
             businesses = fetched
             if let first = fetched.first(where: { $0.lat != nil && $0.lng != nil }),
                let lat = first.lat, let lng = first.lng {
