@@ -40,7 +40,7 @@ struct DashboardView: View {
                         VStack(spacing: 20) {
                             HStack {
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(business!.name)
+                                    Text(business?.name ?? "")
                                         .font(.title2.bold())
                                         .foregroundColor(.brandDarkGreen)
                                     if let address = business?.address {
@@ -130,7 +130,7 @@ struct DashboardView: View {
                 .execute()
                 .count ?? 0
 
-            let weekAgo = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date())!
+            let weekAgo = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date()) ?? Date(timeIntervalSinceNow: -7 * 24 * 3600)
             let weekVisits = try await supabase
                 .from("visit_events")
                 .select("id", head: true, count: .exact)

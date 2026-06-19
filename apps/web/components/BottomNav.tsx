@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, QrCode, Users, FileCheck, Settings2 } from 'lucide-react'
+import { LayoutDashboard, QrCode, ScanLine, Users, FileCheck, Settings2 } from 'lucide-react'
 
 const items = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Home', color: '#2563EB' },
   { href: '/customers', icon: Users, label: 'Customers', color: '#D97706' },
-  { href: '/stamp', icon: QrCode, label: 'Scan', primary: true, color: '#16A34A' },
+  { href: '/qr', icon: QrCode, label: 'My QR', primary: true, color: '#16A34A' },
+  { href: '/stamp', icon: ScanLine, label: 'Scan', color: '#16A34A' },
   { href: '/claims', icon: FileCheck, label: 'Claims', color: '#DC2626' },
   { href: '/settings', icon: Settings2, label: 'Settings', color: '#6B7280' },
 ]
@@ -19,7 +20,7 @@ export default function BottomNav() {
     <nav className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white border border-[#E8E2D9] rounded-full px-4 py-3 shadow-xl">
       {items.map(({ href, icon: Icon, label, primary, color }) => {
         const active = pathname === href || (!primary && href !== '/dashboard' && pathname.startsWith(href))
-        const scanActive = primary && pathname.startsWith('/stamp')
+        const scanActive = primary && pathname.startsWith(href)
 
         if (primary) {
           return (

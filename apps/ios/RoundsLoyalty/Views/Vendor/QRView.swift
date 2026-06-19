@@ -1,14 +1,15 @@
 import SwiftUI
 import CoreImage
 import CoreImage.CIFilterBuiltins
+import CryptoKit
 
 struct QRView: View {
     @EnvironmentObject var sessionManager: SessionManager
     @State private var business: Business?
     @State private var qrImage: UIImage?
     @State private var isLoading = true
-    @State private var secondsRemaining: Int = 240
-    @State private var timer: Timer?
+    @State private var secondsRemaining: Int = 300
+    @State private var timerTask: Task<Void, Never>?
 
     var body: some View {
         NavigationStack {
@@ -51,7 +52,7 @@ struct QRView: View {
                             ZStack {
                                 Circle().stroke(Color.brandLightGreen, lineWidth: 4)
                                 Circle()
-                                    .trim(from: 0, to: CGFloat(secondsRemaining) / 240)
+                                    .trim(from: 0, to: CGFloat(secondsRemaining) / 300)
                                     .stroke(Color.brandGreen, style: StrokeStyle(lineWidth: 4, lineCap: .round))
                                     .rotationEffect(.degrees(-90))
                                     .animation(.linear(duration: 1), value: secondsRemaining)
@@ -86,7 +87,7 @@ struct QRView: View {
             .navigationTitle("My QR Code")
             .navigationBarTitleDisplayMode(.inline)
             .task { await loadBusiness(); startTimer() }
-            .onDisappear { timer?.invalidate() }
+            .onDisappear { timerTask?.cancel() }
         }
     }
 
@@ -97,16 +98,25 @@ struct QRView: View {
     }
 
     private func startTimer() {
-        timer?.invalidate()
-        secondsRemaining = 240
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
-            if secondsRemaining > 0 { secondsRemaining -= 1 } else { refreshQR() }
+        timerTask?.cancel()
+        secondsRemaining = 300
+        timerTask = Task {
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                guard !Task.isCancelled else { return }
+                if secondsRemaining > 0 {
+                    secondsRemaining -= 1
+                } else {
+                    refreshQR()
+                }
+            }
         }
     }
 
     private func refreshQR() {
-        guard let business = business, let secret = business.qrCodeSecret else { return }
-        let payload = generateQRPayload(businessId: business.id, secret: secret)
+        guard let business = business,
+              let secret = business.qrCodeSecret,
+              let payload = generateQRPayload(businessId: business.id, secret: secret) else { return }
         qrImage = generateQRCode(from: payload)
         startTimer()
     }
@@ -118,17 +128,34 @@ struct QRView: View {
                 .from("businesses").select("id, name, qr_code_secret")
                 .eq("owner_id", value: userId).maybeSingle().execute().value
             business = biz
-            if let biz, let secret = biz.qrCodeSecret {
-                let payload = generateQRPayload(businessId: biz.id, secret: secret)
+            if let biz,
+               let secret = biz.qrCodeSecret,
+               let payload = generateQRPayload(businessId: biz.id, secret: secret) {
                 qrImage = generateQRCode(from: payload)
             }
-        } catch { print("Failed to load business: \(error)") }
+        } catch {
+            print("Failed to load business: \(error)")
+        }
         isLoading = false
     }
 
-    private func generateQRPayload(businessId: UUID, secret: String) -> String {
-        let timestamp = Int(Date().timeIntervalSince1970 / 240)
-        return "\(businessId.uuidString):\(secret):\(timestamp)"
+    private func generateQRPayload(businessId: UUID, secret: String) -> String? {
+        let timestamp = Int(Date().timeIntervalSince1970 * 1000)
+        let nonce = UUID().uuidString
+        let message = "\(businessId.uuidString):\(timestamp):\(nonce)"
+        guard let secretData = secret.data(using: .utf8),
+              let messageData = message.data(using: .utf8) else { return nil }
+        let key = SymmetricKey(data: secretData)
+        let signature = HMAC<SHA256>.authenticationCode(for: messageData, using: key)
+        let hmac = Data(signature).base64EncodedString()
+        let dict: [String: Any] = [
+            "business_id": businessId.uuidString,
+            "timestamp": timestamp,
+            "nonce": nonce,
+            "hmac": hmac,
+        ]
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: dict) else { return nil }
+        return jsonData.base64EncodedString()
     }
 
     private func generateQRCode(from string: String) -> UIImage? {

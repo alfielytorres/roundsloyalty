@@ -16,7 +16,7 @@ struct DiscoverMapView: View {
         NavigationStack {
             ZStack(alignment: .bottom) {
                 Map(coordinateRegion: $region, annotationItems: businesses.filter { $0.lat != nil && $0.lng != nil }) { biz in
-                    MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: biz.lat!, longitude: biz.lng!)) {
+                    MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: biz.lat ?? 0, longitude: biz.lng ?? 0)) {
                         BusinessMapPin(business: biz, isSelected: selectedBusiness?.id == biz.id)
                             .onTapGesture {
                                 withAnimation { selectedBusiness = biz }
@@ -73,8 +73,9 @@ struct DiscoverMapView: View {
                 .execute()
                 .value
             businesses = fetched
-            if let first = fetched.first(where: { $0.lat != nil && $0.lng != nil }) {
-                region.center = CLLocationCoordinate2D(latitude: first.lat!, longitude: first.lng!)
+            if let first = fetched.first(where: { $0.lat != nil && $0.lng != nil }),
+               let lat = first.lat, let lng = first.lng {
+                region.center = CLLocationCoordinate2D(latitude: lat, longitude: lng)
             }
         } catch {
             print("Failed to load businesses: \(error)")
