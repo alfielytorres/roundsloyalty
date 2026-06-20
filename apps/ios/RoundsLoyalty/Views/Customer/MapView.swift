@@ -107,7 +107,7 @@ struct DiscoverMapView: View {
             .navigationTitle("Discover")
             .navigationBarTitleDisplayMode(.inline)
             .task { await loadVendors() }
-            .onChange(of: locationManager.userLocation) { coord in
+            .onChange(of: locationManager.userLocation) { _, coord in
                 guard let coord = coord else { return }
                 if !didCenterOnUser {
                     didCenterOnUser = true

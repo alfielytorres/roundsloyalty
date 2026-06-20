@@ -202,7 +202,7 @@ struct VendorDetailView: View {
     }
 
     private func loadAvailableReward() async {
-        availableReward = try? await supabase.database
+        let results: [RewardInstance] = (try? await supabase.database
             .from("reward_instances")
             .select("*, vendors(*), reward_collections(*)")
             .eq("vendor_id", value: membership.vendorId)
@@ -210,7 +210,8 @@ struct VendorDetailView: View {
             .eq("status", value: "available")
             .limit(1)
             .execute()
-            .value as RewardInstance?
+            .value) ?? []
+        availableReward = results.first
     }
 }
 
