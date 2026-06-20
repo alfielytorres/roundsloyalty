@@ -34,7 +34,7 @@ export default function Sidebar() {
     <aside className="hidden lg:flex fixed left-0 top-0 h-full w-60 bg-white/50 backdrop-blur-xl border-r border-black/5 flex-col z-40">
       <div className="px-5 py-5 border-b border-black/5">
         <div className="flex items-center gap-3">
-          <Image src="/logo.png" alt="Rounds" width={28} height={28} className="opacity-90" />
+          <Image src="/logo.svg" alt="Rounds" width={28} height={28} className="opacity-90" />
           <div>
             <span className="font-black text-[#111] tracking-wider text-sm">ROUND REWARDS</span>
             <span className="block text-[10px] text-black/30 font-semibold tracking-widest uppercase leading-none">VENDOR</span>
