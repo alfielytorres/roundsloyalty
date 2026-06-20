@@ -4,6 +4,7 @@ struct CustomerTabView: View {
     @EnvironmentObject var sessionManager: SessionManager
     @StateObject private var tabSelection = TabSelection()
     @State private var showScan = false
+    @State private var homeRefreshID = UUID()
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -11,9 +12,9 @@ struct CustomerTabView: View {
 
             Group {
                 switch tabSelection.tab {
-                case .home:     HomeView()
+                case .home:     HomeView().id(homeRefreshID)
                 case .discover: DiscoverMapView()
-                case .scan:     HomeView() // scan opens as modal
+                case .scan:     HomeView()
                 case .rewards:  RewardsView()
                 case .profile:  CustomerProfileView()
                 }
@@ -24,7 +25,7 @@ struct CustomerTabView: View {
             DarkTabBar(tabSelection: tabSelection, onScanTap: { showScan = true })
         }
         .ignoresSafeArea(edges: .bottom)
-        .sheet(isPresented: $showScan) {
+        .sheet(isPresented: $showScan, onDismiss: { homeRefreshID = UUID() }) {
             ScanQRSheet()
         }
     }
