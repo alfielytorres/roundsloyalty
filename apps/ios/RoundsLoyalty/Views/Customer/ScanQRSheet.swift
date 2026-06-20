@@ -33,17 +33,21 @@ struct ScanQRSheet: View {
                     MVPScanView(onAwardResult: { result, vendor in
                         awardResult = result
                         awardVendor = vendor
-                        showNFC = true
+                        withAnimation { showNFC = true }
                     })
                 }
             }
-        }
-        .fullScreenCover(isPresented: $showNFC) {
-            if let result = awardResult {
+
+            // Show result overlay inside the same sheet to avoid SwiftUI fullScreenCover-in-sheet bug
+            if showNFC, let result = awardResult {
                 NFCReceiveView(result: result, vendor: awardVendor) {
-                    showNFC = false
-                    awardResult = nil
+                    withAnimation { showNFC = false }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                        awardResult = nil
+                    }
                 }
+                .transition(.opacity)
+                .zIndex(1)
             }
         }
     }
