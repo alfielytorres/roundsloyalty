@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
 export default function SignUpPage() {
@@ -31,9 +32,7 @@ export default function SignUpPage() {
     <main className="min-h-screen flex flex-col items-center justify-center px-6 bg-[#F5F5F7]">
       <div className="w-full max-w-xs">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-2xl bg-[#1D1D1F] flex items-center justify-center mb-4">
-            <span className="text-white text-lg font-black tracking-tight">R</span>
-          </div>
+          <Image src="/logo.png" alt="Rounds" width={44} height={44} className="mb-4" />
           <p className="text-[11px] font-semibold tracking-widest text-black/25 uppercase mb-1.5">Rounds Vendor</p>
           <h1 className="text-2xl font-bold text-[#1D1D1F]">Create account</h1>
           <p className="text-black/40 mt-0.5 text-sm">Set up your vendor portal</p>

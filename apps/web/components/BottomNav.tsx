@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { LayoutDashboard, QrCode, PackageCheck, Megaphone, Settings2 } from 'lucide-react'
 
@@ -24,7 +25,7 @@ export default function BottomNav() {
           return (
             <Link key={href} href={href} title={label}
               className="flex items-center justify-center w-12 h-12 -mt-6 rounded-full bg-[#1D1D1F] hover:bg-black shadow-md transition-all mx-2">
-              <Icon size={20} strokeWidth={2.2} className="text-white" />
+              <Image src="/logo.png" alt="Rounds" width={22} height={22} className="invert" />
             </Link>
           )
         }

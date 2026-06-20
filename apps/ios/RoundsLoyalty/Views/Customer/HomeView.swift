@@ -33,9 +33,10 @@ struct HomeView: View {
 
                     // Top bar
                     HStack {
-                        Text("Rounds")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.primaryText)
+                        Image("AppLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 26, height: 26)
                         Spacer()
                     }
                     .padding(.horizontal, 20)

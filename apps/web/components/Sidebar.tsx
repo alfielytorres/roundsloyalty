@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
@@ -33,9 +34,7 @@ export default function Sidebar() {
     <aside className="hidden lg:flex fixed left-0 top-0 h-full w-60 bg-white/50 backdrop-blur-xl border-r border-black/5 flex-col z-40">
       <div className="px-5 py-5 border-b border-black/5">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-[#111] flex items-center justify-center shadow-sm">
-            <span className="text-white font-black text-sm">R</span>
-          </div>
+          <Image src="/logo.png" alt="Rounds" width={28} height={28} className="opacity-90" />
           <div>
             <span className="font-black text-[#111] tracking-wider text-sm">ROUNDS</span>
             <span className="block text-[10px] text-black/30 font-semibold tracking-widest uppercase leading-none">VENDOR</span>
