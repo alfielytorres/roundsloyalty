@@ -1,9 +1,11 @@
 import { getPortalData } from '@/lib/portal-data'
 import { LogOut, QrCode } from 'lucide-react'
 import Link from 'next/link'
+import BrandingEditor from './BrandingEditor'
+import AddressAutocomplete from './AddressAutocomplete'
 
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ error?: string; success?: string }> }) {
-  const { user, vendor } = await getPortalData()
+  const { user, vendor, program } = await getPortalData()
   const query = await searchParams
 
   return (
@@ -34,21 +36,24 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </div>
             <div>
               <label className="block text-[11px] font-semibold text-black/35 tracking-widest uppercase mb-1.5">Address</label>
-              <input name="address" defaultValue={vendor.address ?? ''} placeholder="123 Main St, City" className="w-full dark-input" />
+              <AddressAutocomplete
+                defaultValue={vendor.address ?? ''}
+                defaultLat={vendor.lat ?? undefined}
+                defaultLng={vendor.lng ?? undefined}
+              />
               <p className="text-black/30 text-xs mt-1">Shown on the map in the customer app.</p>
             </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-black/35 tracking-widest uppercase mb-1.5">Logo URL</label>
-              <input name="logo_url" type="url" defaultValue={vendor.logo_url ?? ''} placeholder="https://..." className="w-full dark-input" />
-            </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-black/35 tracking-widest uppercase mb-1.5">Brand colour</label>
-              <div className="flex items-center gap-2">
-                <input type="color" name="brand_color" defaultValue={vendor.brand_color ?? '#1D1D1F'} className="w-10 h-10 rounded-xl border border-black/10 cursor-pointer p-1 bg-white" />
-                <input name="brand_color_text" defaultValue={vendor.brand_color ?? '#1D1D1F'} placeholder="#1D1D1F" className="flex-1 dark-input" />
-              </div>
-            </div>
-            <button type="submit" className="btn-primary self-start text-sm py-2.5 px-5">Save changes</button>
+
+            {/* Branding section — logo + colour + live preview */}
+            <BrandingEditor
+              defaultLogoUrl={vendor.logo_url ?? ''}
+              defaultBrandColor={vendor.brand_color ?? '#1D1D1F'}
+              vendorName={vendor.business_name}
+              rewardName={program?.reward_name ?? 'Free item'}
+              roundsRequired={program?.rounds_required ?? 10}
+            />
+
+            <button type="submit" className="btn-primary self-start text-sm py-2.5 px-5 mt-1">Save changes</button>
           </form>
         </div>
 

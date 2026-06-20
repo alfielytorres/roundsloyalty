@@ -29,7 +29,12 @@ export async function POST(req: NextRequest) {
     .limit(1)
     .maybeSingle()
 
-  if (!staffRecord || (staffRecord.role !== 'owner' && staffRecord.role !== 'manager')) {
+  let vendorId = (staffRecord?.role === 'owner' || staffRecord?.role === 'manager') ? staffRecord.vendor_id : null
+  if (!vendorId) {
+    const { data: owned } = await supabase.from('vendors').select('id').eq('owner_id', user.id).limit(1).maybeSingle()
+    vendorId = owned?.id ?? null
+  }
+  if (!vendorId) {
     return NextResponse.redirect(new URL('/settings?error=' + encodeURIComponent('Permission denied.'), req.url))
   }
 
@@ -55,7 +60,7 @@ export async function POST(req: NextRequest) {
       logo_url,
       brand_color,
     })
-    .eq('id', staffRecord.vendor_id)
+    .eq('id', vendorId)
 
   if (error) {
     return NextResponse.redirect(new URL('/settings?error=' + encodeURIComponent(error.message), req.url))

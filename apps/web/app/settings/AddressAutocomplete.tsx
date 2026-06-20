@@ -11,13 +11,15 @@ interface Suggestion {
 
 interface Props {
   defaultValue?: string
+  defaultLat?: number
+  defaultLng?: number
 }
 
-export default function AddressAutocomplete({ defaultValue = '' }: Props) {
+export default function AddressAutocomplete({ defaultValue = '', defaultLat, defaultLng }: Props) {
   const [value, setValue] = useState(defaultValue)
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
-  const [lat, setLat] = useState('')
-  const [lng, setLng] = useState('')
+  const [lat, setLat] = useState(defaultLat?.toString() ?? '')
+  const [lng, setLng] = useState(defaultLng?.toString() ?? '')
   const [loading, setLoading] = useState(false)
   const [open, setOpen] = useState(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
