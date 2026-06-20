@@ -17,7 +17,7 @@ export const getPortalData = cache(async () => {
   // Find vendor via staff record
   const { data: staffRecord } = await supabase
     .from('vendor_staff')
-    .select('vendor_id, role, vendors(id, business_name, description, category, status, brand_color, join_token, address, logo_url)')
+    .select('vendor_id, role, vendors(id, business_name, description, category, status, brand_color, join_token, address, logo_url, lat, lng)')
     .eq('user_id', user.id)
     .eq('status', 'active')
     .limit(1)
@@ -27,6 +27,7 @@ export const getPortalData = cache(async () => {
     id: string; business_name: string; description: string | null
     category: string | null; status: string; brand_color: string | null
     join_token: string | null; address: string | null; logo_url: string | null
+    lat: number | null; lng: number | null
   }
 
   if (staffRecord?.vendors) {
@@ -36,7 +37,7 @@ export const getPortalData = cache(async () => {
   // Fallback: user is owner but staff record missing
   const { data: ownedVendor } = await supabase
     .from('vendors')
-    .select('id, business_name, description, category, status, brand_color, join_token, address, logo_url')
+    .select('id, business_name, description, category, status, brand_color, join_token, address, logo_url, lat, lng')
     .eq('owner_id', user.id)
     .limit(1)
     .maybeSingle()

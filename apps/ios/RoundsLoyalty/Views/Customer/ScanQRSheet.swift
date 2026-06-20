@@ -136,28 +136,25 @@ struct MVPScanView: View {
     }
 
     private func processPayload(_ payload: String) async {
-        guard let session = sessionManager.session else { return }
+        guard sessionManager.session != nil else { return }
         scanState = .processing
 
-        struct AwardParams: Encodable {
+        struct QRParams: Encodable {
             let qr_payload: String
         }
 
         do {
             let result: AwardResult = try await supabase.database
-                .rpc("award_rounds", params: AwardParams(qr_payload: payload))
+                .rpc("award_rounds", params: QRParams(qr_payload: payload))
                 .execute()
                 .value
 
-            // Try to fetch vendor info for the NFC view (best-effort)
-            let vendors: [Vendor]? = try? await supabase.database
-                .from("vendors")
-                .select("*")
-                .eq("id", value: result.membershipId)
-                .limit(1)
-                .execute()
-                .value
-            let vendor: Vendor? = vendors?.first
+            // Build a lightweight Vendor from the result's embedded vendor info
+            let vendor: Vendor? = result.vendor.map {
+                Vendor(id: $0.id, businessName: $0.businessName, description: nil,
+                       category: nil, logoUrl: nil, brandColor: $0.brandColor,
+                       address: nil, lat: nil, lng: nil, joinToken: nil, status: "active")
+            }
 
             await MainActor.run {
                 scanState = .idle

@@ -7,6 +7,7 @@ struct AwardResult: Codable {
     let balance: BalanceInfo
     let rewardsUnlocked: Int
     let membershipId: UUID
+    let vendor: VendorInfo?
 
     struct BalanceInfo: Codable {
         let currentRounds: Int
@@ -18,6 +19,18 @@ struct AwardResult: Codable {
         }
     }
 
+    struct VendorInfo: Codable {
+        let id: UUID
+        let businessName: String
+        let brandColor: String?
+
+        enum CodingKeys: String, CodingKey {
+            case id
+            case businessName = "business_name"
+            case brandColor = "brand_color"
+        }
+    }
+
     enum CodingKeys: String, CodingKey {
         case roundsAwarded = "rounds_awarded"
         case campaignId = "campaign_id"
@@ -25,5 +38,6 @@ struct AwardResult: Codable {
         case balance
         case rewardsUnlocked = "rewards_unlocked"
         case membershipId = "membership_id"
+        case vendor
     }
 }

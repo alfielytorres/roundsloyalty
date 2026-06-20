@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
@@ -15,6 +16,12 @@ export async function POST(req: NextRequest) {
         },
       },
     },
+  )
+  // Service role client for the award RPC (bypasses auth.uid() check in DB;
+  // staff/owner validation is already done above in application code).
+  const adminSupabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
   )
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -50,10 +57,10 @@ export async function POST(req: NextRequest) {
 
   if (!customerToken) return NextResponse.json({ error: 'customer_token is required' }, { status: 400 })
 
-  const { data, error } = await supabase.rpc('award_rounds', {
+  const { data, error } = await adminSupabase.rpc('award_rounds', {
     p_customer_token: customerToken,
     p_vendor_id: vendorId,
-    p_source: source,
+    p_source: 'server_stamp',
     p_staff_user_id: user.id,
     p_idempotency_key: idempotencyKey,
   })

@@ -1,6 +1,7 @@
 import { getPortalData } from '@/lib/portal-data'
 import { LogOut, QrCode } from 'lucide-react'
 import Link from 'next/link'
+import AddressAutocomplete from './AddressAutocomplete'
 
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ error?: string; success?: string }> }) {
   const { user, vendor } = await getPortalData()
@@ -34,7 +35,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             </div>
             <div>
               <label className="block text-[11px] font-semibold text-black/35 tracking-widest uppercase mb-1.5">Address</label>
-              <input name="address" defaultValue={vendor.address ?? ''} placeholder="123 Main St, City" className="w-full dark-input" />
+              <AddressAutocomplete defaultValue={vendor.address ?? ''} defaultLat={vendor.lat ?? undefined} defaultLng={vendor.lng ?? undefined} />
               <p className="text-black/30 text-xs mt-1">Shown on the map in the customer app.</p>
             </div>
             <div>
