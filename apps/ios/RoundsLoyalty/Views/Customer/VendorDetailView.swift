@@ -1,10 +1,22 @@
 import SwiftUI
 
+struct RoundTransaction: Identifiable, Decodable {
+    let id: UUID
+    let roundsAwarded: Int
+    let createdAt: Date
+    enum CodingKeys: String, CodingKey {
+        case id
+        case roundsAwarded = "rounds_awarded"
+        case createdAt = "created_at"
+    }
+}
+
 struct VendorDetailView: View {
     let membership: Membership
     @Environment(\.dismiss) private var dismiss
     @State private var showCollection = false
     @State private var availableReward: RewardInstance?
+    @State private var recentStamps: [RoundTransaction] = []
 
     private var accent: Color {
         Color.vendorAccent(membership.vendor?.brandColor)
@@ -158,15 +170,33 @@ struct VendorDetailView: View {
                                 .darkGlassCard()
                             }
 
-                            // Transaction history placeholder
-                            VStack(alignment: .leading, spacing: 8) {
+                            // Recent stamps
+                            VStack(alignment: .leading, spacing: 10) {
                                 Text("RECENT ACTIVITY")
                                     .font(.system(size: 11, weight: .semibold))
                                     .foregroundColor(.secondaryText)
-                                Text("Transaction history coming soon")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondaryText)
-                                    .padding(.top, 4)
+                                if recentStamps.isEmpty {
+                                    Text("No stamps yet")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondaryText)
+                                        .padding(.top, 4)
+                                } else {
+                                    ForEach(recentStamps) { tx in
+                                        HStack {
+                                            Image(systemName: "seal.fill")
+                                                .font(.system(size: 13))
+                                                .foregroundColor(accent)
+                                            Text("+\(tx.roundsAwarded) round\(tx.roundsAwarded == 1 ? "" : "s")")
+                                                .font(.system(size: 14, weight: .semibold))
+                                                .foregroundColor(.primaryText)
+                                            Spacer()
+                                            Text(tx.createdAt.relativeLabel)
+                                                .font(.system(size: 12))
+                                                .foregroundColor(.secondaryText)
+                                        }
+                                        .padding(.vertical, 2)
+                                    }
+                                }
                             }
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(16)
@@ -202,7 +232,7 @@ struct VendorDetailView: View {
     }
 
     private func loadAvailableReward() async {
-        let results: [RewardInstance] = (try? await supabase.database
+        async let rewardTask: [RewardInstance] = (try? await supabase.database
             .from("reward_instances")
             .select("*, vendors(*), reward_collections(*)")
             .eq("vendor_id", value: membership.vendorId)
@@ -211,7 +241,27 @@ struct VendorDetailView: View {
             .limit(1)
             .execute()
             .value) ?? []
-        availableReward = results.first
+        async let stampsTask: [RoundTransaction] = (try? await supabase.database
+            .from("round_transactions")
+            .select("id, rounds_awarded, created_at")
+            .eq("membership_id", value: membership.id)
+            .order("created_at", ascending: false)
+            .limit(10)
+            .execute()
+            .value) ?? []
+        availableReward = await rewardTask.first
+        recentStamps = await stampsTask
+    }
+}
+
+private extension Date {
+    var relativeLabel: String {
+        let diff = Date().timeIntervalSince(self)
+        if diff < 60 { return "just now" }
+        if diff < 3600 { return "\(Int(diff / 60))m ago" }
+        if diff < 86400 { return "\(Int(diff / 3600))h ago" }
+        let days = Int(diff / 86400)
+        return days == 1 ? "Yesterday" : "\(days)d ago"
     }
 }
 

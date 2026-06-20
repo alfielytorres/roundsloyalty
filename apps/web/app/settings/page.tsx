@@ -1,11 +1,10 @@
 import { getPortalData } from '@/lib/portal-data'
 import { LogOut, QrCode } from 'lucide-react'
 import Link from 'next/link'
-import BrandingEditor from './BrandingEditor'
 import AddressAutocomplete from './AddressAutocomplete'
 
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ error?: string; success?: string }> }) {
-  const { user, vendor, program } = await getPortalData()
+  const { user, vendor } = await getPortalData()
   const query = await searchParams
 
   return (
@@ -43,15 +42,6 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               />
               <p className="text-black/30 text-xs mt-1">Shown on the map in the customer app.</p>
             </div>
-
-            {/* Branding section — logo + colour + live preview */}
-            <BrandingEditor
-              defaultLogoUrl={vendor.logo_url ?? ''}
-              defaultBrandColor={vendor.brand_color ?? '#1D1D1F'}
-              vendorName={vendor.business_name}
-              rewardName={program?.reward_name ?? 'Free item'}
-              roundsRequired={program?.rounds_required ?? 10}
-            />
 
             <button type="submit" className="btn-primary self-start text-sm py-2.5 px-5 mt-1">Save changes</button>
           </form>
