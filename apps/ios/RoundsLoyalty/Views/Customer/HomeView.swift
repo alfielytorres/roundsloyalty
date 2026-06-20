@@ -132,7 +132,7 @@ struct HomeView: View {
             .from("reward_instances")
             .select("*, vendors(id, business_name)")
             .eq("customer_id", value: userId)
-            .in("status", values: ["available", "collection_requested", "ready"]).execute().value) ?? []
+            .in("status", value: ["available", "collection_requested", "ready"]).execute().value) ?? []
         memberships = await membershipsTask
         rewards = await rewardsTask
         isLoading = false
