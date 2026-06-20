@@ -154,7 +154,7 @@ export default async function DashboardPage() {
     <main className="min-h-screen px-6 pt-10 pb-32">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
-          <p className="text-xs tracking-widest uppercase text-black/25 font-semibold mb-1">Rounds Vendor</p>
+          <p className="text-xs tracking-widest uppercase text-black/25 font-semibold mb-1">Round Rewards</p>
           <h1 className="text-3xl font-extrabold text-[#1D1D1F]">{vendor.business_name}</h1>
         </div>
 

@@ -36,7 +36,7 @@ export default function Sidebar() {
         <div className="flex items-center gap-3">
           <Image src="/logo.png" alt="Rounds" width={28} height={28} className="opacity-90" />
           <div>
-            <span className="font-black text-[#111] tracking-wider text-sm">ROUNDS</span>
+            <span className="font-black text-[#111] tracking-wider text-sm">ROUND REWARDS</span>
             <span className="block text-[10px] text-black/30 font-semibold tracking-widest uppercase leading-none">VENDOR</span>
           </div>
         </div>
@@ -64,7 +64,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="px-4 py-4 border-t border-black/5">
-        <p className="text-xs text-black/25 font-medium">© 2025 Rounds Loyalty</p>
+        <p className="text-xs text-black/25 font-medium">© 2025 Round Rewards</p>
       </div>
     </aside>
   )

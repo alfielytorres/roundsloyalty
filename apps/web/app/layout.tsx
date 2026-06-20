@@ -4,7 +4,7 @@ import ConditionalNav from '@/components/ConditionalNav'
 import LayoutShell from '@/components/LayoutShell'
 
 export const metadata: Metadata = {
-  title: 'Rounds Loyalty — Vendor Portal',
+  title: 'Round Rewards — Vendor Portal',
   description: 'Manage your loyalty program and reward your customers',
   icons: { icon: '/logo.png', apple: '/logo.png' },
 }

@@ -108,7 +108,7 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
     <main className="min-h-screen px-6 pt-10 pb-32">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
-          <p className="text-xs tracking-widest uppercase text-black/30 font-semibold mb-1">ROUNDS VENDOR</p>
+          <p className="text-xs tracking-widest uppercase text-black/30 font-semibold mb-1">ROUND REWARDS</p>
           <h1 className="text-2xl font-bold text-[#1D1D1F]">Campaigns</h1>
           <p className="text-black/40 text-sm mt-0.5">Run bonus round events to reward loyal customers</p>
         </div>

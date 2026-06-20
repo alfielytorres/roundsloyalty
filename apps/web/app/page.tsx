@@ -32,7 +32,7 @@ export default function RootPage() {
       <div className="w-full max-w-xs">
         <div className="flex flex-col items-center mb-8">
           <Image src="/logo.png" alt="Rounds" width={44} height={44} className="mb-4" />
-          <p className="text-[11px] font-semibold tracking-widest text-black/25 uppercase mb-1.5">Rounds Vendor</p>
+          <p className="text-[11px] font-semibold tracking-widest text-black/25 uppercase mb-1.5">Round Rewards</p>
           <h1 className="text-2xl font-bold text-[#1D1D1F]">Welcome back</h1>
           <p className="text-black/40 mt-0.5 text-sm">Sign in to your vendor portal</p>
         </div>
