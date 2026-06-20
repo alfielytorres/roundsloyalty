@@ -150,7 +150,7 @@ struct MVPScanView: View {
                 .value
 
             // Try to fetch vendor info for the NFC view (best-effort)
-            let vendors: [Vendor]? = try? await supabase
+            let vendors: [Vendor]? = try? await supabase.database
                 .from("vendors")
                 .select("*")
                 .eq("id", value: result.membershipId)
