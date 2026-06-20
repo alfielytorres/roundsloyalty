@@ -23,11 +23,13 @@ struct AwardResult: Codable {
         let id: UUID
         let businessName: String
         let brandColor: String?
+        let roundsRequired: Int?
 
         enum CodingKeys: String, CodingKey {
             case id
             case businessName = "business_name"
             case brandColor = "brand_color"
+            case roundsRequired = "rounds_required"
         }
     }
 

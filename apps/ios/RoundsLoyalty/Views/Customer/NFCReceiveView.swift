@@ -73,7 +73,8 @@ struct NFCReceiveView: View {
                 // Progress
                 if showProgress {
                     VStack(spacing: 6) {
-                        Text("\(result.balance.currentRounds) / ? ROUNDS")
+                        let required = result.vendor?.roundsRequired.map { String($0) } ?? "?"
+                        Text("\(result.balance.currentRounds) / \(required) ROUNDS")
                             .font(.system(size: 20, weight: .semibold, design: .rounded))
                             .foregroundColor(.primaryText)
                             .transition(.opacity.combined(with: .scale))
