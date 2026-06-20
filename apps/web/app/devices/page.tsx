@@ -152,10 +152,7 @@ export default async function DevicesPage({ searchParams }: { searchParams: Prom
           </form>
         </div>
 
-        <Suspense fallback={
-          
-          </div>
-        }>
+        <Suspense fallback={null}>
           <DeviceList vendorId={vendor.id} />
         </Suspense>
       </div>

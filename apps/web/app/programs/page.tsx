@@ -150,9 +150,7 @@ export default async function ProgramsPage({ searchParams }: { searchParams: Pro
         {query.error && <div className="mb-5 p-4 bg-black/5 border border-black/10 rounded-2xl text-black/60 text-sm">{query.error}</div>}
         {query.success && <div className="mb-5 p-4 bg-black/5 border border-black/15 rounded-2xl text-black/70 text-sm font-semibold">{query.success}</div>}
 
-        <Suspense fallback={
-          
-        }>
+        <Suspense fallback={null}>
           <ProgramView vendorId={vendor.id} role={role} />
         </Suspense>
       </div>

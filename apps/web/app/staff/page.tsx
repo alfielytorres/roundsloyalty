@@ -160,9 +160,7 @@ export default async function StaffPage({ searchParams }: { searchParams: Promis
           </div>
         )}
 
-        <Suspense fallback={
-          
-        }>
+        <Suspense fallback={null}>
           <StaffList vendorId={vendor.id} currentRole={role} />
         </Suspense>
       </div>
