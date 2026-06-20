@@ -18,5 +18,5 @@ const PORTAL_PREFIXES = [
 export default function LayoutShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isPortal = PORTAL_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'))
-  return <div className={isPortal ? 'lg:pl-60' : ''}>{children}</div>
+  return <div className={isPortal ? 'lg:pl-60 pb-24 lg:pb-0' : ''}>{children}</div>
 }

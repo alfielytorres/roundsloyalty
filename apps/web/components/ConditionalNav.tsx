@@ -1,7 +1,7 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import BottomNav from './BottomNav'
+import MobileNav from './MobileNav'
 import Sidebar from './Sidebar'
 
 const PORTAL_ROUTES = [
@@ -24,7 +24,7 @@ export default function ConditionalNav() {
   return (
     <>
       <Sidebar />
-      <BottomNav />
+      <MobileNav />
     </>
   )
 }

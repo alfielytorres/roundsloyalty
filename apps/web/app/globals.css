@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .pb-safe {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}
+
 body {
   background-color: #F5F5F7;
   color: #1D1D1F;

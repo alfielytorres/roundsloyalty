@@ -45,13 +45,44 @@ async function ProgramView({ vendorId, role }: { vendorId: string; role: string 
       )
     }
     return (
-      <div className="glass rounded-3xl px-6 py-16 text-center ">
-        <Award className="mx-auto text-black/35 mb-4" size={40} />
-        <h3 className="text-[#1D1D1F] font-semibold mb-2">No program yet</h3>
-        <p className="text-black/35 text-sm mb-6">Create your loyalty program to start rewarding customers.</p>
-        <form action="/api/programs/upsert" method="POST">
+      <div className="glass p-6">
+        <div className="text-center mb-8">
+          <Award className="mx-auto text-black/20 mb-3" size={36} />
+          <h3 className="text-[#1D1D1F] font-bold text-lg mb-1">Set up your loyalty program</h3>
+          <p className="text-black/35 text-sm">Define how customers earn rounds and what reward they get</p>
+        </div>
+        <form action="/api/programs/upsert" method="POST" className="flex flex-col gap-4">
           <input type="hidden" name="vendor_id" value={vendorId} />
-          <button type="submit" className="btn-primary">Create program</button>
+          <div>
+            <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Program name</label>
+            <input name="name" required placeholder="e.g. Coffee Club" className="dark-input w-full" />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Rounds to earn reward</label>
+              <input type="number" name="rounds_required" min="1" max="200" required defaultValue={10} className="dark-input w-full" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Rounds per scan</label>
+              <input type="number" name="default_round_value" min="1" max="5" required defaultValue={1} className="dark-input w-full" />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Max rounds per scan</label>
+            <input type="number" name="max_round_value" min="1" max="10" required defaultValue={5} className="dark-input w-full" />
+            <p className="text-black/30 text-xs mt-1.5">Maximum during bonus campaigns</p>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Reward name</label>
+            <input name="reward_name" required placeholder="e.g. Free Coffee" className="dark-input w-full" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Reward description (optional)</label>
+            <textarea name="reward_description" rows={2} placeholder="Describe what customers get" className="dark-input w-full resize-none" />
+          </div>
+          <button type="submit" className="w-full py-3 rounded-2xl bg-[#1D1D1F] text-white font-semibold text-sm hover:bg-black transition-colors mt-2">
+            Create program
+          </button>
         </form>
       </div>
     )

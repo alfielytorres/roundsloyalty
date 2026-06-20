@@ -12,7 +12,7 @@ interface Membership {
   current_rounds: number
   lifetime_rounds: number
   activated_at: string | null
-  profiles: { display_name: string | null } | null
+  profiles: { display_name: string | null } | { display_name: string | null }[] | null
 }
 
 const statusBadge: Record<string, string> = {
