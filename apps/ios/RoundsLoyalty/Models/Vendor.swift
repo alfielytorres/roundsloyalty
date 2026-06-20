@@ -11,7 +11,7 @@ struct Vendor: Codable, Identifiable {
     let lat: Double?
     let lng: Double?
     let joinToken: String?
-    let status: String
+    let status: String?
 
     enum CodingKeys: String, CodingKey {
         case id
