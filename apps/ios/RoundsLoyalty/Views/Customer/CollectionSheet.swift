@@ -124,7 +124,7 @@ struct CollectionSheet: View {
                 let membership_id: UUID
                 let note: String?
             }
-            try await supabase
+            try await supabase.database
                 .rpc("request_reward_collection", params: Params(
                     membership_id: membership.id,
                     note: note.isEmpty ? nil : note

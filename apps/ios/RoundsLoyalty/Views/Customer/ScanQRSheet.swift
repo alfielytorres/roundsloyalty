@@ -144,7 +144,7 @@ struct MVPScanView: View {
         }
 
         do {
-            let result: AwardResult = try await supabase
+            let result: AwardResult = try await supabase.database
                 .rpc("award_rounds", params: AwardParams(qr_payload: payload))
                 .execute()
                 .value
