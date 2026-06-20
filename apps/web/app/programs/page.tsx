@@ -12,7 +12,6 @@ interface LoyaltyProgram {
   reward_description: string | null
   reward_expiry_days: number | null
   default_round_value: number
-  max_round_value: number
   status: string
 }
 
@@ -26,7 +25,7 @@ async function ProgramView({ vendorId, role }: { vendorId: string; role: string 
 
   const { data: program } = await supabase
     .from('loyalty_programs')
-    .select('id, name, rounds_required, reward_name, reward_description, reward_expiry_days, default_round_value, max_round_value, status')
+    .select('id, name, rounds_required, reward_name, reward_description, reward_expiry_days, default_round_value, status')
     .eq('vendor_id', vendorId)
     .eq('status', 'active')
     .limit(1)
@@ -66,11 +65,6 @@ async function ProgramView({ vendorId, role }: { vendorId: string; role: string 
               <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Rounds per scan</label>
               <input type="number" name="default_round_value" min="1" max="5" required defaultValue={1} className="dark-input w-full" />
             </div>
-          </div>
-          <div>
-            <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Max rounds per scan</label>
-            <input type="number" name="max_round_value" min="1" max="10" required defaultValue={5} className="dark-input w-full" />
-            <p className="text-black/30 text-xs mt-1.5">Maximum during bonus campaigns</p>
           </div>
           <div>
             <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Reward name</label>
@@ -119,12 +113,6 @@ async function ProgramView({ vendorId, role }: { vendorId: string; role: string 
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Maximum round value</label>
-            <input type="number" name="max_round_value" min="1" max="10" required defaultValue={program.max_round_value} className="w-full dark-input" />
-            <p className="text-black/35 text-xs mt-1">Maximum rounds that can be awarded per scan (e.g. during campaigns)</p>
-          </div>
-
-          <div>
             <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Reward name</label>
             <input name="reward_name" required defaultValue={program.reward_name} className="w-full dark-input" placeholder="e.g. Free Coffee" />
           </div>
@@ -146,7 +134,6 @@ async function ProgramView({ vendorId, role }: { vendorId: string; role: string 
         <div className="flex flex-col gap-4 text-sm">
           <Row label="Rounds required" value={String(program.rounds_required)} />
           <Row label="Default round value" value={String(program.default_round_value)} />
-          <Row label="Max round value" value={String(program.max_round_value)} />
           <Row label="Reward" value={program.reward_name} />
           {program.reward_description && <Row label="Description" value={program.reward_description} />}
           {program.reward_expiry_days && <Row label="Expiry" value={`${program.reward_expiry_days} days`} />}

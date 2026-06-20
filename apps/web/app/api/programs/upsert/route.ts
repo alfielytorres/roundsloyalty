@@ -29,7 +29,6 @@ export async function POST(req: NextRequest) {
   const reward_description = (formData.get('reward_description') as string)?.trim() || null
   const reward_expiry_days = parseInt(formData.get('reward_expiry_days') as string) || null
   const default_round_value = parseInt(formData.get('default_round_value') as string) || 1
-  const max_round_value = parseInt(formData.get('max_round_value') as string) || 5
 
   if (!name || !reward_name || !rounds_required) {
     return NextResponse.redirect(new URL('/programs?error=' + encodeURIComponent('Name, reward name, and rounds required are all required.'), req.url))
@@ -43,7 +42,6 @@ export async function POST(req: NextRequest) {
     reward_description,
     reward_expiry_days,
     default_round_value,
-    max_round_value,
     status: 'active',
   }
 
