@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidateVendorCache } from '@/lib/portal-data'
 
 export async function POST(req: NextRequest) {
   const cookieStore = await cookies()
@@ -66,5 +67,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.redirect(new URL('/settings?error=' + encodeURIComponent(error.message), req.url))
   }
 
+  await revalidateVendorCache()
   return NextResponse.redirect(new URL('/settings?success=' + encodeURIComponent('Changes saved!'), req.url))
 }
