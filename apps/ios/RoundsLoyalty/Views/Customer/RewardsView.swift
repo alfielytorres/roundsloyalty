@@ -62,7 +62,6 @@ struct RewardsView: View {
             }
             .navigationTitle("Rewards")
             .navigationBarTitleDisplayMode(.large)
-            .toolbarColorScheme(.dark, for: .navigationBar)
             .task { await loadRewards() }
             .refreshable { await loadRewards() }
             .sheet(item: $selectedReward) { reward in
