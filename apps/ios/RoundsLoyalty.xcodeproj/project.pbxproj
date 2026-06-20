@@ -30,6 +30,16 @@
 		AA000021000000000000000A /* CustomerShared.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000021000000000000001A /* CustomerShared.swift */; };
 		AA000023000000000000000A /* CustomerQRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000023000000000000001A /* CustomerQRView.swift */; };
 		AA000024000000000000000A /* ScanQRSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000024000000000000001A /* ScanQRSheet.swift */; };
+		AA000026000000000000000A /* AwardResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000026000000000000001A /* AwardResult.swift */; };
+		AA000027000000000000000A /* Vendor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000027000000000000001A /* Vendor.swift */; };
+		AA000028000000000000000A /* NFCReceiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000028000000000000001A /* NFCReceiveView.swift */; };
+		AA000029000000000000000A /* CollectionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000029000000000000001A /* CollectionSheet.swift */; };
+		AA000030000000000000000A /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000030000000000000001A /* HomeView.swift */; };
+		AA000031000000000000000A /* RewardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000031000000000000001A /* RewardsView.swift */; };
+		AA000032000000000000000A /* VendorDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000032000000000000001A /* VendorDetailView.swift */; };
+		AA000033000000000000000A /* Membership.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000033000000000000001A /* Membership.swift */; };
+		AA000034000000000000000A /* RewardCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000034000000000000001A /* RewardCollection.swift */; };
+		AA000035000000000000000A /* RewardInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000035000000000000001A /* RewardInstance.swift */; };
 		AA00001B000000000000000A /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = AA00001B000000000000002A /* Supabase */; };
 /* End PBXBuildFile section */
 
@@ -57,6 +67,16 @@
 		AA000021000000000000001A /* CustomerShared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerShared.swift; sourceTree = "<group>"; };
 		AA000023000000000000001A /* CustomerQRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerQRView.swift; sourceTree = "<group>"; };
 		AA000024000000000000001A /* ScanQRSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanQRSheet.swift; sourceTree = "<group>"; };
+		AA000026000000000000001A /* AwardResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AwardResult.swift; sourceTree = "<group>"; };
+		AA000027000000000000001A /* Vendor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vendor.swift; sourceTree = "<group>"; };
+		AA000028000000000000001A /* NFCReceiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCReceiveView.swift; sourceTree = "<group>"; };
+		AA000029000000000000001A /* CollectionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionSheet.swift; sourceTree = "<group>"; };
+		AA000030000000000000001A /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		AA000031000000000000001A /* RewardsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardsView.swift; sourceTree = "<group>"; };
+		AA000032000000000000001A /* VendorDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VendorDetailView.swift; sourceTree = "<group>"; };
+		AA000033000000000000001A /* Membership.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Membership.swift; sourceTree = "<group>"; };
+		AA000034000000000000001A /* RewardCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCollection.swift; sourceTree = "<group>"; };
+		AA000035000000000000001A /* RewardInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardInstance.swift; sourceTree = "<group>"; };
 		AA00001C000000000000001A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AAFPRODUCT00000000000001A /* RoundsLoyalty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RoundsLoyalty.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -116,6 +136,11 @@
 			children = (
 				AA000005000000000000001A /* Profile.swift */,
 				AA000007000000000000001A /* LoyaltyProgram.swift */,
+				AA000026000000000000001A /* AwardResult.swift */,
+				AA000027000000000000001A /* Vendor.swift */,
+				AA000033000000000000001A /* Membership.swift */,
+				AA000034000000000000001A /* RewardCollection.swift */,
+				AA000035000000000000001A /* RewardInstance.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -164,6 +189,11 @@
 				AA000021000000000000001A /* CustomerShared.swift */,
 				AA000023000000000000001A /* CustomerQRView.swift */,
 				AA000024000000000000001A /* ScanQRSheet.swift */,
+				AA000028000000000000001A /* NFCReceiveView.swift */,
+				AA000029000000000000001A /* CollectionSheet.swift */,
+				AA000030000000000000001A /* HomeView.swift */,
+				AA000031000000000000001A /* RewardsView.swift */,
+				AA000032000000000000001A /* VendorDetailView.swift */,
 			);
 			path = Customer;
 			sourceTree = "<group>";
@@ -265,6 +295,16 @@
 				AA000021000000000000000A /* CustomerShared.swift in Sources */,
 				AA000023000000000000000A /* CustomerQRView.swift in Sources */,
 				AA000024000000000000000A /* ScanQRSheet.swift in Sources */,
+				AA000026000000000000000A /* AwardResult.swift in Sources */,
+				AA000027000000000000000A /* Vendor.swift in Sources */,
+				AA000028000000000000000A /* NFCReceiveView.swift in Sources */,
+				AA000029000000000000000A /* CollectionSheet.swift in Sources */,
+				AA000030000000000000000A /* HomeView.swift in Sources */,
+				AA000031000000000000000A /* RewardsView.swift in Sources */,
+				AA000032000000000000000A /* VendorDetailView.swift in Sources */,
+				AA000033000000000000000A /* Membership.swift in Sources */,
+				AA000034000000000000000A /* RewardCollection.swift in Sources */,
+				AA000035000000000000000A /* RewardInstance.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

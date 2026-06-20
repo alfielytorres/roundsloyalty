@@ -149,14 +149,15 @@ struct MVPScanView: View {
                 .execute()
                 .value
 
-            // Try to fetch vendor info for the NFC view
-            let vendor: Vendor? = try? await supabase.database
+            // Try to fetch vendor info for the NFC view (best-effort)
+            let vendors: [Vendor]? = try? await supabase
                 .from("vendors")
                 .select("*")
-                .eq("id", value: result.membershipId) // best-effort; may not match
+                .eq("id", value: result.membershipId)
                 .limit(1)
                 .execute()
-                .value as Vendor?
+                .value
+            let vendor: Vendor? = vendors?.first
 
             await MainActor.run {
                 scanState = .idle
