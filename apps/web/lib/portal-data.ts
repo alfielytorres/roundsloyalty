@@ -14,6 +14,7 @@ export type VendorShape = {
 export type ProgramShape = {
   id: string; name: string; rounds_required: number
   reward_name: string; reward_description: string | null
+  reward_expiry_days: number | null; default_round_value: number; status: string
 } | null
 
 // Cached per-user vendor+program lookup — survives across navigations for 60s
@@ -51,7 +52,7 @@ const getCachedVendorData = unstable_cache(
     // Fetch program in parallel — no dependency on previous results
     const { data: program } = await supabase
       .from('loyalty_programs')
-      .select('id, name, rounds_required, reward_name, reward_description')
+      .select('id, name, rounds_required, reward_name, reward_description, reward_expiry_days, default_round_value, status')
       .eq('vendor_id', vendor.id)
       .eq('status', 'active')
       .limit(1)
