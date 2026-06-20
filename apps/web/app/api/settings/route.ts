@@ -20,28 +20,20 @@ export async function POST(req: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.redirect(new URL('/', req.url))
 
-  // Resolve vendor via vendor_staff first, then fall back to owner
+  // Resolve vendor via vendor_staff
   const { data: staffRecord } = await supabase
     .from('vendor_staff')
     .select('vendor_id, role')
     .eq('user_id', user.id)
     .eq('status', 'active')
-    .in('role', ['owner', 'manager'])
     .limit(1)
     .maybeSingle()
 
-  let vendorId: string | null = staffRecord?.vendor_id ?? null
-
+  let vendorId = (staffRecord?.role === 'owner' || staffRecord?.role === 'manager') ? staffRecord.vendor_id : null
   if (!vendorId) {
-    const { data: owned } = await supabase
-      .from('vendors')
-      .select('id')
-      .eq('owner_id', user.id)
-      .limit(1)
-      .maybeSingle()
+    const { data: owned } = await supabase.from('vendors').select('id').eq('owner_id', user.id).limit(1).maybeSingle()
     vendorId = owned?.id ?? null
   }
-
   if (!vendorId) {
     return NextResponse.redirect(new URL('/settings?error=' + encodeURIComponent('Permission denied.'), req.url))
   }
@@ -53,31 +45,21 @@ export async function POST(req: NextRequest) {
   const address = (formData.get('address') as string)?.trim() || null
   const logo_url = (formData.get('logo_url') as string)?.trim() || null
   const brand_color = (formData.get('brand_color_text') as string)?.trim() || (formData.get('brand_color') as string)?.trim() || null
-  const latRaw = (formData.get('lat') as string)?.trim()
-  const lngRaw = (formData.get('lng') as string)?.trim()
-  const lat = latRaw ? parseFloat(latRaw) : null
-  const lng = lngRaw ? parseFloat(lngRaw) : null
 
   if (!business_name) {
     return NextResponse.redirect(new URL('/settings?error=' + encodeURIComponent('Business name is required.'), req.url))
   }
 
-  const updates: Record<string, unknown> = {
-    business_name,
-    description: description || null,
-    category,
-    address,
-    logo_url,
-    brand_color,
-  }
-  if (lat !== null && lng !== null && !isNaN(lat) && !isNaN(lng)) {
-    updates.lat = lat
-    updates.lng = lng
-  }
-
   const { error } = await supabase
     .from('vendors')
-    .update(updates)
+    .update({
+      business_name,
+      description: description || null,
+      category,
+      address,
+      logo_url,
+      brand_color,
+    })
     .eq('id', vendorId)
 
   if (error) {

@@ -17,7 +17,7 @@ export const getPortalData = cache(async () => {
   // Find vendor via staff record
   const { data: staffRecord } = await supabase
     .from('vendor_staff')
-    .select('vendor_id, role, vendors(id, business_name, description, category, status, brand_color, join_token, address, logo_url, lat, lng)')
+    .select('vendor_id, role, vendors(id, business_name, description, category, status, brand_color, join_token, address, logo_url)')
     .eq('user_id', user.id)
     .eq('status', 'active')
     .limit(1)
@@ -27,11 +27,29 @@ export const getPortalData = cache(async () => {
     id: string; business_name: string; description: string | null
     category: string | null; status: string; brand_color: string | null
     join_token: string | null; address: string | null; logo_url: string | null
-    lat: number | null; lng: number | null
+    lat?: number | null; lng?: number | null
+  }
+
+  type ProgramShape = {
+    id: string; name: string; rounds_required: number
+    reward_name: string; reward_description: string | null
+  } | null
+
+  async function fetchProgram(vendorId: string): Promise<ProgramShape> {
+    const { data } = await supabase
+      .from('loyalty_programs')
+      .select('id, name, rounds_required, reward_name, reward_description')
+      .eq('vendor_id', vendorId)
+      .eq('status', 'active')
+      .limit(1)
+      .maybeSingle()
+    return data as ProgramShape
   }
 
   if (staffRecord?.vendors) {
-    return { user, vendor: staffRecord.vendors as unknown as VendorShape, role: staffRecord.role as string, supabase }
+    const vendor = staffRecord.vendors as unknown as VendorShape
+    const program = await fetchProgram(vendor.id)
+    return { user, vendor, program, role: staffRecord.role as string, supabase }
   }
 
   // Fallback: user is owner but staff record missing
@@ -44,5 +62,6 @@ export const getPortalData = cache(async () => {
 
   if (!ownedVendor) redirect('/onboarding')
 
-  return { user, vendor: ownedVendor as VendorShape, role: 'owner', supabase }
+  const program = await fetchProgram(ownedVendor.id)
+  return { user, vendor: ownedVendor as VendorShape, program, role: 'owner', supabase }
 })

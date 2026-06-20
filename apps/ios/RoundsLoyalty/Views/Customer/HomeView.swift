@@ -7,6 +7,8 @@ struct HomeView: View {
     @State private var isLoading = true
     @State private var selectedMembership: Membership?
     @State private var selectedReward: RewardInstance?
+    @State private var unreadCount = 0
+    @State private var showNotifications = false
 
     private var greeting: String {
         let hour = Calendar.current.component(.hour, from: Date())
@@ -38,6 +40,22 @@ struct HomeView: View {
                             .scaledToFit()
                             .frame(width: 26, height: 26)
                         Spacer()
+                        Button { showNotifications = true } label: {
+                            ZStack(alignment: .topTrailing) {
+                                Image(systemName: "bell")
+                                    .font(.system(size: 20, weight: .medium))
+                                    .foregroundColor(.primaryText)
+                                if unreadCount > 0 {
+                                    Text(unreadCount > 9 ? "9+" : "\(unreadCount)")
+                                        .font(.system(size: 9, weight: .bold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 4)
+                                        .padding(.vertical, 2)
+                                        .background(Color.black.clipShape(Capsule()))
+                                        .offset(x: 6, y: -4)
+                                }
+                            }
+                        }
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 8)
@@ -109,14 +127,21 @@ struct HomeView: View {
             }
             .background(Color.appBackground.ignoresSafeArea())
             .navigationBarHidden(true)
-            .task { await loadData() }
-            .refreshable { await loadData() }
+            .task {
+                await loadData()
+                await loadUnreadCount()
+                await PushNotificationManager.shared.requestPermission()
+            }
+            .refreshable { await loadData(); await loadUnreadCount() }
             .sheet(item: $selectedMembership) { VendorDetailView(membership: $0) }
             .sheet(item: $selectedReward) { reward in
                 if let membership = memberships.first(where: { $0.vendorId == reward.vendorId }),
                    let program = membership.program {
                     CollectionSheet(membership: membership, program: program)
                 }
+            }
+            .sheet(isPresented: $showNotifications, onDismiss: { Task { await loadUnreadCount() } }) {
+                NotificationsView()
             }
         }
     }
@@ -136,6 +161,19 @@ struct HomeView: View {
         memberships = await membershipsTask
         rewards = await rewardsTask
         isLoading = false
+    }
+
+    private func loadUnreadCount() async {
+        guard let userId = sessionManager.session?.user.id else { return }
+        // Count rows where read_at is null
+        struct CountResult: Decodable { }
+        let result = try? await supabase.database
+            .from("customer_notifications")
+            .select("id", head: false, count: .exact)
+            .eq("customer_id", value: userId)
+            .is("read_at", value: nil)
+            .execute()
+        unreadCount = result?.count ?? 0
     }
 }
 
