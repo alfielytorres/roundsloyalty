@@ -87,11 +87,11 @@ struct DiscoverMapView: View {
                             Button(action: recenterMap) {
                                 Image(systemName: "location.fill")
                                     .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(.accentDefault)
+                                    .foregroundColor(.white)
                                     .frame(width: 44, height: 44)
-                                    .background(Color(hex: "#1A1A1A"))
+                                    .background(Color.primaryText)
                                     .clipShape(Circle())
-                                    .overlay(Circle().stroke(Color.glassBorder, lineWidth: 1))
+                                    .overlay(Circle().stroke(Color.white.opacity(0.15), lineWidth: 1))
                                     .shadow(color: .black.opacity(0.4), radius: 6, x: 0, y: 2)
                             }
                             .padding(.trailing, 16)
@@ -142,14 +142,14 @@ struct DiscoverMapView: View {
         VStack(spacing: 0) {
             // Drag handle
             RoundedRectangle(cornerRadius: 3)
-                .fill(Color.white.opacity(0.25))
+                .fill(Color.black.opacity(0.15))
                 .frame(width: 40, height: 5)
                 .padding(.top, 10)
                 .padding(.bottom, 8)
 
             if isLoading {
                 Spacer()
-                ProgressView().tint(.white)
+                ProgressView().tint(.black.opacity(0.4))
                 Spacer()
             } else if vendors.isEmpty {
                 Spacer()
@@ -172,7 +172,7 @@ struct DiscoverMapView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 8)
 
-                Divider().overlay(Color.glassBorder)
+                Divider().overlay(Color.black.opacity(0.08))
 
                 ScrollView(showsIndicators: false) {
                     LazyVStack(spacing: 0) {
@@ -180,20 +180,20 @@ struct DiscoverMapView: View {
                             VendorListRow(vendor: vendor, isSelected: selectedVendor?.id == vendor.id)
                                 .onTapGesture { actionVendor = vendor }
                             if vendor.id != vendors.last?.id {
-                                Divider().padding(.leading, 60).overlay(Color.glassBorder)
+                                Divider().padding(.leading, 60).overlay(Color.black.opacity(0.06))
                             }
                         }
                     }
                 }
             }
         }
-        .background(Color(hex: "#141414"))
+        .background(Color(hex: "#F5F5F7"))
         .cornerRadius(20, corners: [.topLeft, .topRight])
         .overlay(
             RoundedCorner(radius: 20, corners: [.topLeft, .topRight])
-                .stroke(Color.glassBorder, lineWidth: 1)
+                .stroke(Color.black.opacity(0.06), lineWidth: 1)
         )
-        .shadow(color: .black.opacity(0.4), radius: 12, x: 0, y: -4)
+        .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: -4)
         .gesture(
             DragGesture()
                 .onChanged { value in
@@ -306,7 +306,7 @@ struct VendorMapPin: View {
                     .fill(isSelected ? Color.accentDefault : Color(hex: "#1A1A1A"))
                     .frame(width: 40, height: 40)
                     .shadow(radius: 4)
-                RoundsLogoMark(size: 22, color: isSelected ? .white : .accentDefault)
+                RoundsLogoMark(size: 22, color: .white)
             }
             Triangle()
                 .fill(isSelected ? Color.accentDefault : Color(hex: "#1A1A1A"))
