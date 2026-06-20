@@ -85,34 +85,6 @@ async function CustomerTable({ vendorId, segment }: { vendorId: string; segment:
   )
 }
 
-function TableSkeleton() {
-  return (
-    <div className="bg-white border border-black/10 rounded-3xl overflow-hidden shadow-sm animate-pulse">
-      <table className="w-full">
-        <thead>
-          <tr className="border-b border-black/5">
-            {['Customer', 'Status', 'Current rounds', 'Lifetime rounds', 'Joined'].map((h) => (
-              <th key={h} className="text-left px-6 py-4">
-                <div className="h-4 w-16 bg-black/15 rounded" />
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {[...Array(5)].map((_, i) => (
-            <tr key={i} className="border-b border-black/5">
-              <td className="px-6 py-4"><div className="h-5 w-32 bg-black/15 rounded" /></td>
-              <td className="px-6 py-4"><div className="h-5 w-16 bg-black/10 rounded" /></td>
-              <td className="px-6 py-4"><div className="h-5 w-8 bg-black/10 rounded" /></td>
-              <td className="px-6 py-4"><div className="h-5 w-8 bg-black/10 rounded" /></td>
-              <td className="px-6 py-4"><div className="h-5 w-24 bg-black/10 rounded" /></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
 
 export default async function CustomersPage({ searchParams }: { searchParams: Promise<{ segment?: string }> }) {
   const { vendor } = await getPortalData()
@@ -150,7 +122,7 @@ export default async function CustomersPage({ searchParams }: { searchParams: Pr
           ))}
         </div>
 
-        <Suspense fallback={<TableSkeleton />}>
+        <Suspense fallback={null}>
           <CustomerTable vendorId={vendor.id} segment={segment} />
         </Suspense>
       </div>

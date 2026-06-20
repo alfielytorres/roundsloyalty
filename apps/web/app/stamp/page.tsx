@@ -108,19 +108,7 @@ export default async function StampPage({ searchParams }: { searchParams: Promis
 
         <div className="mt-7">
           <h2 className="text-base font-bold text-[#1D1D1F] mb-3">Recent activity</h2>
-          <Suspense fallback={
-            <div className="flex flex-col gap-2 animate-pulse">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="glass px-5 py-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-black/15" />
-                    <div className="h-4 w-28 bg-black/15 rounded" />
-                  </div>
-                  <div className="h-4 w-20 bg-black/10 rounded" />
-                </div>
-              ))}
-            </div>
-          }>
+          <Suspense fallback={null}>
             <RecentActivity vendorId={vendor.id} />
           </Suspense>
         </div>

@@ -64,6 +64,7 @@ function ColumnHeader({ icon: Icon, title, count }: { icon: React.ElementType; t
 export default function CollectionsPage() {
   const [collections, setCollections] = useState<Collection[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [vendorId, setVendorId] = useState<string | null>(null)
 
   const supabase = createBrowserClient(
@@ -105,6 +106,8 @@ export default function CollectionsPage() {
           if (vendor) {
             setVendorId(vendor.id)
             await fetchCollections(vendor.id)
+          } else {
+            setError('No vendor found for your account.')
           }
         }
       } finally {
@@ -158,6 +161,11 @@ export default function CollectionsPage() {
           <p className="text-black/40 text-sm mt-0.5">Auto-refreshes every 30s</p>
         </div>
 
+        {error && (
+          <div className="glass mb-4 border-black/10">
+            <p className="text-black/60 text-sm">{error}</p>
+          </div>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <ColumnHeader icon={Clock} title="Requested" count={requested.length} />

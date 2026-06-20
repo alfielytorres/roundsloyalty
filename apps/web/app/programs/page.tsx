@@ -151,10 +151,7 @@ export default async function ProgramsPage({ searchParams }: { searchParams: Pro
         {query.success && <div className="mb-5 p-4 bg-black/5 border border-black/15 rounded-2xl text-black/70 text-sm font-semibold">{query.success}</div>}
 
         <Suspense fallback={
-          <div className="glass rounded-3xl p-6  animate-pulse">
-            <div className="h-6 w-40 bg-black/15 rounded mb-4" />
-            {[...Array(5)].map((_, i) => <div key={i} className="h-10 bg-black/10 rounded-2xl mb-3" />)}
-          </div>
+          
         }>
           <ProgramView vendorId={vendor.id} role={role} />
         </Suspense>

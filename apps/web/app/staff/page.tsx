@@ -161,9 +161,7 @@ export default async function StaffPage({ searchParams }: { searchParams: Promis
         )}
 
         <Suspense fallback={
-          <div className="glass rounded-3xl p-6  animate-pulse">
-            {[...Array(3)].map((_, i) => <div key={i} className="h-12 bg-black/10 rounded-2xl mb-3" />)}
-          </div>
+          
         }>
           <StaffList vendorId={vendor.id} currentRole={role} />
         </Suspense>

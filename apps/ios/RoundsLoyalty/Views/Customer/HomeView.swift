@@ -37,11 +37,6 @@ struct HomeView: View {
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(.primaryText)
                         Spacer()
-                        Button { } label: {
-                            Image(systemName: "bell")
-                                .font(.system(size: 17, weight: .regular))
-                                .foregroundColor(.black.opacity(0.40))
-                        }
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 8)

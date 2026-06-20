@@ -90,22 +90,6 @@ async function LedgerFeed({ vendorId }: { vendorId: string }) {
   )
 }
 
-function LedgerSkeleton() {
-  return (
-    <div className="flex flex-col gap-2 animate-pulse">
-      {[...Array(8)].map((_, i) => (
-        <div key={i} className="glass rounded-2xl px-5 py-4 flex items-center gap-4 ">
-          <div className="w-10 h-10 rounded-full bg-black/15 shrink-0" />
-          <div className="flex-1">
-            <div className="h-4 w-32 bg-black/15 rounded mb-2" />
-            <div className="h-3 w-24 bg-black/10 rounded" />
-          </div>
-          <div className="h-4 w-16 bg-black/15 rounded" />
-        </div>
-      ))}
-    </div>
-  )
-}
 
 export default async function ActivityPage() {
   const { vendor } = await getPortalData()
@@ -119,7 +103,7 @@ export default async function ActivityPage() {
           <p className="text-black/40 mt-1">Full ledger of stamps, points and redemptions</p>
         </div>
 
-        <Suspense fallback={<LedgerSkeleton />}>
+        <Suspense fallback={null}>
           <LedgerFeed vendorId={vendor.id} />
         </Suspense>
       </div>

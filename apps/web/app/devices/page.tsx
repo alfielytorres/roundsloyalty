@@ -153,11 +153,7 @@ export default async function DevicesPage({ searchParams }: { searchParams: Prom
         </div>
 
         <Suspense fallback={
-          <div className="glass rounded-3xl p-6  animate-pulse">
-            <div className="flex items-center gap-3 mb-4">
-              <WifiOff size={20} className="text-[#C8C0B4]" />
-              <div className="h-4 w-40 bg-black/15 rounded" />
-            </div>
+          
           </div>
         }>
           <DeviceList vendorId={vendor.id} />

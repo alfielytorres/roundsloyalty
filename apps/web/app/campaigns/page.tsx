@@ -26,7 +26,7 @@ const statusBadge = {
   live: 'bg-black/5 text-black/70 border border-black/15',
   scheduled: 'bg-black/5 text-black/60 border border-black/10',
   ended: 'bg-black/5 text-black/30 border border-black/5',
-  cancelled: 'bg-red-50 text-red-400 border border-red-100',
+  cancelled: 'bg-black/5 text-black/40 border border-black/10',
 }
 
 async function CampaignList({ vendorId }: { vendorId: string }) {
@@ -66,13 +66,13 @@ async function CampaignList({ vendorId }: { vendorId: string }) {
                 <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${statusBadge[st]}`}>
                   {st.charAt(0).toUpperCase() + st.slice(1)}
                 </span>
-                <h3 className="font-bold text-[#111] text-lg mt-2">{c.name}</h3>
+                <h3 className="font-bold text-[#1D1D1F] text-lg mt-2">{c.name}</h3>
                 <p className="text-black/40 text-sm mt-0.5">
                   {new Date(c.starts_at).toLocaleDateString()} — {new Date(c.ends_at).toLocaleDateString()}
                 </p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-5xl font-black text-[#111] leading-none">{c.round_value}×</p>
+                <p className="text-4xl font-black text-[#1D1D1F] leading-none">{c.round_value}×</p>
                 <p className="text-black/30 text-xs tracking-widest uppercase mt-1">rounds</p>
               </div>
             </div>
@@ -121,7 +121,7 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
         )}
 
         <div className="glass mb-6">
-          <h2 className="text-base font-bold text-[#111] mb-5">Create campaign</h2>
+          <h2 className="text-base font-bold text-[#1D1D1F] mb-5">Create campaign</h2>
           <form action="/api/campaigns/create" method="POST" className="flex flex-col gap-4">
             <input type="hidden" name="vendor_id" value={vendor.id} />
 
@@ -136,7 +136,7 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
               <p className="text-black/30 text-xs mt-1">Must be between 2 and your program&apos;s max round value</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Start</label>
                 <input type="datetime-local" name="starts_at" required className="dark-input" />
@@ -152,20 +152,14 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
               <textarea name="customer_message" rows={2} placeholder="Message shown to customers during the campaign" className="dark-input resize-none" />
             </div>
 
-            <button type="submit" className="self-start bg-[#111] hover:bg-[#222] text-white font-bold py-2.5 px-5 rounded-2xl transition-colors text-sm">
+            <button type="submit" className="w-full sm:w-auto bg-[#1D1D1F] hover:bg-black text-white font-semibold py-3 px-5 rounded-2xl transition-colors text-sm">
               Create campaign
             </button>
           </form>
         </div>
 
-        <h2 className="text-base font-bold text-[#111] mb-4">All campaigns</h2>
-        <Suspense fallback={
-          <div className="flex flex-col gap-3 animate-pulse">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="glass h-28" />
-            ))}
-          </div>
-        }>
+        <h2 className="text-base font-bold text-[#1D1D1F] mb-4">All campaigns</h2>
+        <Suspense fallback={null}>
           <CampaignList vendorId={vendor.id} />
         </Suspense>
       </div>

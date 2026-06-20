@@ -17,17 +17,6 @@ function StatCard({ value, label, sublabel }: { value: string | number; label: s
   )
 }
 
-function StatCardSkeleton() {
-  return (
-    <div className="glass min-h-[150px] animate-pulse flex flex-col justify-between">
-      <div className="h-2 w-24 bg-black/10 rounded" />
-      <div>
-        <div className="h-16 w-20 bg-black/10 rounded-xl mb-3" />
-        <div className="h-3 w-28 bg-black/5 rounded" />
-      </div>
-    </div>
-  )
-}
 
 async function DashboardStats({ vendorId }: { vendorId: string }) {
   const cookieStore = await cookies()
@@ -157,24 +146,6 @@ async function RecentActivity({ vendorId }: { vendorId: string }) {
   )
 }
 
-function ActivitySkeleton() {
-  return (
-    <div className="glass animate-pulse">
-      <div className="h-2 w-28 bg-black/10 rounded mb-4" />
-      <div className="flex flex-col gap-3">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="flex items-center justify-between py-2">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-black/5" />
-              <div className="h-4 w-28 bg-black/5 rounded" />
-            </div>
-            <div className="h-4 w-16 bg-black/5 rounded" />
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
 
 export default async function DashboardPage() {
   const { vendor } = await getPortalData()
@@ -189,14 +160,14 @@ export default async function DashboardPage() {
 
         <Suspense fallback={
           <div className="grid grid-cols-2 gap-3 mb-6">
-            {[...Array(4)].map((_, i) => <StatCardSkeleton key={i} />)}
+            
           </div>
         }>
           <DashboardStats vendorId={vendor.id} />
         </Suspense>
 
         <div className="mb-6">
-          <Suspense fallback={<ActivitySkeleton />}>
+          <Suspense fallback={null}>
             <RecentActivity vendorId={vendor.id} />
           </Suspense>
         </div>
