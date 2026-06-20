@@ -18,9 +18,8 @@ export default async function PortalLayout({ children }: { children: React.React
 
   const { data: staffRecord } = await supabase
     .from('vendor_staff')
-    .select('vendor_id')
+    .select('vendor_id, status')
     .eq('user_id', user.id)
-    .eq('status', 'active')
     .limit(1)
     .maybeSingle()
 

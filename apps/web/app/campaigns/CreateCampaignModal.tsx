@@ -10,9 +10,9 @@ export default function CreateCampaignModal({ vendorId }: { vendorId: string }) 
   return (
     <>
       <button onClick={() => setOpen(true)}
-        className="flex items-center gap-2 bg-[#1D1D1F] hover:bg-black text-white text-sm font-semibold px-4 py-2.5 rounded-2xl transition-colors">
-        <Plus size={16} />
-        New campaign
+        className="w-10 h-10 flex items-center justify-center bg-[#1D1D1F] hover:bg-black text-white rounded-full transition-colors shadow-sm"
+        title="New campaign">
+        <Plus size={20} />
       </button>
 
       <Modal isOpen={open} onClose={() => setOpen(false)} title="Create campaign">

@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
-import { UserCog } from 'lucide-react'
+import { UserCog, Clock } from 'lucide-react'
 import AddStaffModal from './AddStaffModal'
 
 interface StaffMember {
@@ -20,6 +20,68 @@ const roleBadge: Record<string, string> = {
   staff: 'bg-black/5 text-black/50 border-black/10',
 }
 
+async function PendingRequests({ vendorId }: { vendorId: string }) {
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { getAll: () => cookieStore.getAll() } },
+  )
+
+  const { data: pending } = await supabase
+    .from('vendor_staff')
+    .select('id, created_at, profiles(display_name, email)')
+    .eq('vendor_id', vendorId)
+    .eq('status', 'pending_approval')
+    .order('created_at', { ascending: true })
+
+  if (!pending?.length) return null
+
+  return (
+    <div className="glass mb-5 border-black/10">
+      <div className="flex items-center gap-2 mb-4">
+        <Clock size={15} className="text-black/40" />
+        <h2 className="text-sm font-bold text-[#1D1D1F]">Pending requests</h2>
+        <span className="ml-auto text-xs font-bold text-black/40 bg-black/5 px-2 py-0.5 rounded-full">{pending.length}</span>
+      </div>
+      <div className="flex flex-col gap-3">
+        {(pending as StaffMember[]).map((m) => {
+          const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles
+          const name = (profile as { display_name?: string | null } | null)?.display_name ?? 'Unknown'
+          const email = (profile as { email?: string | null } | null)?.email ?? '—'
+          return (
+            <div key={m.id} className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-black/[0.02] border border-black/5">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-black/8 flex items-center justify-center font-bold text-[#1D1D1F] text-sm shrink-0">
+                  {name.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <p className="font-semibold text-[#1D1D1F] text-sm truncate">{name}</p>
+                  <p className="text-black/35 text-xs truncate">{email}</p>
+                </div>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                <form action="/api/staff/reject" method="POST">
+                  <input type="hidden" name="staff_id" value={m.id} />
+                  <button type="submit" className="text-xs font-semibold text-black/35 px-3 py-1.5 rounded-xl border border-black/8 hover:bg-black/5 transition-colors">
+                    Reject
+                  </button>
+                </form>
+                <form action="/api/staff/approve" method="POST">
+                  <input type="hidden" name="staff_id" value={m.id} />
+                  <button type="submit" className="text-xs font-semibold text-white bg-[#1D1D1F] px-3 py-1.5 rounded-xl hover:bg-black transition-colors">
+                    Approve
+                  </button>
+                </form>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 async function StaffList({ vendorId, canManage }: { vendorId: string; canManage: boolean }) {
   const cookieStore = await cookies()
   const supabase = createServerClient(
@@ -32,6 +94,7 @@ async function StaffList({ vendorId, canManage }: { vendorId: string; canManage:
     .from('vendor_staff')
     .select('id, user_id, role, status, created_at, profiles(display_name, email)')
     .eq('vendor_id', vendorId)
+    .eq('status', 'active')
     .order('created_at', { ascending: true })
 
   if (!staffMembers?.length) {
@@ -191,6 +254,12 @@ export default async function StaffPage({ searchParams }: { searchParams: Promis
 
         {query.error && <div className="mb-5 p-4 bg-black/5 border border-black/10 rounded-2xl text-black/60 text-sm">{query.error}</div>}
         {query.success && <div className="mb-5 p-4 bg-black/5 border border-black/15 rounded-2xl text-black/70 text-sm font-semibold">{query.success}</div>}
+
+        {canManage && (
+          <Suspense fallback={null}>
+            <PendingRequests vendorId={vendor.id} />
+          </Suspense>
+        )}
 
         <Suspense fallback={null}>
           <StaffList vendorId={vendor.id} canManage={canManage} />
