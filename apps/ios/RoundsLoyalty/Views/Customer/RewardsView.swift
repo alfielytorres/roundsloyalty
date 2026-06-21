@@ -77,7 +77,8 @@ struct RewardsView: View {
             .from("reward_instances")
             .select("*, vendors(id, business_name, brand_color, logo_url), reward_collections(*)")
             .eq("customer_id", value: userId)
-            .not("status", operator: .in, value: "(expired,cancelled)")
+            .neq("status", value: "expired")
+            .neq("status", value: "cancelled")
             .order("created_at", ascending: false)
             .execute()
             .value) ?? []

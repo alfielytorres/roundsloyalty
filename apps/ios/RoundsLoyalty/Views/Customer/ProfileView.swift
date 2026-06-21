@@ -1,5 +1,4 @@
 import SwiftUI
-import CoreImage.CIFilterBuiltins
 
 struct CustomerProfileView: View {
     @EnvironmentObject var sessionManager: SessionManager
@@ -205,7 +204,7 @@ struct EditNameSheet: View {
             try await supabase.database
                 .from("profiles")
                 .update(["display_name": trimmed])
-                .eq("id", value: supabase.auth.currentUser?.id.uuidString ?? "")
+                .eq("id", value: (try? await supabase.auth.session.user.id.uuidString) ?? "")
                 .execute()
             await onSaved()
             dismiss()
