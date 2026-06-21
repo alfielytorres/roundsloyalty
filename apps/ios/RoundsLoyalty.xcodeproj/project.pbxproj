@@ -40,6 +40,9 @@
 		AA000033000000000000000A /* Membership.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000033000000000000001A /* Membership.swift */; };
 		AA000034000000000000000A /* RewardCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000034000000000000001A /* RewardCollection.swift */; };
 		AA000035000000000000000A /* RewardInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000035000000000000001A /* RewardInstance.swift */; };
+		AA000036000000000000000A /* PushNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000036000000000000001A /* PushNotificationManager.swift */; };
+		AA000037000000000000000A /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000037000000000000001A /* NotificationsView.swift */; };
+		AA000038000000000000000A /* CustomerNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000038000000000000001A /* CustomerNotification.swift */; };
 		AA00001B000000000000000A /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = AA00001B000000000000002A /* Supabase */; };
 /* End PBXBuildFile section */
 
@@ -77,6 +80,9 @@
 		AA000033000000000000001A /* Membership.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Membership.swift; sourceTree = "<group>"; };
 		AA000034000000000000001A /* RewardCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCollection.swift; sourceTree = "<group>"; };
 		AA000035000000000000001A /* RewardInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardInstance.swift; sourceTree = "<group>"; };
+		AA000036000000000000001A /* PushNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationManager.swift; sourceTree = "<group>"; };
+		AA000037000000000000001A /* NotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
+		AA000038000000000000001A /* CustomerNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerNotification.swift; sourceTree = "<group>"; };
 		AA00001C000000000000001A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AAFPRODUCT00000000000001A /* RoundsLoyalty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RoundsLoyalty.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -127,6 +133,7 @@
 			children = (
 				AA000003000000000000001A /* SupabaseService.swift */,
 				AA000004000000000000001A /* SessionManager.swift */,
+				AA000036000000000000001A /* PushNotificationManager.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -141,6 +148,7 @@
 				AA000033000000000000001A /* Membership.swift */,
 				AA000034000000000000001A /* RewardCollection.swift */,
 				AA000035000000000000001A /* RewardInstance.swift */,
+				AA000038000000000000001A /* CustomerNotification.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -194,6 +202,7 @@
 				AA000030000000000000001A /* HomeView.swift */,
 				AA000031000000000000001A /* RewardsView.swift */,
 				AA000032000000000000001A /* VendorDetailView.swift */,
+				AA000037000000000000001A /* NotificationsView.swift */,
 			);
 			path = Customer;
 			sourceTree = "<group>";
@@ -305,6 +314,9 @@
 				AA000033000000000000000A /* Membership.swift in Sources */,
 				AA000034000000000000000A /* RewardCollection.swift in Sources */,
 				AA000035000000000000000A /* RewardInstance.swift in Sources */,
+				AA000036000000000000000A /* PushNotificationManager.swift in Sources */,
+				AA000037000000000000000A /* NotificationsView.swift in Sources */,
+				AA000038000000000000000A /* CustomerNotification.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
