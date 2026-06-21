@@ -171,7 +171,7 @@ struct HomeView: View {
             .from("customer_notifications")
             .select("id", head: false, count: .exact)
             .eq("customer_id", value: userId)
-            .is("read_at", value: nil)
+            .is("read_at", value: String?.none)
             .execute()
         unreadCount = result?.count ?? 0
     }
