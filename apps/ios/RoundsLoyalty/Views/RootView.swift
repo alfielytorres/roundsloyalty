@@ -4,15 +4,14 @@ struct RootView: View {
     @EnvironmentObject var sessionManager: SessionManager
 
     var body: some View {
-        Group {
+        ZStack {
+            Color.appBackground.ignoresSafeArea()
+
             if sessionManager.isLoading {
-                ZStack {
-                    Color.appBackground.ignoresSafeArea()
-                    VStack(spacing: 16) {
-                        RoundsLogoMark(size: 48, color: .white)
-                        ProgressView()
-                            .tint(.white)
-                    }
+                VStack(spacing: 16) {
+                    RoundsLogoMark(size: 48, color: .primaryText)
+                    ProgressView()
+                        .tint(.primaryText)
                 }
             } else if sessionManager.session == nil {
                 AuthView()
@@ -20,6 +19,5 @@ struct RootView: View {
                 CustomerTabView()
             }
         }
-        .animation(.easeInOut, value: sessionManager.session?.user.id)
     }
 }

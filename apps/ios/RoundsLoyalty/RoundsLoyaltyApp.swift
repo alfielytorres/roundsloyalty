@@ -10,6 +10,7 @@ struct RoundsLoyaltyApp: App {
         configureNavigationBar()
         configureTabBar()
         UIView.appearance().tintColor = UIColor.black
+        UIWindow.appearance().backgroundColor = UIColor(red: 0.961, green: 0.961, blue: 0.969, alpha: 1) // #F5F5F7
     }
 
     var body: some Scene {
