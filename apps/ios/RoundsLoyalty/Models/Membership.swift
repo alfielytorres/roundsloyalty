@@ -8,8 +8,11 @@ struct Membership: Codable, Identifiable {
     let lifetimeRounds: Int
     let status: String
     let activatedAt: Date?
-    var vendor: Vendor?
-    var program: LoyaltyProgram?
+    var vendors: [Vendor]?
+    var loyaltyPrograms: [LoyaltyProgram]?
+
+    var vendor: Vendor? { vendors?.first }
+    var program: LoyaltyProgram? { loyaltyPrograms?.first }
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -19,7 +22,7 @@ struct Membership: Codable, Identifiable {
         case lifetimeRounds = "lifetime_rounds"
         case status
         case activatedAt = "activated_at"
-        case vendor = "vendors"
-        case program = "loyalty_programs"
+        case vendors
+        case loyaltyPrograms = "loyalty_programs"
     }
 }
