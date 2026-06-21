@@ -59,6 +59,11 @@ final class SessionManager: ObservableObject {
         }
     }
 
+    func reloadProfile() async {
+        guard let userId = session?.user.id else { return }
+        await fetchProfile(userId: userId)
+    }
+
     func signOut() async throws {
         try await supabase.auth.signOut()
     }

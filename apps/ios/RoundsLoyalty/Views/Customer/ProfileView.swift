@@ -5,6 +5,7 @@ struct CustomerProfileView: View {
     @EnvironmentObject var sessionManager: SessionManager
     @State private var isSigningOut = false
     @State private var showQR = false
+    @State private var showEditName = false
 
     var profile: Profile? { sessionManager.profile }
 
@@ -71,9 +72,9 @@ struct CustomerProfileView: View {
 
                         // Settings section
                         VStack(spacing: 1) {
-                            ProfileRow(icon: "person.circle", label: "Account Details")
-                            ProfileRow(icon: "bell", label: "Notifications")
-                            ProfileRow(icon: "lock.shield", label: "Privacy")
+                            Button { showEditName = true } label: {
+                                ProfileRow(icon: "person.circle", label: "Edit Name")
+                            }
                         }
                         .padding(.horizontal, 20)
 
@@ -113,6 +114,11 @@ struct CustomerProfileView: View {
             .sheet(isPresented: $showQR) {
                 CustomerQRView()
             }
+            .sheet(isPresented: $showEditName) {
+                EditNameSheet(currentName: profile?.displayName ?? "") {
+                    await sessionManager.reloadProfile()
+                }
+            }
         }
     }
 
@@ -120,6 +126,93 @@ struct CustomerProfileView: View {
         isSigningOut = true
         try? await sessionManager.signOut()
         isSigningOut = false
+    }
+}
+
+struct EditNameSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var name: String
+    @State private var saving = false
+    @State private var error: String?
+    var onSaved: () async -> Void
+
+    init(currentName: String, onSaved: @escaping () async -> Void) {
+        _name = State(initialValue: currentName)
+        self.onSaved = onSaved
+    }
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.appBackground.ignoresSafeArea()
+                VStack(spacing: 24) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("DISPLAY NAME")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(.secondaryText)
+                            .tracking(1.5)
+                        TextField("Your name", text: $name)
+                            .font(.body)
+                            .padding(14)
+                            .background(Color.glassCard)
+                            .cornerRadius(12)
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.glassBorder))
+                            .foregroundColor(.primaryText)
+                    }
+                    if let error {
+                        Text(error)
+                            .font(.caption)
+                            .foregroundColor(.red)
+                    }
+                    Button {
+                        Task { await save() }
+                    } label: {
+                        Group {
+                            if saving {
+                                ProgressView().tint(.white)
+                            } else {
+                                Text("Save")
+                                    .font(.headline)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.accentDefault)
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                    }
+                    .disabled(saving || name.trimmingCharacters(in: .whitespaces).isEmpty)
+                    Spacer()
+                }
+                .padding(24)
+            }
+            .navigationTitle("Edit Name")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                        .foregroundColor(.secondaryText)
+                }
+            }
+        }
+    }
+
+    private func save() async {
+        saving = true
+        error = nil
+        let trimmed = name.trimmingCharacters(in: .whitespaces)
+        do {
+            try await supabase.database
+                .from("profiles")
+                .update(["display_name": trimmed])
+                .eq("id", value: supabase.auth.currentUser?.id.uuidString ?? "")
+                .execute()
+            await onSaved()
+            dismiss()
+        } catch let e {
+            error = e.localizedDescription
+        }
+        saving = false
     }
 }
 
@@ -152,3 +245,4 @@ struct ProfileRow: View {
         )
     }
 }
+
