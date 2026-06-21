@@ -15,8 +15,10 @@ interface Collection {
 }
 
 function CollectionCard({ c, onAction }: { c: Collection; onAction: (id: string, action: 'ready' | 'collected') => void }) {
-  const name = c.profiles?.display_name ?? 'Customer'
-  const rewardName = c.reward_instances?.reward_name ?? 'Reward'
+  const profile = Array.isArray(c.profiles) ? (c.profiles as Array<{ display_name: string | null }>)[0] : c.profiles
+  const rewardInst = Array.isArray(c.reward_instances) ? (c.reward_instances as Array<{ reward_name: string }>)[0] : c.reward_instances
+  const name = profile?.display_name ?? 'Customer'
+  const rewardName = rewardInst?.reward_name ?? 'Reward'
   return (
     <div className="glass">
       <div className="flex items-center gap-3 mb-3">
@@ -73,43 +75,50 @@ export default function CollectionsPage() {
   )
 
   const fetchCollections = useCallback(async (vid: string) => {
-    const { data } = await supabase
+    const { data, error: fetchErr } = await supabase
       .from('reward_collections')
       .select('id, status, collection_code, selected_option, requested_at, reward_instances(reward_name), profiles(display_name)')
       .eq('vendor_id', vid)
       .in('status', ['requested', 'ready', 'collected'])
       .order('requested_at', { ascending: false })
       .limit(100)
-    if (data) setCollections(data as unknown as Collection[])
+    if (fetchErr) {
+      setError(`Query error: ${fetchErr.message}`)
+      return
+    }
+    setCollections((data ?? []) as unknown as Collection[])
   }, [supabase])
 
   useEffect(() => {
     async function init() {
       try {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) return
+        const { data: { user }, error: authErr } = await supabase.auth.getUser()
+        if (authErr || !user) { setError('Not signed in'); return }
+
+        // Try vendor_staff first
         const { data: staffRecord } = await supabase
           .from('vendor_staff')
           .select('vendor_id')
           .eq('user_id', user.id)
           .eq('status', 'active')
           .maybeSingle()
-        if (staffRecord) {
-          setVendorId(staffRecord.vendor_id)
-          await fetchCollections(staffRecord.vendor_id)
-        } else {
-          const { data: vendor } = await supabase
+
+        let vid: string | null = staffRecord?.vendor_id ?? null
+
+        if (!vid) {
+          const { data: vendor, error: vendorErr } = await supabase
             .from('vendors')
             .select('id')
             .eq('owner_id', user.id)
             .maybeSingle()
-          if (vendor) {
-            setVendorId(vendor.id)
-            await fetchCollections(vendor.id)
-          } else {
-            setError('No vendor found for your account.')
-          }
+          if (vendorErr) { setError(`Vendor lookup error: ${vendorErr.message}`); return }
+          vid = vendor?.id ?? null
         }
+
+        if (!vid) { setError('No vendor found for your account.'); return }
+
+        setVendorId(vid)
+        await fetchCollections(vid)
       } finally {
         setLoading(false)
       }
@@ -162,10 +171,11 @@ export default function CollectionsPage() {
         </div>
 
         {error && (
-          <div className="glass mb-4 border-black/10">
-            <p className="text-black/60 text-sm">{error}</p>
+          <div className="glass mb-4 border-red-200 bg-red-50">
+            <p className="text-red-600 text-sm font-mono">{error}</p>
           </div>
         )}
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <ColumnHeader icon={Clock} title="Requested" count={requested.length} />
@@ -189,11 +199,24 @@ export default function CollectionsPage() {
                 <div key={c.id} className="glass opacity-60">
                   <div className="flex items-center gap-2 mb-1">
                     <div className="w-7 h-7 rounded-full bg-black/5 flex items-center justify-center font-bold text-[#1D1D1F] text-xs">
-                      {(c.profiles?.display_name ?? 'C').charAt(0).toUpperCase()}
+                      {(() => {
+                        const p = Array.isArray(c.profiles) ? (c.profiles as Array<{ display_name: string | null }>)[0] : c.profiles
+                        return (p?.display_name ?? 'C').charAt(0).toUpperCase()
+                      })()}
                     </div>
-                    <span className="font-semibold text-[#1D1D1F] text-sm">{c.profiles?.display_name ?? 'Customer'}</span>
+                    <span className="font-semibold text-[#1D1D1F] text-sm">
+                      {(() => {
+                        const p = Array.isArray(c.profiles) ? (c.profiles as Array<{ display_name: string | null }>)[0] : c.profiles
+                        return p?.display_name ?? 'Customer'
+                      })()}
+                    </span>
                   </div>
-                  <p className="text-black/50 text-xs">{c.reward_instances?.reward_name ?? 'Reward'}</p>
+                  <p className="text-black/50 text-xs">
+                    {(() => {
+                      const r = Array.isArray(c.reward_instances) ? (c.reward_instances as Array<{ reward_name: string }>)[0] : c.reward_instances
+                      return r?.reward_name ?? 'Reward'
+                    })()}
+                  </p>
                   <p className="text-black/30 text-xs font-mono mt-0.5">{c.collection_code}</p>
                 </div>
               ))}
