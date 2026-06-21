@@ -11,7 +11,7 @@ interface Collection {
   selected_option: string | null
   requested_at: string
   reward_instances: { reward_name: string } | null
-  profiles: { display_name: string | null } | null
+  profiles: { display_name: string | null } | null  // via customer_id FK
 }
 
 function CollectionCard({ c, onAction }: { c: Collection; onAction: (id: string, action: 'ready' | 'collected') => void }) {
@@ -77,7 +77,7 @@ export default function CollectionsPage() {
   const fetchCollections = useCallback(async (vid: string) => {
     const { data, error: fetchErr } = await supabase
       .from('reward_collections')
-      .select('id, status, collection_code, selected_option, requested_at, reward_instances(reward_name), profiles(display_name)')
+      .select('id, status, collection_code, selected_option, requested_at, reward_instances(reward_name), profiles!reward_collections_customer_id_fkey(display_name)')
       .eq('vendor_id', vid)
       .in('status', ['requested', 'ready', 'collected'])
       .order('requested_at', { ascending: false })
