@@ -9,10 +9,9 @@ struct RewardInstance: Codable, Identifiable {
     let status: String // available, collection_requested, ready, collected, expired, cancelled
     let expiresAt: Date?
     let createdAt: Date
-    var vendors: [Vendor]?
+    var vendor: Vendor?
     var collections: [RewardCollection]?
 
-    var vendor: Vendor? { vendors?.first }
     var collection: RewardCollection? { collections?.first }
 
     enum CodingKeys: String, CodingKey {
@@ -24,7 +23,7 @@ struct RewardInstance: Codable, Identifiable {
         case status
         case expiresAt = "expires_at"
         case createdAt = "created_at"
-        case vendors
+        case vendor = "vendors"
         case collections = "reward_collections"
     }
 }

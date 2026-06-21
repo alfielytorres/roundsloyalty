@@ -10,13 +10,13 @@ interface Collection {
   collection_code: string
   selected_option: string | null
   requested_at: string
-  reward_instances: Array<{ reward_name: string }> | null
-  profiles: Array<{ display_name: string | null }> | null
+  reward_instances: { reward_name: string } | null
+  profiles: { display_name: string | null } | null
 }
 
 function CollectionCard({ c, onAction }: { c: Collection; onAction: (id: string, action: 'ready' | 'collected') => void }) {
-  const name = c.profiles?.[0]?.display_name ?? 'Customer'
-  const rewardName = c.reward_instances?.[0]?.reward_name ?? 'Reward'
+  const name = c.profiles?.display_name ?? 'Customer'
+  const rewardName = c.reward_instances?.reward_name ?? 'Reward'
   return (
     <div className="glass">
       <div className="flex items-center gap-3 mb-3">
@@ -189,11 +189,11 @@ export default function CollectionsPage() {
                 <div key={c.id} className="glass opacity-60">
                   <div className="flex items-center gap-2 mb-1">
                     <div className="w-7 h-7 rounded-full bg-black/5 flex items-center justify-center font-bold text-[#1D1D1F] text-xs">
-                      {(c.profiles?.[0]?.display_name ?? 'C').charAt(0).toUpperCase()}
+                      {(c.profiles?.display_name ?? 'C').charAt(0).toUpperCase()}
                     </div>
-                    <span className="font-semibold text-[#1D1D1F] text-sm">{c.profiles?.[0]?.display_name ?? 'Customer'}</span>
+                    <span className="font-semibold text-[#1D1D1F] text-sm">{c.profiles?.display_name ?? 'Customer'}</span>
                   </div>
-                  <p className="text-black/50 text-xs">{c.reward_instances?.[0]?.reward_name ?? 'Reward'}</p>
+                  <p className="text-black/50 text-xs">{c.reward_instances?.reward_name ?? 'Reward'}</p>
                   <p className="text-black/30 text-xs font-mono mt-0.5">{c.collection_code}</p>
                 </div>
               ))}
