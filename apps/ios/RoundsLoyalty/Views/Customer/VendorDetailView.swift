@@ -48,7 +48,15 @@ struct VendorDetailView: View {
                             LinearGradient.cardGradient(index: gradientIndex)
                                 .frame(height: 220)
 
-                            VStack(alignment: .leading, spacing: 4) {
+                            VStack(alignment: .leading, spacing: 6) {
+                                if let logoUrl = membership.vendor?.logoUrl, let url = URL(string: logoUrl) {
+                                    AsyncImage(url: url) { img in
+                                        img.resizable().scaledToFill()
+                                    } placeholder: { Color.black.opacity(0.06) }
+                                        .frame(width: 48, height: 48)
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                        .shadow(color: .black.opacity(0.10), radius: 4, x: 0, y: 2)
+                                }
                                 Text(membership.vendor?.businessName ?? "Store")
                                     .font(.system(size: 28, weight: .bold))
                                     .foregroundColor(.primaryText)

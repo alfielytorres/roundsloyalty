@@ -36,7 +36,10 @@ extension Color {
         self.init(.sRGB, red: Double(r) / 255, green: Double(g) / 255, blue: Double(b) / 255, opacity: Double(a) / 255)
     }
 
-    static func vendorAccent(_ hex: String?) -> Color { .primaryText }
+    static func vendorAccent(_ hex: String?) -> Color {
+        guard let hex, !hex.isEmpty else { return .primaryText }
+        return Color(hex: hex)
+    }
 }
 
 // MARK: - Monochrome card gradient (shades of white/grey)
