@@ -1,4 +1,6 @@
 -- Add rounds_required to the award_rounds_internal return payload
+DROP FUNCTION IF EXISTS award_rounds_internal(text,uuid,text,text,uuid,text);
+
 -- so the iOS scan result screen can show "X / Y ROUNDS" instead of "X / ?"
 
 -- We only need to patch the final RETURN inside award_rounds_internal.
