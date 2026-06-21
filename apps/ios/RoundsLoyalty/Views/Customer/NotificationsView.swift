@@ -65,7 +65,7 @@ struct NotificationsView: View {
         try? await supabase.database
             .from("customer_notifications")
             .update(["read_at": ISO8601DateFormatter().string(from: Date())])
-            .in("id", values: unreadIds)
+            .in("id", value: unreadIds)
             .execute()
     }
 }
