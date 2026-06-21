@@ -209,6 +209,7 @@ private struct VendorCard: View {
     let membership: Membership
     let isFeatured: Bool
 
+    private var accent: Color { Color.vendorAccent(membership.vendor?.brandColor) }
     private var required: Int { membership.program?.roundsRequired ?? 10 }
     private var progress: Double {
         guard required > 0 else { return 0 }
@@ -233,7 +234,7 @@ private struct VendorCard: View {
                     if remaining == 0 && required > 0 {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 14))
-                            .foregroundColor(.black.opacity(0.70))
+                            .foregroundColor(accent)
                     }
                 }
 
@@ -255,7 +256,7 @@ private struct VendorCard: View {
                     GeometryReader { geo in
                         ZStack(alignment: .leading) {
                             RoundedRectangle(cornerRadius: 2).fill(Color.black.opacity(0.08)).frame(height: 3)
-                            RoundedRectangle(cornerRadius: 2).fill(Color.black.opacity(0.50)).frame(width: geo.size.width * progress, height: 3)
+                            RoundedRectangle(cornerRadius: 2).fill(accent).frame(width: geo.size.width * progress, height: 3)
                         }
                     }
                     .frame(height: 3)
@@ -267,7 +268,7 @@ private struct VendorCard: View {
                     } else if let rewardName = membership.program?.rewardName {
                         Text("Ready: \(rewardName)")
                             .font(.system(size: 11, weight: .semibold))
-                            .foregroundColor(.primaryText)
+                            .foregroundColor(accent)
                             .lineLimit(1)
                     }
                 }
@@ -284,8 +285,18 @@ private struct VendorCard: View {
 private struct ReadyToCollectCard: View {
     let reward: RewardInstance
 
+    private var accent: Color { Color.vendorAccent(reward.vendor?.brandColor) }
+
     var body: some View {
-        HStack {
+        HStack(spacing: 14) {
+            ZStack {
+                Circle()
+                    .fill(accent.opacity(0.12))
+                    .frame(width: 44, height: 44)
+                Image(systemName: "gift.fill")
+                    .font(.system(size: 18))
+                    .foregroundColor(accent)
+            }
             VStack(alignment: .leading, spacing: 4) {
                 Text("Ready to collect")
                     .font(.system(size: 11, weight: .medium))
@@ -302,7 +313,7 @@ private struct ReadyToCollectCard: View {
             Spacer()
             Image(systemName: "chevron.right")
                 .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.black.opacity(0.25))
+                .foregroundColor(accent.opacity(0.5))
         }
         .padding(18)
         .background(
