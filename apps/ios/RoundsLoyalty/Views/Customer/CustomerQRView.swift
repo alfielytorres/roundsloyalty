@@ -4,6 +4,9 @@ import CoreImage.CIFilterBuiltins
 struct CustomerQRView: View {
     @EnvironmentObject var sessionManager: SessionManager
 
+    /// Optional NFC tap-to-stamp action; nil hides the button (e.g. unsupported device).
+    var onNFCStamp: (() -> Void)? = nil
+
     /// Prefer customer_token from profile, fall back to user UUID
     private var qrValue: String? {
         sessionManager.profile?.customerToken ?? sessionManager.session?.user.id.uuidString
@@ -49,6 +52,27 @@ struct CustomerQRView: View {
                                 Text("Sign in to view QR")
                                     .foregroundColor(.secondaryText)
                             )
+                    }
+
+                    if let onNFCStamp {
+                        Button(action: onNFCStamp) {
+                            HStack(spacing: 10) {
+                                Image(systemName: "wave.3.right")
+                                    .font(.system(size: 18, weight: .semibold))
+                                Text("Tap to stamp with NFC")
+                                    .font(.system(size: 16, weight: .semibold))
+                            }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.accentDefault)
+                            .cornerRadius(16)
+                        }
+                        .padding(.horizontal, 8)
+
+                        Text("Hold your phone to the store's tag")
+                            .font(.caption)
+                            .foregroundColor(.secondaryText)
                     }
 
                     Spacer()

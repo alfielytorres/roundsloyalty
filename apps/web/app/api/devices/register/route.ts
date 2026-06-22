@@ -1,7 +1,12 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
-import { createHash } from 'crypto'
+import { createHash, randomBytes } from 'crypto'
+
+// Base URL written to the physical tag. The app extracts the token from the
+// last path segment, so the host is cosmetic for now but keeps the tags
+// forward-compatible with Universal Links / NFC DNA later.
+const TAG_BASE_URL = process.env.NEXT_PUBLIC_NFC_TAG_BASE_URL ?? 'https://roundsloyalty.app/s'
 
 export async function POST(req: NextRequest) {
   const cookieStore = await cookies()
@@ -19,20 +24,20 @@ export async function POST(req: NextRequest) {
   )
 
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.redirect(new URL('/', req.url))
+  if (!user) return NextResponse.json({ error: 'Not authenticated.' }, { status: 401 })
 
-  const formData = await req.formData()
-  const vendor_id = formData.get('vendor_id') as string
-  const name = (formData.get('name') as string)?.trim()
-  const location_label = (formData.get('location_label') as string)?.trim() || null
-  const device_token_raw = (formData.get('device_token') as string)?.trim()
+  const body = await req.json().catch(() => null)
+  const vendor_id = body?.vendor_id as string | undefined
+  const name = (body?.name as string | undefined)?.trim()
+  const location_label = (body?.location_label as string | undefined)?.trim() || null
 
-  if (!name || !device_token_raw) {
-    return NextResponse.redirect(new URL('/devices?error=' + encodeURIComponent('Name and device token are required.'), req.url))
+  if (!vendor_id || !name) {
+    return NextResponse.json({ error: 'Vendor and device name are required.' }, { status: 400 })
   }
 
-  // Hash the device token before storing
-  const device_token_hash = createHash('sha256').update(device_token_raw).digest('hex')
+  // Generate the device token server-side; only its SHA-256 hash is ever stored.
+  const device_token = randomBytes(16).toString('hex')
+  const device_token_hash = createHash('sha256').update(device_token).digest('hex')
 
   const { error } = await supabase.from('nfc_stamp_devices').insert({
     vendor_id,
@@ -43,8 +48,9 @@ export async function POST(req: NextRequest) {
   })
 
   if (error) {
-    return NextResponse.redirect(new URL('/devices?error=' + encodeURIComponent(error.message), req.url))
+    return NextResponse.json({ error: error.message }, { status: 400 })
   }
 
-  return NextResponse.redirect(new URL('/devices?success=' + encodeURIComponent('Device registered!'), req.url))
+  // Returned once for the merchant to write to the tag — the plaintext token is never persisted.
+  return NextResponse.json({ token: device_token, tag_url: `${TAG_BASE_URL}/${device_token}` })
 }

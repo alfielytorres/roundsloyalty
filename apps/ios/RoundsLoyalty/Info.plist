@@ -26,6 +26,8 @@
 	<string>Round Rewards uses your camera to scan QR codes at stores to earn stamps.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Round Rewards uses your location to show nearby stores on the map.</string>
+	<key>NFCReaderUsageDescription</key>
+	<string>Round Rewards reads the store's NFC tag to add your stamp.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

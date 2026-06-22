@@ -1,10 +1,15 @@
 import SwiftUI
 
 struct ScanQRSheet: View {
+    @EnvironmentObject var sessionManager: SessionManager
     @State private var activeTab: SheetTab = .myQR
     @State private var awardResult: AwardResult?
     @State private var awardVendor: Vendor?
     @State private var showNFC = false
+
+    @StateObject private var nfcReader = NFCStampReader()
+    @State private var isAwarding = false
+    @State private var nfcError: String?
 
     enum SheetTab { case myQR, scanStore }
 
@@ -28,7 +33,7 @@ struct ScanQRSheet: View {
                 Divider().overlay(Color.glassBorder)
 
                 if activeTab == .myQR {
-                    CustomerQRView()
+                    CustomerQRView(onNFCStamp: NFCStampReader.isAvailable ? startNFCStamp : nil)
                 } else {
                     MVPScanView(onAwardResult: { result, vendor in
                         awardResult = result
@@ -49,6 +54,64 @@ struct ScanQRSheet: View {
                 .transition(.opacity)
                 .zIndex(1)
             }
+
+            if isAwarding {
+                Color.black.opacity(0.6).ignoresSafeArea()
+                VStack(spacing: 16) {
+                    ProgressView().tint(.white).scaleEffect(1.4)
+                    Text("Adding your stamp…").foregroundColor(.white).font(.headline)
+                }
+                .zIndex(2)
+            }
+        }
+        .alert("Couldn't add stamp", isPresented: Binding(
+            get: { nfcError != nil },
+            set: { if !$0 { nfcError = nil } }
+        )) {
+            Button("OK", role: .cancel) { nfcError = nil }
+        } message: {
+            Text(nfcError ?? "")
+        }
+    }
+
+    private func startNFCStamp() {
+        nfcReader.scan(
+            onToken: { token in Task { await processNFCToken(token) } },
+            onError: { message in nfcError = message }
+        )
+    }
+
+    @MainActor
+    private func processNFCToken(_ token: String) async {
+        guard sessionManager.session != nil else {
+            nfcError = "Please sign in to collect stamps."
+            return
+        }
+        isAwarding = true
+        defer { isAwarding = false }
+
+        struct NFCParams: Encodable {
+            let p_nfc_token: String
+        }
+
+        do {
+            let result: AwardResult = try await supabase.database
+                .rpc("award_rounds_nfc", params: NFCParams(p_nfc_token: token))
+                .execute()
+                .value
+
+            // Build a lightweight Vendor from the result's embedded vendor info.
+            let vendor: Vendor? = result.vendor.map {
+                Vendor(id: $0.id, businessName: $0.businessName, description: nil,
+                       category: nil, logoUrl: nil, brandColor: $0.brandColor,
+                       address: nil, lat: nil, lng: nil, joinToken: nil, status: "active")
+            }
+
+            awardVendor = vendor
+            awardResult = result
+            withAnimation { showNFC = true }
+        } catch {
+            nfcError = error.localizedDescription
         }
     }
 
