@@ -8,16 +8,30 @@ import {
   Users, UserCog, QrCode, Settings2, X,
 } from 'lucide-react'
 
-const drawerItems = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/programs', icon: Award, label: 'Program' },
-  { href: '/campaigns', icon: Megaphone, label: 'Campaigns' },
-  { href: '/devices', icon: Cpu, label: 'NFC Devices' },
-  { href: '/collections', icon: PackageCheck, label: 'Collections' },
-  { href: '/customers', icon: Users, label: 'Customers' },
-  { href: '/staff', icon: UserCog, label: 'Staff' },
-  { href: '/stamp', icon: QrCode, label: 'Stamp' },
-  { href: '/settings', icon: Settings2, label: 'Settings' },
+const groups = [
+  {
+    label: 'Daily',
+    items: [
+      { href: '/collections', icon: PackageCheck, label: 'Collections' },
+      { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+      { href: '/customers', icon: Users, label: 'Customers' },
+    ],
+  },
+  {
+    label: 'Manage',
+    items: [
+      { href: '/programs', icon: Award, label: 'Program' },
+      { href: '/campaigns', icon: Megaphone, label: 'Campaigns' },
+      { href: '/staff', icon: UserCog, label: 'Staff' },
+    ],
+  },
+  {
+    label: 'Setup',
+    items: [
+      { href: '/devices', icon: Cpu, label: 'NFC Devices' },
+      { href: '/settings', icon: Settings2, label: 'Settings' },
+    ],
+  },
 ]
 
 export default function MobileNav() {
@@ -30,9 +44,13 @@ export default function MobileNav() {
     router.push(href)
   }
 
+  function isActive(href: string) {
+    return pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
+  }
+
   return (
     <>
-      {/* Floating pill — no labels, IG style */}
+      {/* Floating pill */}
       <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-1 px-3 py-2 rounded-full bg-white/80 backdrop-blur-2xl border border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.12)]">
 
         {/* Hamburger */}
@@ -65,13 +83,11 @@ export default function MobileNav() {
         <div className="lg:hidden fixed inset-0 z-50 flex">
           <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" onClick={() => setOpen(false)} />
           <div className="relative w-72 max-w-[85vw] bg-white/95 backdrop-blur-2xl h-full flex flex-col shadow-2xl">
+            {/* Header */}
             <div className="flex items-center justify-between px-5 pt-14 pb-5 border-b border-black/5">
               <div className="flex items-center gap-3">
                 <Image src="/logo.svg" alt="Rounds" width={22} height={22} />
-                <div>
-                  <p className="font-black text-[#111] tracking-wider text-sm leading-none">ROUND REWARDS</p>
-                  <p className="text-[10px] text-black/30 font-semibold tracking-widest uppercase mt-0.5">VENDOR</p>
-                </div>
+                <p className="font-black text-[#111] tracking-wider text-sm leading-none">ROUND REWARDS</p>
               </div>
               <button onClick={() => setOpen(false)}
                 className="w-8 h-8 flex items-center justify-center rounded-full bg-black/5 hover:bg-black/10 transition-colors">
@@ -79,25 +95,46 @@ export default function MobileNav() {
               </button>
             </div>
 
-            <nav className="flex-1 px-3 py-4 flex flex-col gap-0.5 overflow-y-auto">
-              {drawerItems.map(({ href, icon: Icon, label }) => {
-                const active = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
-                return (
-                  <button key={href} onClick={() => navigate(href)}
-                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm transition-all text-left ${
-                      active
-                        ? 'bg-[#1D1D1F] text-white font-semibold'
-                        : 'text-black/50 font-medium hover:bg-black/5 hover:text-black/80'
-                    }`}>
-                    <Icon size={18} strokeWidth={active ? 2.2 : 1.7} />
-                    {label}
-                  </button>
-                )
-              })}
+            {/* Stamp CTA */}
+            <div className="px-4 pt-4 pb-2">
+              <button
+                onClick={() => navigate('/stamp')}
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-bold text-sm bg-[#1D1D1F] text-white hover:bg-black transition-all"
+              >
+                <QrCode size={17} strokeWidth={2.2} />
+                Stamp Customer
+              </button>
+            </div>
+
+            {/* Grouped nav */}
+            <nav className="flex-1 px-3 py-2 flex flex-col gap-4 overflow-y-auto">
+              {groups.map((group) => (
+                <div key={group.label}>
+                  <p className="px-3 mb-1 text-[10px] font-bold tracking-widest uppercase text-black/25">
+                    {group.label}
+                  </p>
+                  <div className="flex flex-col gap-0.5">
+                    {group.items.map(({ href, icon: Icon, label }) => {
+                      const active = isActive(href)
+                      return (
+                        <button key={href} onClick={() => navigate(href)}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all text-left ${
+                            active
+                              ? 'bg-black/8 text-[#1D1D1F] font-semibold'
+                              : 'text-black/40 font-medium hover:bg-black/5 hover:text-black/70'
+                          }`}>
+                          <Icon size={17} strokeWidth={active ? 2.2 : 1.7} />
+                          {label}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
             </nav>
 
             <div className="px-5 py-5 border-t border-black/5 pb-safe">
-              <p className="text-xs text-black/25 font-medium">© 2025 Round Rewards</p>
+              <p className="text-xs text-black/25 font-medium">© {new Date().getFullYear()} Round Rewards</p>
             </div>
           </div>
         </div>
