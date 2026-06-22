@@ -11,8 +11,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="bg-black/5 text-[#1D1D1F] antialiased">
+    <html lang="en" className="min-h-screen">
+      <body className="min-h-screen bg-black/5 text-[#1D1D1F] antialiased">
         <ConditionalNav />
         <LayoutShell>{children}</LayoutShell>
       </body>
