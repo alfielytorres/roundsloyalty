@@ -28,6 +28,17 @@
 	<string>Round Rewards uses your location to show nearby stores on the map.</string>
 	<key>NFCReaderUsageDescription</key>
 	<string>Round Rewards reads the store's NFC tag to add your stamp.</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.roundsloyalty.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>roundsloyalty</string>
+			</array>
+		</dict>
+	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
