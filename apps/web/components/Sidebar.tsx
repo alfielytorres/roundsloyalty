@@ -11,8 +11,8 @@ import {
   PackageCheck,
   Users,
   UserCog,
-  Settings2,
   QrCode,
+  Settings2,
 } from 'lucide-react'
 
 const groups = [
@@ -54,9 +54,7 @@ export default function Sidebar() {
       <div className="px-5 py-5 border-b border-black/5">
         <div className="flex items-center gap-3">
           <Image src="/logo.svg" alt="Rounds" width={28} height={28} className="opacity-90" />
-          <div>
-            <span className="font-black text-[#111] tracking-wider text-sm">ROUND REWARDS</span>
-          </div>
+          <span className="font-black text-[#111] tracking-wider text-sm">ROUND REWARDS</span>
         </div>
       </div>
 

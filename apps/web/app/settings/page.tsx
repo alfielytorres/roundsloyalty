@@ -1,6 +1,5 @@
 import { getPortalData } from '@/lib/portal-data'
-import { LogOut, QrCode } from 'lucide-react'
-import Link from 'next/link'
+import { LogOut } from 'lucide-react'
 import AddressAutocomplete from './AddressAutocomplete'
 
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ error?: string; success?: string }> }) {
@@ -46,16 +45,6 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
             <button type="submit" className="btn-primary self-start text-sm py-2.5 px-5 mt-1">Save changes</button>
           </form>
         </div>
-
-        <Link href="/qr" className="glass flex items-center gap-3 mb-3 hover:bg-white/90 transition-colors">
-          <div className="w-9 h-9 rounded-xl bg-black/5 flex items-center justify-center shrink-0">
-            <QrCode size={17} className="text-black/50" />
-          </div>
-          <div>
-            <p className="font-semibold text-[#1D1D1F] text-sm">My QR Code</p>
-            <p className="text-black/40 text-xs">Show customers to join your loyalty program</p>
-          </div>
-        </Link>
 
         <div className="glass">
           <p className="text-sm font-semibold text-[#1D1D1F] mb-0.5">Account</p>
