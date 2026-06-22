@@ -4,9 +4,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createHash, randomBytes } from 'crypto'
 
 // Base URL written to the physical tag. The app extracts the token from the
-// last path segment, so the host is cosmetic for now but keeps the tags
-// forward-compatible with Universal Links / NFC DNA later.
-const TAG_BASE_URL = process.env.NEXT_PUBLIC_NFC_TAG_BASE_URL ?? 'https://roundsloyalty.app/s'
+// last path segment, so the host is cosmetic for the in-app tap flow, but it
+// should point at the live deployment so a tap without the app still resolves.
+// Override via NEXT_PUBLIC_NFC_TAG_BASE_URL when the custom domain goes live.
+const TAG_BASE_URL = process.env.NEXT_PUBLIC_NFC_TAG_BASE_URL ?? 'https://roundsloyalty.vercel.app/s'
 
 export async function POST(req: NextRequest) {
   const cookieStore = await cookies()
