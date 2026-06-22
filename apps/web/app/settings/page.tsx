@@ -1,11 +1,12 @@
-import { getPortalData } from '@/lib/portal-data'
+import { getPortalData, fetchProgram } from '@/lib/portal-data'
 import { LogOut, QrCode } from 'lucide-react'
 import Link from 'next/link'
 import BrandingEditor from './BrandingEditor'
 import AddressAutocomplete from './AddressAutocomplete'
 
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ error?: string; success?: string }> }) {
-  const { user, vendor, program } = await getPortalData()
+  const { user, vendor, supabase } = await getPortalData()
+  const program = await fetchProgram(vendor.id, supabase)
   const query = await searchParams
 
   return (

@@ -3,6 +3,18 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
+type VendorShape = {
+  id: string; business_name: string; description: string | null
+  category: string | null; status: string; brand_color: string | null
+  join_token: string | null; address: string | null; logo_url: string | null
+  lat?: number | null; lng?: number | null
+}
+
+export type ProgramShape = {
+  id: string; name: string; rounds_required: number; default_round_value: number
+  reward_name: string; reward_description: string | null
+} | null
+
 export const getPortalData = cache(async () => {
   const cookieStore = await cookies()
   const supabase = createServerClient(
@@ -14,7 +26,7 @@ export const getPortalData = cache(async () => {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/')
 
-  // Find vendor via staff record
+  // Try staff record first (handles both owner and staff users)
   const { data: staffRecord } = await supabase
     .from('vendor_staff')
     .select('vendor_id, role, vendors(id, business_name, description, category, status, brand_color, join_token, address, logo_url)')
@@ -23,36 +35,12 @@ export const getPortalData = cache(async () => {
     .limit(1)
     .maybeSingle()
 
-  type VendorShape = {
-    id: string; business_name: string; description: string | null
-    category: string | null; status: string; brand_color: string | null
-    join_token: string | null; address: string | null; logo_url: string | null
-    lat?: number | null; lng?: number | null
-  }
-
-  type ProgramShape = {
-    id: string; name: string; rounds_required: number
-    reward_name: string; reward_description: string | null
-  } | null
-
-  async function fetchProgram(vendorId: string): Promise<ProgramShape> {
-    const { data } = await supabase
-      .from('loyalty_programs')
-      .select('id, name, rounds_required, reward_name, reward_description')
-      .eq('vendor_id', vendorId)
-      .eq('status', 'active')
-      .limit(1)
-      .maybeSingle()
-    return data as ProgramShape
-  }
-
   if (staffRecord?.vendors) {
     const vendor = staffRecord.vendors as unknown as VendorShape
-    const program = await fetchProgram(vendor.id)
-    return { user, vendor, program, role: staffRecord.role as string, supabase }
+    return { user, vendor, role: staffRecord.role as string, supabase }
   }
 
-  // Fallback: user is owner but staff record missing
+  // Fallback: user is owner but staff record missing (rare)
   const { data: ownedVendor } = await supabase
     .from('vendors')
     .select('id, business_name, description, category, status, brand_color, join_token, address, logo_url, lat, lng')
@@ -61,7 +49,16 @@ export const getPortalData = cache(async () => {
     .maybeSingle()
 
   if (!ownedVendor) redirect('/onboarding')
-
-  const program = await fetchProgram(ownedVendor.id)
-  return { user, vendor: ownedVendor as VendorShape, program, role: 'owner', supabase }
+  return { user, vendor: ownedVendor as VendorShape, role: 'owner', supabase }
 })
+
+export async function fetchProgram(vendorId: string, supabase: ReturnType<typeof createServerClient>) {
+  const { data } = await supabase
+    .from('loyalty_programs')
+    .select('id, name, rounds_required, default_round_value, reward_name, reward_description')
+    .eq('vendor_id', vendorId)
+    .eq('status', 'active')
+    .limit(1)
+    .maybeSingle()
+  return data as ProgramShape
+}
