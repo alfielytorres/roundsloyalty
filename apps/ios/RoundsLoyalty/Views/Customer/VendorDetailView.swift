@@ -227,12 +227,10 @@ struct VendorDetailView: View {
             }
         }
         .sheet(isPresented: $showCollection) {
-            if let prog = membership.program {
-                CollectionSheet(
-                    membership: membership,
-                    program: prog
-                )
-            }
+            CollectionSheet(
+                reward: availableReward,
+                preloadedMembership: membership
+            )
         }
         .task {
             await loadAvailableReward()

@@ -135,10 +135,10 @@ struct HomeView: View {
             .refreshable { await loadData(); await loadUnreadCount() }
             .sheet(item: $selectedMembership) { VendorDetailView(membership: $0) }
             .sheet(item: $selectedReward) { reward in
-                if let membership = memberships.first(where: { $0.vendorId == reward.vendorId }),
-                   let program = membership.program {
-                    CollectionSheet(membership: membership, program: program)
-                }
+                CollectionSheet(
+                    reward: reward,
+                    preloadedMembership: memberships.first(where: { $0.vendorId == reward.vendorId })
+                )
             }
             .sheet(isPresented: $showNotifications, onDismiss: { Task { await loadUnreadCount() } }) {
                 NotificationsView()

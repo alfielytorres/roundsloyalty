@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Camera, X, CheckCircle, AlertCircle, ChevronRight } from 'lucide-react'
+import { Camera, X, CheckCircle, AlertCircle, ChevronRight, Zap } from 'lucide-react'
 
 interface CustomerPreview {
   display_name: string
@@ -134,32 +134,32 @@ export default function StampScanner({ vendorId }: { vendorId: string }) {
   // ── Success state ──────────────────────────────────────────
   if (result) {
     return (
-      <div className="flex flex-col items-center text-center py-8 px-6 glass">
-        <div className="w-16 h-16 rounded-full bg-black/5 flex items-center justify-center mb-4">
-          <CheckCircle size={32} className="text-[#1D1D1F]" strokeWidth={1.8} />
+      <div className="glass flex flex-col items-center text-center py-10 px-6 animate-in fade-in duration-300">
+        <div className="w-20 h-20 rounded-full bg-[#1D1D1F] flex items-center justify-center mb-5">
+          <CheckCircle size={38} className="text-white" strokeWidth={2} />
         </div>
-        <p className="text-2xl font-black text-[#1D1D1F]">
+        <p className="text-3xl font-black text-[#1D1D1F] tracking-tight">
           +{result.rounds_awarded} Round{result.rounds_awarded !== 1 ? 's' : ''}
         </p>
-        <p className="text-black/40 text-sm mt-1">
+        <p className="text-black/45 text-sm mt-1.5">
           {preview?.display_name ?? 'Customer'} now has {result.new_balance} round{result.new_balance !== 1 ? 's' : ''}
         </p>
         {result.campaign_name && (
-          <p className="mt-2 text-xs font-semibold text-black/50 bg-black/5 px-3 py-1 rounded-full">
-            🎯 Campaign: {result.campaign_name}
-          </p>
+          <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[#1D1D1F] bg-black/[0.06] px-3 py-1.5 rounded-full">
+            <Zap size={11} className="fill-[#1D1D1F]" /> {result.campaign_name}
+          </span>
         )}
         {result.reward_unlocked && (
-          <div className="mt-3 w-full bg-[#1D1D1F] text-white rounded-2xl px-4 py-3">
+          <div className="mt-4 w-full bg-[#1D1D1F] text-white rounded-2xl px-4 py-3.5">
             <p className="font-bold text-sm">🎉 Reward unlocked!</p>
-            <p className="text-white/70 text-xs mt-0.5">{result.reward_name}</p>
+            <p className="text-white/60 text-xs mt-0.5">{result.reward_name}</p>
           </div>
         )}
         <button
           onClick={handleReset}
-          className="mt-6 flex items-center gap-1 text-sm font-semibold text-black/40 hover:text-black/70 transition-colors"
+          className="mt-7 inline-flex items-center gap-1 text-sm font-semibold text-white bg-[#1D1D1F] hover:bg-black px-5 py-2.5 rounded-full transition-colors"
         >
-          Stamp another customer <ChevronRight size={14} />
+          Stamp another <ChevronRight size={15} />
         </button>
       </div>
     )
@@ -167,45 +167,50 @@ export default function StampScanner({ vendorId }: { vendorId: string }) {
 
   // ── Scanner ────────────────────────────────────────────────
   return (
-    <div className="glass overflow-hidden">
-      {/* Camera */}
+    <div className="glass overflow-hidden !p-0">
+      {/* Camera viewport */}
       {cameraOpen ? (
-        <div className="relative bg-black aspect-[4/3]">
+        <div className="relative bg-black aspect-[4/3] sm:aspect-video">
           <video ref={videoRef} className="w-full h-full object-cover" muted playsInline />
           <canvas ref={canvasRef} className="hidden" />
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-52 h-52 border-2 border-white rounded-3xl shadow-[0_0_0_9999px_rgba(0,0,0,0.55)]" />
+            <div className="w-52 h-52 border-2 border-white/90 rounded-3xl shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]" />
           </div>
           <button
             onClick={stopCamera}
-            className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+            className="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/60 transition-colors"
           >
             <X size={16} />
           </button>
-          <p className="absolute bottom-4 left-0 right-0 text-center text-white/60 text-xs">
+          <p className="absolute bottom-4 left-0 right-0 text-center text-white/70 text-xs font-medium">
             Point at the customer&apos;s QR code
           </p>
         </div>
       ) : (
         <button
           onClick={startCamera}
-          className="w-full flex items-center justify-center gap-2 py-4 border-b border-black/5 text-black/40 hover:text-black/60 hover:bg-black/[0.02] transition-colors text-sm font-medium"
+          className="group w-full flex flex-col items-center justify-center gap-3 aspect-[4/3] sm:aspect-video bg-black/[0.03] hover:bg-black/[0.05] transition-colors"
         >
-          <Camera size={16} strokeWidth={1.8} />
-          Open camera to scan
+          <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center group-hover:scale-105 transition-transform">
+            <Camera size={24} className="text-[#1D1D1F]" strokeWidth={1.8} />
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-semibold text-[#1D1D1F]">Open camera</p>
+            <p className="text-xs text-black/35 mt-0.5">Scan the customer&apos;s QR code</p>
+          </div>
         </button>
       )}
 
       <div className="p-4 space-y-3">
         {cameraError && (
-          <div className="flex items-start gap-2 p-2.5 bg-red-50/50 border border-red-200/50 rounded-lg">
+          <div className="flex items-start gap-2 p-2.5 bg-red-50 border border-red-100 rounded-xl">
             <AlertCircle size={14} className="text-red-500 shrink-0 mt-0.5" />
             <p className="text-red-600 text-xs">{cameraError}</p>
           </div>
         )}
 
         {error && (
-          <div className="flex items-start gap-2 p-2.5 bg-red-50/50 border border-red-200/50 rounded-lg">
+          <div className="flex items-start gap-2 p-2.5 bg-red-50 border border-red-100 rounded-xl">
             <AlertCircle size={14} className="text-red-500 shrink-0 mt-0.5" />
             <div className="flex-1">
               <p className="text-red-600 text-xs">{error}</p>
@@ -214,15 +219,16 @@ export default function StampScanner({ vendorId }: { vendorId: string }) {
           </div>
         )}
 
-        {/* Token input */}
-        <div>
+        {/* Manual token entry */}
+        <div className="relative flex items-center">
+          <span className="absolute left-3 text-[10px] font-bold text-black/25 tracking-wider uppercase pointer-events-none">or</span>
           <input
             ref={inputRef}
             value={token}
             onChange={(e) => setToken(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAward()}
-            placeholder="Paste customer token"
-            className="w-full px-3 py-2.5 rounded-xl bg-black/5 border border-black/8 text-[#1D1D1F] text-sm placeholder:text-black/30 focus:outline-none focus:ring-1 focus:ring-black/20 transition-all"
+            placeholder="paste customer token"
+            className="w-full pl-9 pr-3 py-3 rounded-xl bg-black/[0.04] border border-transparent text-[#1D1D1F] text-sm placeholder:text-black/30 focus:outline-none focus:bg-white focus:border-black/15 transition-all"
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
@@ -235,20 +241,20 @@ export default function StampScanner({ vendorId }: { vendorId: string }) {
 
         {/* Customer preview */}
         {preview && (
-          <div className="flex items-center gap-2.5 p-2.5 bg-black/5 rounded-xl">
-            <div className="w-8 h-8 rounded-full bg-black/10 flex items-center justify-center font-bold text-[#1D1D1F] text-xs shrink-0">
+          <div className="flex items-center gap-3 p-3 bg-black/[0.04] rounded-xl animate-in fade-in slide-in-from-top-1 duration-200">
+            <div className="w-9 h-9 rounded-full bg-[#1D1D1F] flex items-center justify-center font-bold text-white text-xs shrink-0">
               {preview.display_name.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-[#1D1D1F] text-xs truncate">{preview.display_name}</p>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <div className="flex-1 h-0.5 bg-black/10 rounded-full overflow-hidden">
+              <p className="font-semibold text-[#1D1D1F] text-sm truncate">{preview.display_name}</p>
+              <div className="flex items-center gap-2 mt-1">
+                <div className="flex-1 h-1 bg-black/10 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-[#1D1D1F]"
+                    className="h-full bg-[#1D1D1F] rounded-full transition-all"
                     style={{ width: `${Math.min((preview.current_rounds / preview.rounds_required) * 100, 100)}%` }}
                   />
                 </div>
-                <span className="text-[9px] text-black/40 shrink-0 whitespace-nowrap">{preview.current_rounds}/{preview.rounds_required}</span>
+                <span className="text-[10px] font-medium text-black/40 shrink-0 tabular-nums">{preview.current_rounds}/{preview.rounds_required}</span>
               </div>
             </div>
           </div>
@@ -259,11 +265,11 @@ export default function StampScanner({ vendorId }: { vendorId: string }) {
           type="button"
           onClick={handleAward}
           disabled={loading || !token.trim()}
-          className="w-full py-3 rounded-xl font-bold text-white text-sm bg-[#1D1D1F] hover:bg-black disabled:opacity-30 disabled:hover:bg-[#1D1D1F] transition-all flex items-center justify-center gap-2"
+          className="w-full py-3.5 rounded-xl font-bold text-white text-sm bg-[#1D1D1F] hover:bg-black disabled:opacity-25 disabled:hover:bg-[#1D1D1F] transition-all flex items-center justify-center gap-2"
         >
           {loading ? (
             <>
-              <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               Processing…
             </>
           ) : (

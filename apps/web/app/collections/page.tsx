@@ -75,18 +75,28 @@ export default function CollectionsPage() {
   )
 
   const fetchCollections = useCallback(async (vid: string) => {
-    const { data, error: fetchErr } = await supabase
-      .from('reward_collections')
-      .select('id, status, collection_code, selected_option, requested_at, reward_instances(reward_name), profiles!reward_collections_customer_id_fkey(display_name)')
-      .eq('vendor_id', vid)
-      .in('status', ['requested', 'ready', 'collected'])
-      .order('requested_at', { ascending: false })
-      .limit(100)
-    if (fetchErr) {
-      setError(`Query error: ${fetchErr.message}`)
-      return
+    try {
+      const { data, error: fetchErr } = await supabase
+        .from('reward_collections')
+        .select('id, status, collection_code, selected_option, requested_at, reward_instances(reward_name), profiles!reward_collections_customer_id_fkey(display_name)')
+        .eq('vendor_id', vid)
+        .in('status', ['requested', 'ready', 'collected'])
+        .order('requested_at', { ascending: false })
+        .limit(100)
+
+      if (fetchErr) {
+        setError(`Query error: ${fetchErr.message}`)
+        console.error('Collections fetch error:', fetchErr)
+        return
+      }
+
+      console.log('Collections data:', data)
+      setCollections((data ?? []) as unknown as Collection[])
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Unknown error'
+      setError(`Exception: ${msg}`)
+      console.error('Collections exception:', e)
     }
-    setCollections((data ?? []) as unknown as Collection[])
   }, [supabase])
 
   useEffect(() => {

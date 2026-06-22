@@ -170,9 +170,7 @@ struct RewardCard: View {
 struct RewardDetailSheet: View {
     let reward: RewardInstance
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject var sessionManager: SessionManager
     @State private var showCollectionSheet = false
-    @State private var membership: Membership?
 
     private var accent: Color {
         Color.vendorAccent(reward.vendor?.brandColor)
@@ -250,25 +248,9 @@ struct RewardDetailSheet: View {
                         .foregroundColor(.secondaryText)
                 }
             }
-            .task { await fetchMembership() }
             .sheet(isPresented: $showCollectionSheet) {
-                if let m = membership, let prog = m.program {
-                    CollectionSheet(membership: m, program: prog)
-                }
+                CollectionSheet(reward: reward)
             }
         }
-    }
-
-    private func fetchMembership() async {
-        guard let userId = sessionManager.session?.user.id else { return }
-        let results: [Membership] = (try? await supabase.database
-            .from("customer_vendor_memberships")
-            .select("*, vendors(*), loyalty_programs(*)")
-            .eq("customer_id", value: userId)
-            .eq("vendor_id", value: reward.vendorId)
-            .limit(1)
-            .execute()
-            .value) ?? []
-        membership = results.first
     }
 }
