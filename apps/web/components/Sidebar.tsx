@@ -56,7 +56,6 @@ export default function Sidebar() {
           <Image src="/logo.svg" alt="Rounds" width={28} height={28} className="opacity-90" />
           <div>
             <span className="font-black text-[#111] tracking-wider text-sm">ROUND REWARDS</span>
-            <span className="block text-[10px] text-black/30 font-semibold tracking-widest uppercase leading-none">VENDOR</span>
           </div>
         </div>
       </div>
@@ -107,7 +106,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="px-4 py-4 border-t border-black/5">
-        <p className="text-xs text-black/25 font-medium">© 2025 Round Rewards</p>
+        <p className="text-xs text-black/25 font-medium">© {new Date().getFullYear()} Round Rewards</p>
       </div>
     </aside>
   )
