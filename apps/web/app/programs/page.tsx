@@ -3,6 +3,7 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
 import { Award } from 'lucide-react'
+import BrandingEditor from '@/app/settings/BrandingEditor'
 
 interface LoyaltyProgram {
   id: string
@@ -15,7 +16,14 @@ interface LoyaltyProgram {
   status: string
 }
 
-async function ProgramView({ vendorId, role }: { vendorId: string; role: string }) {
+interface VendorData {
+  id: string
+  business_name: string
+  logo_url: string | null
+  brand_color: string | null
+}
+
+async function ProgramView({ vendorId, vendorData, role }: { vendorId: string; vendorData: VendorData; role: string }) {
   const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -128,7 +136,18 @@ async function ProgramView({ vendorId, role }: { vendorId: string; role: string 
             <p className="text-black/35 text-xs mt-1">Days until an unlocked reward expires</p>
           </div>
 
-          <button type="submit" className="btn-primary self-start">Save changes</button>
+          <div className="border-t border-black/5 pt-6 mt-6">
+            <h3 className="text-sm font-semibold text-[#1D1D1F] mb-4">Brand customization</h3>
+            <BrandingEditor
+              defaultLogoUrl={vendorData.logo_url ?? ''}
+              defaultBrandColor={vendorData.brand_color ?? '#1D1D1F'}
+              vendorName={vendorData.business_name}
+              rewardName={program.reward_name}
+              roundsRequired={program.rounds_required}
+            />
+          </div>
+
+          <button type="submit" className="btn-primary self-start mt-6">Save changes</button>
         </form>
       ) : (
         <div className="flex flex-col gap-4 text-sm">
@@ -169,7 +188,7 @@ export default async function ProgramsPage({ searchParams }: { searchParams: Pro
         {query.success && <div className="mb-5 p-4 bg-black/5 border border-black/15 rounded-2xl text-black/70 text-sm font-semibold">{query.success}</div>}
 
         <Suspense fallback={null}>
-          <ProgramView vendorId={vendor.id} role={role} />
+          <ProgramView vendorId={vendor.id} vendorData={vendor} role={role} />
         </Suspense>
       </div>
     </main>
