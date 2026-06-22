@@ -34,8 +34,10 @@ export async function POST(req: NextRequest) {
   const file = formData.get('file') as File | null
   if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
 
+  // Same endpoint handles logos and card backgrounds; prefix keeps paths tidy.
+  const prefix = ((formData.get('prefix') as string) || 'logo').replace(/[^a-z0-9-]/gi, '') || 'logo'
   const ext = file.name.split('.').pop() ?? 'png'
-  const path = `${vendorId}/logo-${Date.now()}.${ext}`
+  const path = `${vendorId}/${prefix}-${Date.now()}.${ext}`
   const bytes = await file.arrayBuffer()
 
   // Use service role to bypass storage RLS for upload

@@ -30,6 +30,12 @@ export async function POST(req: NextRequest) {
   const reward_expiry_days = parseInt(formData.get('reward_expiry_days') as string) || null
   const default_round_value = parseInt(formData.get('default_round_value') as string) || 1
 
+  // Branding fields live on the vendor and are edited from the same form.
+  const logo_url = (formData.get('logo_url') as string)?.trim() || null
+  const brand_color = (formData.get('brand_color_text') as string)?.trim() || null
+  const stamp_icon = (formData.get('stamp_icon') as string)?.trim() || '☕'
+  const card_background_url = (formData.get('card_background_url') as string)?.trim() || null
+
   if (!name || !reward_name || !rounds_required) {
     return NextResponse.redirect(new URL('/programs?error=' + encodeURIComponent('Name, reward name, and rounds required are all required.'), req.url))
   }
@@ -54,6 +60,16 @@ export async function POST(req: NextRequest) {
 
   if (error) {
     return NextResponse.redirect(new URL('/programs?error=' + encodeURIComponent(error.message), req.url))
+  }
+
+  // Persist branding to the vendor (RLS limits this to owners/staff of the vendor).
+  const { error: brandError } = await supabase
+    .from('vendors')
+    .update({ logo_url, brand_color, stamp_icon, card_background_url })
+    .eq('id', vendor_id)
+
+  if (brandError) {
+    return NextResponse.redirect(new URL('/programs?error=' + encodeURIComponent(brandError.message), req.url))
   }
 
   return NextResponse.redirect(new URL('/programs?success=' + encodeURIComponent('Program saved!'), req.url))

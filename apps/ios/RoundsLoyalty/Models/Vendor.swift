@@ -12,6 +12,8 @@ struct Vendor: Codable, Identifiable {
     let lng: Double?
     let joinToken: String?
     let status: String?
+    let stampIcon: String?
+    let cardBackgroundUrl: String?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -25,5 +27,7 @@ struct Vendor: Codable, Identifiable {
         case lng
         case joinToken = "join_token"
         case status
+        case stampIcon = "stamp_icon"
+        case cardBackgroundUrl = "card_background_url"
     }
 }

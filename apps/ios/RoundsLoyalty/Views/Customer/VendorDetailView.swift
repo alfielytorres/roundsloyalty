@@ -36,6 +36,12 @@ struct VendorDetailView: View {
         return min(Double(membership.currentRounds) / Double(required), 1.0)
     }
 
+    private var icon: String { membership.vendor?.stampIcon ?? "☕" }
+    private var bgURL: URL? {
+        guard let s = membership.vendor?.cardBackgroundUrl, !s.isEmpty else { return nil }
+        return URL(string: s)
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -45,8 +51,17 @@ struct VendorDetailView: View {
                     VStack(spacing: 0) {
                         // Hero header
                         ZStack(alignment: .bottomLeading) {
-                            LinearGradient.cardGradient(index: gradientIndex)
-                                .frame(height: 220)
+                            Group {
+                                if let bgURL {
+                                    AsyncImage(url: bgURL) { img in img.resizable().scaledToFill() }
+                                        placeholder: { LinearGradient.cardGradient(index: gradientIndex) }
+                                        .overlay(Color.black.opacity(0.12))
+                                } else {
+                                    LinearGradient.cardGradient(index: gradientIndex)
+                                }
+                            }
+                            .frame(height: 220)
+                            .clipped()
 
                             VStack(alignment: .leading, spacing: 6) {
                                 if let logoUrl = membership.vendor?.logoUrl, let url = URL(string: logoUrl) {
@@ -90,6 +105,20 @@ struct VendorDetailView: View {
                                             .foregroundColor(.secondaryText)
                                     }
                                     Spacer()
+                                }
+
+                                // Stamp grid on a brand-coloured panel
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 16).fill(accent)
+                                    if let bgURL {
+                                        AsyncImage(url: bgURL) { img in img.resizable().scaledToFill() }
+                                            placeholder: { Color.clear }
+                                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                                        RoundedRectangle(cornerRadius: 16).fill(Color.black.opacity(0.12))
+                                    }
+                                    StampGrid(icon: icon, filled: membership.currentRounds, total: required,
+                                              maxDisplay: 10, columns: 5, slotSize: 36)
+                                        .padding(14)
                                 }
 
                                 // Progress bar

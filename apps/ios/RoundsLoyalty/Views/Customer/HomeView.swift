@@ -151,7 +151,7 @@ struct HomeView: View {
         isLoading = true
         async let membershipsTask: [Membership] = (try? await supabase.database
             .from("customer_vendor_memberships")
-            .select("*, vendors(id, business_name, brand_color, logo_url), loyalty_programs(id, name, rounds_required, reward_name, default_round_value)")
+            .select("*, vendors(id, business_name, brand_color, logo_url, stamp_icon, card_background_url), loyalty_programs(id, name, rounds_required, reward_name, default_round_value)")
             .eq("customer_id", value: userId).eq("status", value: "active").execute().value) ?? []
         async let rewardsTask: [RewardInstance] = (try? await supabase.database
             .from("reward_instances")
@@ -211,13 +211,85 @@ private struct VendorCard: View {
 
     private var accent: Color { Color.vendorAccent(membership.vendor?.brandColor) }
     private var required: Int { membership.program?.roundsRequired ?? 10 }
+    private var current: Int { membership.currentRounds }
+    private var remaining: Int { max(0, required - current) }
     private var progress: Double {
         guard required > 0 else { return 0 }
-        return min(Double(membership.currentRounds) / Double(required), 1.0)
+        return min(Double(current) / Double(required), 1.0)
     }
-    private var remaining: Int { max(0, required - membership.currentRounds) }
+    private var icon: String { membership.vendor?.stampIcon ?? "☕" }
+    private var bgURL: URL? {
+        guard let s = membership.vendor?.cardBackgroundUrl, !s.isEmpty else { return nil }
+        return URL(string: s)
+    }
 
     var body: some View {
+        if isFeatured { featured } else { compact }
+    }
+
+    // Designed stamp card — mirrors the vendor's web preview.
+    private var featured: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 24)
+                .fill(Color.white.opacity(0.85))
+                .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.white, lineWidth: 1))
+                .shadow(color: .black.opacity(0.06), radius: 12, x: 0, y: 4)
+
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 6) {
+                    if let logoUrl = membership.vendor?.logoUrl, let url = URL(string: logoUrl) {
+                        AsyncImage(url: url) { img in img.resizable().scaledToFill() }
+                            placeholder: { Color.black.opacity(0.06) }
+                            .frame(width: 22, height: 22)
+                            .clipShape(RoundedRectangle(cornerRadius: 6))
+                    }
+                    Text(membership.vendor?.businessName ?? "Store")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.primaryText)
+                        .lineLimit(1)
+                    Spacer()
+                    if remaining == 0 && required > 0 {
+                        Text("READY")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 8).padding(.vertical, 4)
+                            .background(Capsule().fill(accent))
+                    }
+                }
+
+                ZStack {
+                    RoundedRectangle(cornerRadius: 18).fill(accent)
+                    if let bgURL {
+                        AsyncImage(url: bgURL) { img in img.resizable().scaledToFill() }
+                            placeholder: { Color.clear }
+                            .clipShape(RoundedRectangle(cornerRadius: 18))
+                        RoundedRectangle(cornerRadius: 18).fill(Color.black.opacity(0.12))
+                    }
+                    StampGrid(icon: icon, filled: current, total: required,
+                              maxDisplay: 10, columns: 5, slotSize: 34)
+                        .padding(14)
+                }
+
+                HStack {
+                    Text("\(current) / \(required)")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(.primaryText)
+                    Spacer()
+                    if let rewardName = membership.program?.rewardName {
+                        Text(remaining > 0 ? "\(remaining) more for \(rewardName)" : "Ready: \(rewardName)")
+                            .font(.system(size: 11))
+                            .foregroundColor(remaining > 0 ? .black.opacity(0.4) : accent)
+                            .lineLimit(1)
+                    }
+                }
+            }
+            .padding(16)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    // Compact card for additional memberships.
+    private var compact: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: 24)
                 .fill(Color.white.opacity(0.80))
@@ -227,9 +299,8 @@ private struct VendorCard: View {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(spacing: 6) {
                     if let logoUrl = membership.vendor?.logoUrl, let url = URL(string: logoUrl) {
-                        AsyncImage(url: url) { img in
-                            img.resizable().scaledToFill()
-                        } placeholder: { Color.black.opacity(0.06) }
+                        AsyncImage(url: url) { img in img.resizable().scaledToFill() }
+                            placeholder: { Color.black.opacity(0.06) }
                             .frame(width: 20, height: 20)
                             .clipShape(RoundedRectangle(cornerRadius: 5))
                     }
@@ -248,8 +319,8 @@ private struct VendorCard: View {
                 Spacer()
 
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("\(membership.currentRounds)")
-                        .font(.system(size: isFeatured ? 64 : 56, weight: .heavy, design: .rounded))
+                    Text("\(current)")
+                        .font(.system(size: 56, weight: .heavy, design: .rounded))
                         .foregroundColor(.primaryText)
                         .minimumScaleFactor(0.7)
                     Text("rounds")
@@ -283,7 +354,7 @@ private struct VendorCard: View {
             .padding(16)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: isFeatured ? 190 : 155)
+        .frame(height: 155)
     }
 }
 

@@ -21,6 +21,8 @@ interface VendorData {
   business_name: string
   logo_url: string | null
   brand_color: string | null
+  stamp_icon: string | null
+  card_background_url: string | null
 }
 
 async function ProgramView({ vendorId, vendorData, role }: { vendorId: string; vendorData: VendorData; role: string }) {
@@ -141,6 +143,8 @@ async function ProgramView({ vendorId, vendorData, role }: { vendorId: string; v
             <BrandingEditor
               defaultLogoUrl={vendorData.logo_url ?? ''}
               defaultBrandColor={vendorData.brand_color ?? '#1D1D1F'}
+              defaultStampIcon={vendorData.stamp_icon ?? '☕'}
+              defaultCardBackgroundUrl={vendorData.card_background_url ?? ''}
               vendorName={vendorData.business_name}
               rewardName={program.reward_name}
               roundsRequired={program.rounds_required}

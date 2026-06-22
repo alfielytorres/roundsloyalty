@@ -43,13 +43,13 @@ export async function POST(req: NextRequest) {
   const description = (formData.get('description') as string)?.trim()
   const category = (formData.get('category') as string)?.trim() || null
   const address = (formData.get('address') as string)?.trim() || null
-  const logo_url = (formData.get('logo_url') as string)?.trim() || null
-  const brand_color = (formData.get('brand_color_text') as string)?.trim() || (formData.get('brand_color') as string)?.trim() || null
 
   if (!business_name) {
     return NextResponse.redirect(new URL('/settings?error=' + encodeURIComponent('Business name is required.'), req.url))
   }
 
+  // Branding (logo/colour/stamp/background) is edited on the Programs page, so
+  // this form only updates business details — it must not clobber branding.
   const { error } = await supabase
     .from('vendors')
     .update({
@@ -57,8 +57,6 @@ export async function POST(req: NextRequest) {
       description: description || null,
       category,
       address,
-      logo_url,
-      brand_color,
     })
     .eq('id', vendorId)
 

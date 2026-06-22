@@ -7,6 +7,7 @@ type VendorShape = {
   id: string; business_name: string; description: string | null
   category: string | null; status: string; brand_color: string | null
   join_token: string | null; address: string | null; logo_url: string | null
+  stamp_icon: string | null; card_background_url: string | null
   lat?: number | null; lng?: number | null
 }
 
@@ -29,7 +30,7 @@ export const getPortalData = cache(async () => {
   // Try staff record first (handles both owner and staff users)
   const { data: staffRecord } = await supabase
     .from('vendor_staff')
-    .select('vendor_id, role, vendors(id, business_name, description, category, status, brand_color, join_token, address, logo_url)')
+    .select('vendor_id, role, vendors(id, business_name, description, category, status, brand_color, join_token, address, logo_url, stamp_icon, card_background_url)')
     .eq('user_id', user.id)
     .eq('status', 'active')
     .limit(1)
@@ -43,7 +44,7 @@ export const getPortalData = cache(async () => {
   // Fallback: user is owner but staff record missing (rare)
   const { data: ownedVendor } = await supabase
     .from('vendors')
-    .select('id, business_name, description, category, status, brand_color, join_token, address, logo_url, lat, lng')
+    .select('id, business_name, description, category, status, brand_color, join_token, address, logo_url, stamp_icon, card_background_url, lat, lng')
     .eq('owner_id', user.id)
     .limit(1)
     .maybeSingle()

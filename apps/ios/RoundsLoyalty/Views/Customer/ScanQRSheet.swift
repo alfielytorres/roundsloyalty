@@ -104,7 +104,8 @@ struct ScanQRSheet: View {
             let vendor: Vendor? = result.vendor.map {
                 Vendor(id: $0.id, businessName: $0.businessName, description: nil,
                        category: nil, logoUrl: nil, brandColor: $0.brandColor,
-                       address: nil, lat: nil, lng: nil, joinToken: nil, status: "active")
+                       address: nil, lat: nil, lng: nil, joinToken: nil, status: "active",
+                       stampIcon: nil, cardBackgroundUrl: nil)
             }
 
             awardVendor = vendor
@@ -220,7 +221,8 @@ struct MVPScanView: View {
             let vendor: Vendor? = result.vendor.map {
                 Vendor(id: $0.id, businessName: $0.businessName, description: nil,
                        category: nil, logoUrl: nil, brandColor: $0.brandColor,
-                       address: nil, lat: nil, lng: nil, joinToken: nil, status: "active")
+                       address: nil, lat: nil, lng: nil, joinToken: nil, status: "active",
+                       stampIcon: nil, cardBackgroundUrl: nil)
             }
 
             await MainActor.run {
