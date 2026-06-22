@@ -2,13 +2,13 @@
 
 import { usePathname, useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { LayoutDashboard, QrCode, PackageCheck, Megaphone, Settings2 } from 'lucide-react'
+import { LayoutDashboard, PackageCheck, Users, Settings2 } from 'lucide-react'
 
 const items = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Home' },
-  { href: '/collections', icon: PackageCheck, label: 'Collections' },
-  { href: '/stamp', icon: QrCode, label: 'Stamp', primary: true },
-  { href: '/campaigns', icon: Megaphone, label: 'Campaigns' },
+  { href: '/collections', icon: PackageCheck, label: 'Collect' },
+  { href: '/stamp', label: 'Stamp', primary: true },
+  { href: '/customers', icon: Users, label: 'Customers' },
   { href: '/settings', icon: Settings2, label: 'Settings' },
 ]
 
@@ -30,17 +30,18 @@ export default function BottomNav() {
           return (
             <button key={href} onClick={(e) => navigate(e, href)} title={label}
               className="flex items-center justify-center w-12 h-12 -mt-6 rounded-full bg-[#1D1D1F] hover:bg-black shadow-md transition-all mx-2">
-              <Image src="/logo.svg" alt="Rounds" width={22} height={22} className="invert" />
+              <Image src="/logo.svg" alt="Stamp" width={22} height={22} className="invert" />
             </button>
           )
         }
 
         return (
           <button key={href} onClick={(e) => navigate(e, href)} title={label}
-            className={`flex items-center justify-center w-11 h-11 rounded-full transition-all ${
+            className={`flex flex-col items-center justify-center w-11 h-11 rounded-full gap-0.5 transition-all ${
               active ? 'text-[#1D1D1F]' : 'text-black/30 hover:text-black/55'
             }`}>
-            <Icon size={19} strokeWidth={active ? 2.2 : 1.7} />
+            {Icon && <Icon size={18} strokeWidth={active ? 2.2 : 1.7} />}
+            <span className="text-[9px] font-semibold leading-none">{label}</span>
           </button>
         )
       })}
