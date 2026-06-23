@@ -3,15 +3,18 @@ import Link from 'next/link'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
-import { Users, Award, PackageCheck, Megaphone, Clock } from 'lucide-react'
+import { Users, Award, PackageCheck, Megaphone, Clock, Zap, Gift, type LucideIcon } from 'lucide-react'
 
-function StatCard({ value, label, sublabel }: { value: string | number; label: string; sublabel: string }) {
+function StatCard({ value, label, sublabel, icon: Icon }: { value: string | number; label: string; sublabel: string; icon: LucideIcon }) {
   return (
-    <div className="glass flex flex-col justify-between min-h-[150px]">
-      <p className="text-xs tracking-widest uppercase text-black/30 font-semibold">{label}</p>
+    <div className="glass flex flex-col gap-3 hover:bg-white/90 transition-colors">
+      <div className="w-9 h-9 rounded-xl bg-black/5 flex items-center justify-center">
+        <Icon size={17} className="text-black/45" />
+      </div>
       <div>
-        <p className="text-7xl font-black text-[#1D1D1F] leading-none">{value}</p>
-        <p className="text-sm text-black/40 mt-2">{sublabel}</p>
+        <p className="text-4xl font-black text-[#1D1D1F] leading-none tabular-nums">{value}</p>
+        <p className="text-[13px] font-semibold text-black/55 mt-2">{label}</p>
+        <p className="text-[11px] text-black/30 mt-0.5">{sublabel}</p>
       </div>
     </div>
   )
@@ -59,23 +62,26 @@ async function DashboardStats({ vendorId }: { vendorId: string }) {
   return (
     <>
       <div className="grid grid-cols-2 gap-3 mb-6">
-        <StatCard value={roundsToday ?? 0} label="Rounds Today" sublabel="awarded today" />
-        <StatCard value={uniqueCount} label="Customers" sublabel="visited today" />
-        <StatCard value={rewardsToday ?? 0} label="Rewards" sublabel="unlocked today" />
-        <StatCard value={activeCollections ?? 0} label="Collections" sublabel="pending pickup" />
+        <StatCard value={roundsToday ?? 0} label="Rounds today" sublabel="awarded" icon={Zap} />
+        <StatCard value={uniqueCount} label="Customers" sublabel="visited today" icon={Users} />
+        <StatCard value={rewardsToday ?? 0} label="Rewards" sublabel="unlocked today" icon={Gift} />
+        <StatCard value={activeCollections ?? 0} label="Collections" sublabel="to hand over" icon={PackageCheck} />
       </div>
 
       {liveCampaign && (
-        <div className="glass mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="w-2 h-2 rounded-full bg-black animate-pulse" />
-            <span className="text-xs font-bold uppercase tracking-widest text-black/40">Live Campaign</span>
+        <div className="rounded-3xl p-5 mb-6 text-white shadow-lg" style={{ background: 'linear-gradient(135deg,#1D1D1F,#3a3a40)' }}>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[11px] font-bold uppercase tracking-widest text-white/60">Live campaign</span>
           </div>
-          <h2 className="text-2xl font-black text-[#1D1D1F] mb-1">{liveCampaign.name}</h2>
-          <p className="text-4xl font-black text-[#1D1D1F] mb-3">{liveCampaign.round_value}×</p>
-          <div className="flex items-center gap-1.5 text-black/40 text-sm">
-            <Clock size={13} />
-            <span>{timeRemaining(liveCampaign.ends_at)} remaining</span>
+          <div className="flex items-end justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-xl font-black truncate">{liveCampaign.name}</h2>
+              <div className="flex items-center gap-1.5 text-white/60 text-sm mt-1">
+                <Clock size={13} /><span>{timeRemaining(liveCampaign.ends_at)} remaining</span>
+              </div>
+            </div>
+            <span className="text-5xl font-black leading-none shrink-0">{liveCampaign.round_value}×</span>
           </div>
         </div>
       )}
@@ -154,13 +160,13 @@ export default async function DashboardPage() {
     <main className="min-h-screen px-6 pt-10 pb-32">
       <div className="max-w-2xl mx-auto">
         <div className="mb-8">
-          <p className="text-xs tracking-widest uppercase text-black/25 font-semibold mb-1">Dashboard</p>
+          <p className="text-xs tracking-widest uppercase text-black/25 font-semibold mb-1">Welcome back 👋</p>
           <h1 className="text-3xl font-extrabold text-[#1D1D1F]">{vendor.business_name}</h1>
         </div>
 
         <Suspense fallback={
           <div className="grid grid-cols-2 gap-3 mb-6">
-            
+            {[0, 1, 2, 3].map(i => <div key={i} className="skel h-[132px]" />)}
           </div>
         }>
           <DashboardStats vendorId={vendor.id} />
@@ -172,16 +178,22 @@ export default async function DashboardPage() {
           </Suspense>
         </div>
 
+        <p className="text-xs tracking-widest uppercase text-black/30 font-semibold mb-3">Quick actions</p>
         <div className="grid grid-cols-2 gap-3">
           {[
-            { href: '/stamp', icon: Award, label: 'Award Round' },
-            { href: '/collections', icon: PackageCheck, label: 'Collections' },
-            { href: '/campaigns', icon: Megaphone, label: 'Campaigns' },
-            { href: '/customers', icon: Users, label: 'Customers' },
-          ].map(({ href, icon: Icon, label }) => (
-            <Link key={href} href={href} className="glass flex flex-col gap-2 hover:bg-white/90 transition-colors">
-              <Icon size={20} className="text-black/40" />
-              <span className="font-semibold text-[#1D1D1F] text-sm">{label}</span>
+            { href: '/stamp', icon: Award, label: 'Award round', hint: 'Scan or tap' },
+            { href: '/collections', icon: PackageCheck, label: 'Collections', hint: 'Hand over rewards' },
+            { href: '/campaigns', icon: Megaphone, label: 'Campaigns', hint: 'Bonus rounds' },
+            { href: '/customers', icon: Users, label: 'Customers', hint: 'Your members' },
+          ].map(({ href, icon: Icon, label, hint }) => (
+            <Link key={href} href={href} className="glass flex items-center gap-3 hover:bg-white/90 hover:-translate-y-0.5 transition-all">
+              <div className="w-10 h-10 rounded-2xl bg-black/5 flex items-center justify-center shrink-0">
+                <Icon size={18} className="text-black/50" />
+              </div>
+              <div className="min-w-0">
+                <p className="font-semibold text-[#1D1D1F] text-sm leading-tight">{label}</p>
+                <p className="text-black/35 text-xs">{hint}</p>
+              </div>
             </Link>
           ))}
         </div>
