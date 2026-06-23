@@ -46,9 +46,14 @@ private struct StampSlot: View {
         ZStack {
             Text(icon).font(.system(size: size)).opacity(0)   // reserve consistent size
             if filled {
+                // Die-cut "sticker": stacked white outlines + a soft drop shadow.
                 Text(icon).font(.system(size: size))
+                    .shadow(color: .white, radius: 1)
+                    .shadow(color: .white, radius: 1)
+                    .shadow(color: .white, radius: 0.5)
+                    .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 1)
             } else {
-                // Flat silhouette of the emoji.
+                // Flat silhouette placeholder.
                 emptyColor.mask { Text(icon).font(.system(size: size)) }
             }
         }
