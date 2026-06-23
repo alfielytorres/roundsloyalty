@@ -1,7 +1,30 @@
 'use client'
 
-import { useRef, useState, useCallback, DragEvent, ChangeEvent } from 'react'
+import { useRef, useState, useEffect, useCallback, DragEvent, ChangeEvent } from 'react'
 import Image from 'next/image'
+
+const HEX6 = /^#[0-9a-fA-F]{6}$/
+
+// Resolve any CSS colour (named like "yellow", #rgb, rgb(), #rrggbb) to #RRGGBB.
+// Returns '' when unresolved. Lets the contrast maths work on real channels and
+// guarantees we persist a clean hex the iOS app can parse.
+function resolveHex(input: string): string {
+  if (!input) return ''
+  if (HEX6.test(input)) return input.toUpperCase()
+  if (typeof document === 'undefined') return ''
+  const ctx = document.createElement('canvas').getContext('2d')
+  if (!ctx) return ''
+  const probe = (sentinel: string) => { ctx.fillStyle = sentinel; ctx.fillStyle = input; return ctx.fillStyle }
+  let r = probe('#010203')
+  if (r.toLowerCase() === '#010203') { r = probe('#040506'); if (r.toLowerCase() === '#040506') return '' }
+  if (r[0] === '#') return r.length === 7 ? r.toUpperCase() : ''
+  const m = r.match(/[\d.]+/g)
+  if (m && m.length >= 3) {
+    const h = (n: string) => Math.round(parseFloat(n)).toString(16).padStart(2, '0')
+    return ('#' + h(m[0]) + h(m[1]) + h(m[2])).toUpperCase()
+  }
+  return ''
+}
 
 interface Props {
   defaultLogoUrl: string
@@ -40,6 +63,11 @@ export default function BrandingEditor({
   const [stampIcon, setStampIcon] = useState(defaultStampIcon || '☕')
   const [cardBgUrl, setCardBgUrl] = useState(defaultCardBackgroundUrl)
   const [stampBgColor, setStampBgColor] = useState(defaultStampBgColor)
+  // Resolved hex versions used for rendering, contrast maths and saving.
+  const [brandHex, setBrandHex] = useState(HEX6.test(defaultBrandColor || '') ? (defaultBrandColor as string).toUpperCase() : '#1D1D1F')
+  const [stampBgHex, setStampBgHex] = useState(HEX6.test(defaultStampBgColor || '') ? (defaultStampBgColor as string).toUpperCase() : '')
+  useEffect(() => { setBrandHex(resolveHex(brandColor) || '#1D1D1F') }, [brandColor])
+  useEffect(() => { setStampBgHex(resolveHex(stampBgColor)) }, [stampBgColor])
   const [uploading, setUploading] = useState(false)
   const [bgUploading, setBgUploading] = useState(false)
   const [dragOver, setDragOver] = useState(false)
@@ -72,11 +100,12 @@ export default function BrandingEditor({
   const filledCount = Math.min(sampleRounds, displayStamps)
 
   // Colours, mirroring the iOS LoyaltyCardView (WCAG contrast crossover ≈ 0.179).
-  const cardL = lum(brandColor)
+  const cardL = lum(brandHex)
   const onCard = cardL > 0.179 ? '#1D1D1F' : '#ffffff'
   const overlayDark = cardL > 0.4
-  const hasPanelColor = !!stampBgColor
-  const panelL = hasPanelColor ? lum(stampBgColor) : cardL
+  const hasPanelColor = !!stampBgHex
+  const panelHex = stampBgHex || brandHex
+  const panelL = lum(panelHex)
   const emptyIsWhite = cardBgUrl ? true : panelL <= 0.179
   const emptyFilter = emptyIsWhite ? 'brightness(0) invert(1)' : 'brightness(0)'
 
@@ -84,10 +113,10 @@ export default function BrandingEditor({
     <div className="flex flex-col gap-6">
       {/* Hidden inputs submitted with the program form */}
       <input type="hidden" name="logo_url" value={logoUrl} />
-      <input type="hidden" name="brand_color_text" value={brandColor} />
+      <input type="hidden" name="brand_color_text" value={brandHex} />
       <input type="hidden" name="stamp_icon" value={stampIcon} />
       <input type="hidden" name="card_background_url" value={cardBgUrl} />
-      <input type="hidden" name="stamp_bg_color" value={stampBgColor} />
+      <input type="hidden" name="stamp_bg_color" value={stampBgHex} />
 
       {/* Logo upload */}
       <div>
@@ -128,8 +157,8 @@ export default function BrandingEditor({
         <label className="block text-[11px] font-semibold text-black/35 tracking-widest uppercase mb-1.5">Card colour</label>
         <div className="flex items-center gap-2">
           <label className="cursor-pointer shrink-0 relative">
-            <input type="color" value={brandColor.startsWith('#') && brandColor.length === 7 ? brandColor : '#1D1D1F'} onChange={e => setBrandColor(e.target.value)} className="sr-only" />
-            <div className="w-10 h-10 rounded-xl border border-black/10 shadow-sm" style={{ backgroundColor: brandColor }} />
+            <input type="color" value={brandHex} onChange={e => setBrandColor(e.target.value)} className="sr-only" />
+            <div className="w-10 h-10 rounded-xl border border-black/10 shadow-sm" style={{ backgroundColor: brandHex }} />
           </label>
           <input value={brandColor} onChange={e => setBrandColor(e.target.value)} placeholder="#1D1D1F" maxLength={7} className="flex-1 dark-input font-mono" />
         </div>
@@ -161,15 +190,15 @@ export default function BrandingEditor({
         <label className="block text-[11px] font-semibold text-black/35 tracking-widest uppercase mb-1.5">Behind the stamps</label>
         <div className="flex items-center gap-2 mb-2">
           <label className="cursor-pointer shrink-0 relative">
-            <input type="color" value={stampBgColor.startsWith('#') && stampBgColor.length === 7 ? stampBgColor : brandColor} onChange={e => setStampBgColor(e.target.value)} className="sr-only" />
-            <div className="w-10 h-10 rounded-xl border border-black/10 shadow-sm" style={{ backgroundColor: stampBgColor || brandColor }} />
+            <input type="color" value={stampBgHex || brandHex} onChange={e => setStampBgColor(e.target.value)} className="sr-only" />
+            <div className="w-10 h-10 rounded-xl border border-black/10 shadow-sm" style={{ backgroundColor: stampBgHex || brandHex }} />
           </label>
           <input value={stampBgColor} onChange={e => setStampBgColor(e.target.value)} placeholder="Match card colour" maxLength={7} className="flex-1 dark-input font-mono" />
           {stampBgColor && <button type="button" onClick={() => setStampBgColor('')} className="text-sm text-black/40 hover:text-black/70">Reset</button>}
         </div>
         <div className="flex items-center gap-3">
           <div className="w-20 h-12 rounded-xl shrink-0 overflow-hidden border border-black/10"
-            style={{ background: cardBgUrl ? `url(${cardBgUrl}) center/cover` : (stampBgColor || brandColor) }} />
+            style={{ background: cardBgUrl ? `url(${cardBgUrl}) center/cover` : (stampBgHex || brandHex) }} />
           <button type="button" onClick={() => bgInputRef.current?.click()}
             className="text-sm font-semibold text-black/60 border border-black/10 rounded-xl px-3 py-2 hover:bg-black/5 transition-colors">
             {bgUploading ? 'Uploading…' : cardBgUrl ? 'Replace image' : 'Upload image'}
@@ -184,7 +213,7 @@ export default function BrandingEditor({
       <div>
         <label className="block text-[11px] font-semibold text-black/35 tracking-widest uppercase mb-2">Customer app preview</label>
         <div className="bg-[#F5F5F7] rounded-2xl p-5 border border-black/6">
-          <div className="rounded-3xl p-4 shadow-lg flex flex-col gap-3.5" style={{ background: brandColor, boxShadow: '0 8px 24px rgba(0,0,0,0.18)' }}>
+          <div className="rounded-3xl p-4 shadow-lg flex flex-col gap-3.5" style={{ background: brandHex, boxShadow: '0 8px 24px rgba(0,0,0,0.18)' }}>
             {/* Header — logo top-left + name */}
             <div className="flex items-center gap-2">
               {logoUrl ? (
@@ -197,7 +226,7 @@ export default function BrandingEditor({
 
             {/* Stamp panel */}
             <div className="rounded-2xl p-3 relative overflow-hidden"
-              style={{ background: cardBgUrl ? `url(${cardBgUrl}) center/cover` : (stampBgColor || brandColor) }}>
+              style={{ background: cardBgUrl ? `url(${cardBgUrl}) center/cover` : panelHex }}>
               {(!hasPanelColor && !cardBgUrl) && <div className="absolute inset-0" style={{ background: overlayDark ? 'rgba(0,0,0,0.14)' : 'rgba(255,255,255,0.16)' }} />}
               {cardBgUrl && <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.18)' }} />}
               <div className="relative flex flex-wrap gap-2.5 justify-center">

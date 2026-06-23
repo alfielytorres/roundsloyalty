@@ -1,4 +1,4 @@
-import { Suspense } from 'react'
+import { Suspense, type ReactNode } from 'react'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
@@ -94,53 +94,56 @@ async function ProgramView({ vendorId, vendorData, role }: { vendorId: string; v
   }
 
   return (
-    <div className="glass rounded-3xl p-6 ">
-      <div className="flex items-center gap-2 mb-6">
-        <span className="text-xs font-bold bg-[#1D1D1F] text-white px-2.5 py-1 rounded-full">Active</span>
-        <h2 className="text-lg font-bold text-[#1D1D1F]">{program.name}</h2>
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold tracking-widest uppercase text-black/35">Loyalty program</p>
+          <h2 className="text-xl font-bold text-[#1D1D1F] truncate">{program.name}</h2>
+        </div>
+        <span className="shrink-0 inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-full">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Active
+        </span>
       </div>
 
       {canEdit ? (
-        <form action="/api/programs/upsert" method="POST" className="flex flex-col gap-5">
+        <form action="/api/programs/upsert" method="POST" className="space-y-4">
           <input type="hidden" name="program_id" value={program.id} />
           <input type="hidden" name="vendor_id" value={vendorId} />
 
-          <div>
-            <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Program name</label>
-            <input name="name" required defaultValue={program.name} className="w-full dark-input" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Rounds required</label>
-              <input type="number" name="rounds_required" min="1" max="200" required defaultValue={program.rounds_required} className="w-full dark-input" />
-              <p className="text-black/35 text-xs mt-1">Rounds needed to earn reward</p>
+          {/* Basics */}
+          <section className="glass rounded-3xl p-5 space-y-4">
+            <SectionHeader title="Basics" subtitle="Name and how rounds are earned" />
+            <Field label="Program name">
+              <input name="name" required defaultValue={program.name} className="w-full dark-input" />
+            </Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Rounds required" hint="To earn a reward">
+                <input type="number" name="rounds_required" min="1" max="200" required defaultValue={program.rounds_required} className="w-full dark-input" />
+              </Field>
+              <Field label="Round value" hint="Rounds per scan">
+                <input type="number" name="default_round_value" min="1" max="5" required defaultValue={program.default_round_value} className="w-full dark-input" />
+              </Field>
             </div>
-            <div>
-              <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Default round value</label>
-              <input type="number" name="default_round_value" min="1" max="5" required defaultValue={program.default_round_value} className="w-full dark-input" />
-              <p className="text-black/35 text-xs mt-1">Rounds per scan</p>
-            </div>
-          </div>
+          </section>
 
-          <div>
-            <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Reward name</label>
-            <input name="reward_name" required defaultValue={program.reward_name} className="w-full dark-input" placeholder="e.g. Free Coffee" />
-          </div>
+          {/* Reward */}
+          <section className="glass rounded-3xl p-5 space-y-4">
+            <SectionHeader title="Reward" subtitle="What customers unlock" />
+            <Field label="Reward name">
+              <input name="reward_name" required defaultValue={program.reward_name} className="w-full dark-input" placeholder="e.g. Free Coffee" />
+            </Field>
+            <Field label="Description">
+              <textarea name="reward_description" rows={2} defaultValue={program.reward_description ?? ''} placeholder="Describe the reward for customers" className="w-full dark-input resize-none" />
+            </Field>
+            <Field label="Expiry (days)" hint="Days until an unlocked reward expires">
+              <input type="number" name="reward_expiry_days" min="1" max="365" defaultValue={program.reward_expiry_days ?? 30} className="w-full dark-input" />
+            </Field>
+          </section>
 
-          <div>
-            <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Reward description</label>
-            <textarea name="reward_description" rows={3} defaultValue={program.reward_description ?? ''} placeholder="Describe the reward for customers" className="w-full dark-input resize-none" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-semibold text-[#1D1D1F] mb-1.5">Reward expiry (days)</label>
-            <input type="number" name="reward_expiry_days" min="1" max="365" defaultValue={program.reward_expiry_days ?? 30} className="w-full dark-input" />
-            <p className="text-black/35 text-xs mt-1">Days until an unlocked reward expires</p>
-          </div>
-
-          <div className="border-t border-black/5 pt-6 mt-6">
-            <h3 className="text-sm font-semibold text-[#1D1D1F] mb-4">Brand customization</h3>
+          {/* Card design */}
+          <section className="glass rounded-3xl p-5 space-y-4">
+            <SectionHeader title="Card design" subtitle="How the loyalty card looks in the app" />
             <BrandingEditor
               defaultLogoUrl={vendorData.logo_url ?? ''}
               defaultBrandColor={vendorData.brand_color ?? '#1D1D1F'}
@@ -151,12 +154,12 @@ async function ProgramView({ vendorId, vendorData, role }: { vendorId: string; v
               rewardName={program.reward_name}
               roundsRequired={program.rounds_required}
             />
-          </div>
+          </section>
 
-          <button type="submit" className="btn-primary self-start mt-6">Save changes</button>
+          <button type="submit" className="btn-primary w-full">Save changes</button>
         </form>
       ) : (
-        <div className="flex flex-col gap-4 text-sm">
+        <div className="glass rounded-3xl p-6 flex flex-col gap-1 text-sm">
           <Row label="Rounds required" value={String(program.rounds_required)} />
           <Row label="Default round value" value={String(program.default_round_value)} />
           <Row label="Reward" value={program.reward_name} />
@@ -164,6 +167,25 @@ async function ProgramView({ vendorId, vendorData, role }: { vendorId: string; v
           {program.reward_expiry_days && <Row label="Expiry" value={`${program.reward_expiry_days} days`} />}
         </div>
       )}
+    </div>
+  )
+}
+
+function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
+  return (
+    <div>
+      <h3 className="text-sm font-bold text-[#1D1D1F]">{title}</h3>
+      {subtitle && <p className="text-xs text-black/35 mt-0.5">{subtitle}</p>}
+    </div>
+  )
+}
+
+function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
+  return (
+    <div>
+      <label className="block text-[11px] font-semibold tracking-widest uppercase text-black/40 mb-1.5">{label}</label>
+      {children}
+      {hint && <p className="text-black/35 text-xs mt-1">{hint}</p>}
     </div>
   )
 }
