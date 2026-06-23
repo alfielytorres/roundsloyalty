@@ -5,6 +5,7 @@ node_modules/
 .env.local
 .next/
 dist/
+.turbo/
 .expo/
 *.log
 .DS_Store
