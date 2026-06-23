@@ -23,6 +23,7 @@ interface VendorData {
   brand_color: string | null
   stamp_icon: string | null
   card_background_url: string | null
+  stamp_bg_color: string | null
 }
 
 async function ProgramView({ vendorId, vendorData, role }: { vendorId: string; vendorData: VendorData; role: string }) {
@@ -145,6 +146,7 @@ async function ProgramView({ vendorId, vendorData, role }: { vendorId: string; v
               defaultBrandColor={vendorData.brand_color ?? '#1D1D1F'}
               defaultStampIcon={vendorData.stamp_icon ?? '☕'}
               defaultCardBackgroundUrl={vendorData.card_background_url ?? ''}
+              defaultStampBgColor={vendorData.stamp_bg_color ?? ''}
               vendorName={vendorData.business_name}
               rewardName={program.reward_name}
               roundsRequired={program.rounds_required}

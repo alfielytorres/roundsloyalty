@@ -14,6 +14,7 @@ struct Vendor: Codable, Identifiable {
     let status: String?
     let stampIcon: String?
     let cardBackgroundUrl: String?
+    let stampBgColor: String?
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -29,5 +30,6 @@ struct Vendor: Codable, Identifiable {
         case status
         case stampIcon = "stamp_icon"
         case cardBackgroundUrl = "card_background_url"
+        case stampBgColor = "stamp_bg_color"
     }
 }

@@ -40,6 +40,24 @@ extension Color {
         guard let hex, !hex.isEmpty else { return .primaryText }
         return Color(hex: hex)
     }
+
+    /// Relative luminance (0…1) of a hex colour; 0 when missing/invalid.
+    static func luminanceHex(_ hex: String?) -> Double {
+        guard let hex, !hex.isEmpty else { return 0 }
+        let s = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        guard s.count == 6 else { return 0 }
+        var int: UInt64 = 0
+        Scanner(string: s).scanHexInt64(&int)
+        let r = Double((int >> 16) & 0xFF) / 255
+        let g = Double((int >> 8) & 0xFF) / 255
+        let b = Double(int & 0xFF) / 255
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b
+    }
+
+    /// Readable foreground colour (dark or white) for a given background hex.
+    static func onColor(_ hex: String?) -> Color {
+        luminanceHex(hex) > 0.6 ? Color(hex: "#1D1D1F") : .white
+    }
 }
 
 // MARK: - Monochrome card gradient (shades of white/grey)

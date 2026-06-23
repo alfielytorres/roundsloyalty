@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
   const brand_color = (formData.get('brand_color_text') as string)?.trim() || null
   const stamp_icon = (formData.get('stamp_icon') as string)?.trim() || '☕'
   const card_background_url = (formData.get('card_background_url') as string)?.trim() || null
+  const stamp_bg_color = (formData.get('stamp_bg_color') as string)?.trim() || null
 
   if (!name || !reward_name || !rounds_required) {
     return NextResponse.redirect(new URL('/programs?error=' + encodeURIComponent('Name, reward name, and rounds required are all required.'), req.url))
@@ -65,7 +66,7 @@ export async function POST(req: NextRequest) {
   // Persist branding to the vendor (RLS limits this to owners/staff of the vendor).
   const { error: brandError } = await supabase
     .from('vendors')
-    .update({ logo_url, brand_color, stamp_icon, card_background_url })
+    .update({ logo_url, brand_color, stamp_icon, card_background_url, stamp_bg_color })
     .eq('id', vendor_id)
 
   if (brandError) {

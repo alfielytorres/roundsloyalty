@@ -10,16 +10,17 @@ final class TabSelection: ObservableObject {
 
 // MARK: - Stamp grid
 
-/// A grid of stamp "slots" that fill up as the customer earns rounds. The icon
-/// is a vendor-chosen emoji; filled slots are bright, empty slots are faint.
-/// Mirrors the vendor's web preview in BrandingEditor.
+/// A grid of stamp slots that fill up as the customer earns rounds. The icon is
+/// a vendor-chosen emoji. Filled slots show the full-colour emoji; empty slots
+/// are a flat silhouette ("mask") of the emoji in `emptyColor`.
 struct StampGrid: View {
     let icon: String
     let filled: Int
     let total: Int
+    var emptyColor: Color = Color.white.opacity(0.9)
     var maxDisplay: Int = 10
     var columns: Int = 5
-    var slotSize: CGFloat = 32
+    var slotSize: CGFloat = 34
 
     private var count: Int { max(1, min(total, maxDisplay)) }
     private var gridColumns: [GridItem] {
@@ -27,9 +28,9 @@ struct StampGrid: View {
     }
 
     var body: some View {
-        LazyVGrid(columns: gridColumns, spacing: 8) {
+        LazyVGrid(columns: gridColumns, spacing: 10) {
             ForEach(0..<count, id: \.self) { i in
-                StampSlot(icon: icon, filled: i < filled, size: slotSize)
+                StampSlot(icon: icon.isEmpty ? "☕" : icon, filled: i < filled, size: slotSize, emptyColor: emptyColor)
             }
         }
     }
@@ -39,16 +40,134 @@ private struct StampSlot: View {
     let icon: String
     let filled: Bool
     let size: CGFloat
+    let emptyColor: Color
 
     var body: some View {
         ZStack {
-            Circle().fill(Color.white.opacity(filled ? 0.95 : 0.22))
-            Text(icon.isEmpty ? "☕" : icon)
-                .font(.system(size: size * 0.52))
-                .grayscale(filled ? 0 : 1)
-                .opacity(filled ? 1 : 0.5)
+            Text(icon).font(.system(size: size)).opacity(0)   // reserve consistent size
+            if filled {
+                Text(icon).font(.system(size: size))
+            } else {
+                // Flat silhouette of the emoji.
+                emptyColor.mask(Text(icon).font(.system(size: size)))
+            }
         }
-        .frame(width: size, height: size)
         .frame(maxWidth: .infinity)
+    }
+}
+
+// MARK: - Loyalty card
+
+/// The designed loyalty card shown to customers — used on the home screen and
+/// in the vendor-detail sheet. The whole card takes the vendor's brand colour;
+/// the stamp panel can use a separate colour or a background image. Mirrored by
+/// the vendor portal's BrandingEditor preview.
+struct LoyaltyCardView: View {
+    let businessName: String
+    let logoUrl: String?
+    let brandColorHex: String?
+    let stampBgColorHex: String?
+    let backgroundUrl: String?
+    let icon: String
+    let current: Int
+    let required: Int
+    let rewardName: String?
+    var memberName: String? = nil
+    var rewardsCount: Int = 0
+
+    private var cardColor: Color { Color.vendorAccent(brandColorHex) }
+    private var cardIsLight: Bool { Color.luminanceHex(brandColorHex) > 0.6 }
+    private var onCard: Color { Color.onColor(brandColorHex) }
+    private var hasPanelColor: Bool { (stampBgColorHex?.isEmpty == false) }
+    private var bgURL: URL? {
+        guard let s = backgroundUrl, !s.isEmpty else { return nil }
+        return URL(string: s)
+    }
+    private var emptyStampColor: Color {
+        if bgURL != nil { return Color.white.opacity(0.92) }
+        let panelIsLight = hasPanelColor ? (Color.luminanceHex(stampBgColorHex) > 0.6) : cardIsLight
+        return panelIsLight ? Color.black.opacity(0.8) : Color.white.opacity(0.92)
+    }
+    private var remaining: Int { max(0, required - current) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            // Header — logo top-left + name
+            HStack(spacing: 8) {
+                if let logoUrl, let url = URL(string: logoUrl) {
+                    AsyncImage(url: url) { img in img.resizable().scaledToFill() }
+                        placeholder: { Color.white.opacity(0.2) }
+                        .frame(width: 30, height: 30)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+                Text(businessName)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(onCard)
+                    .lineLimit(1)
+                Spacer()
+                if remaining == 0 && required > 0 {
+                    Text("READY")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(cardColor)
+                        .padding(.horizontal, 8).padding(.vertical, 4)
+                        .background(Capsule().fill(onCard))
+                }
+            }
+
+            // Stamp panel
+            ZStack {
+                RoundedRectangle(cornerRadius: 18)
+                    .fill(hasPanelColor ? Color(hex: stampBgColorHex!) : cardColor)
+                if !hasPanelColor && bgURL == nil {
+                    RoundedRectangle(cornerRadius: 18)
+                        .fill(cardIsLight ? Color.black.opacity(0.16) : Color.white.opacity(0.16))
+                }
+                if let bgURL {
+                    AsyncImage(url: bgURL) { img in img.resizable().scaledToFill() }
+                        placeholder: { Color.clear }
+                        .clipShape(RoundedRectangle(cornerRadius: 18))
+                    RoundedRectangle(cornerRadius: 18).fill(Color.black.opacity(0.18))
+                }
+                StampGrid(icon: icon, filled: current, total: required,
+                          emptyColor: emptyStampColor, maxDisplay: 10, columns: 5, slotSize: 34)
+                    .padding(16)
+            }
+
+            // Footer
+            if let memberName {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("MEMBER").font(.system(size: 10, weight: .bold)).foregroundColor(onCard.opacity(0.6))
+                        Text(memberName).font(.system(size: 15, weight: .semibold)).foregroundColor(onCard).lineLimit(1)
+                    }
+                    Spacer()
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("REWARDS").font(.system(size: 10, weight: .bold)).foregroundColor(onCard.opacity(0.6))
+                        HStack(spacing: 4) {
+                            Text("\(rewardsCount)").font(.system(size: 15, weight: .semibold)).foregroundColor(onCard)
+                            Text("×").font(.system(size: 12)).foregroundColor(onCard.opacity(0.6))
+                            Text(icon.isEmpty ? "☕" : icon).font(.system(size: 15))
+                        }
+                    }
+                }
+            } else {
+                HStack {
+                    Text("\(current) / \(required)").font(.system(size: 14, weight: .bold)).foregroundColor(onCard)
+                    Spacer()
+                    if let rewardName {
+                        Text(remaining > 0 ? "\(remaining) more for \(rewardName)" : "Ready: \(rewardName)")
+                            .font(.system(size: 11))
+                            .foregroundColor(onCard.opacity(0.75))
+                            .lineLimit(1)
+                    }
+                }
+            }
+        }
+        .padding(18)
+        .background(
+            RoundedRectangle(cornerRadius: 24)
+                .fill(cardColor)
+                .shadow(color: .black.opacity(0.12), radius: 14, x: 0, y: 6)
+        )
     }
 }
