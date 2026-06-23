@@ -174,20 +174,7 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
 
             {/* Card colour */}
             <Field label="Card colour" hint="The whole card uses this colour">
-              <div className="flex items-center gap-2">
-                <label className="cursor-pointer shrink-0">
-                  <input type="color" value={brandHex} onChange={e => setBrandColor(e.target.value)} className="sr-only" />
-                  <div className="w-10 h-10 rounded-xl border border-black/10 shadow-sm" style={{ backgroundColor: brandHex }} />
-                </label>
-                <input value={brandColor} onChange={e => setBrandColor(e.target.value)} placeholder="#1D1D1F" className="flex-1 dark-input font-mono" />
-              </div>
-              <div className="flex gap-2 mt-2 flex-wrap">
-                {COLOR_SWATCHES.map(c => (
-                  <button key={c} type="button" onClick={() => setBrandColor(c)}
-                    className={`w-7 h-7 rounded-lg border-2 transition-transform hover:scale-110 ${brandHex.toUpperCase() === c ? 'border-black/50 scale-110' : 'border-transparent'}`}
-                    style={{ backgroundColor: c }} />
-                ))}
-              </div>
+              <ColorPicker value={brandColor} hex={brandHex} onChange={setBrandColor} />
             </Field>
 
             {/* Stamp icon */}
@@ -202,15 +189,8 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
 
             {/* Behind the stamps */}
             <Field label="Behind the stamps" hint="A colour or image to make stamps pop — image wins">
-              <div className="flex items-center gap-2 mb-2">
-                <label className="cursor-pointer shrink-0">
-                  <input type="color" value={stampBgHex || brandHex} onChange={e => setStampBgColor(e.target.value)} className="sr-only" />
-                  <div className="w-10 h-10 rounded-xl border border-black/10 shadow-sm" style={{ backgroundColor: stampBgHex || brandHex }} />
-                </label>
-                <input value={stampBgColor} onChange={e => setStampBgColor(e.target.value)} placeholder="Match card colour" className="flex-1 dark-input font-mono" />
-                {stampBgColor && <button type="button" onClick={() => setStampBgColor('')} className="text-sm text-black/40 hover:text-black/70">Reset</button>}
-              </div>
-              <div className="flex items-center gap-3">
+              <ColorPicker value={stampBgColor} hex={stampBgHex || brandHex} onChange={setStampBgColor} placeholder="Match card colour" onReset={() => setStampBgColor('')} />
+              <div className="flex items-center gap-3 mt-3">
                 <div className="w-16 h-10 rounded-xl shrink-0 overflow-hidden border border-black/10" style={{ background: cardBgUrl ? `url(${cardBgUrl}) center/cover` : (stampBgHex || brandHex) }} />
                 <button type="button" onClick={() => bgRef.current?.click()} className="text-sm font-semibold text-black/60 border border-black/10 rounded-xl px-3 py-2 hover:bg-black/5 transition-colors">
                   {bgUploading ? 'Uploading…' : cardBgUrl ? 'Replace image' : 'Upload image'}
@@ -265,6 +245,30 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
       <label className="block text-[11px] font-semibold tracking-widest uppercase text-black/40 mb-1.5">{label}</label>
       {children}
       {hint && <p className="text-black/35 text-xs mt-1">{hint}</p>}
+    </div>
+  )
+}
+
+function ColorPicker({ value, hex, onChange, placeholder, onReset }: {
+  value: string; hex: string; onChange: (v: string) => void; placeholder?: string; onReset?: () => void
+}) {
+  return (
+    <div>
+      <div className="flex items-center gap-2">
+        <label className="cursor-pointer shrink-0">
+          <input type="color" value={hex} onChange={e => onChange(e.target.value)} className="sr-only" />
+          <div className="w-10 h-10 rounded-xl border border-black/10 shadow-sm" style={{ backgroundColor: hex }} />
+        </label>
+        <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder ?? '#1D1D1F'} className="flex-1 dark-input font-mono" />
+        {onReset && value && <button type="button" onClick={onReset} className="text-sm text-black/40 hover:text-black/70">Reset</button>}
+      </div>
+      <div className="flex gap-2 mt-2 flex-wrap">
+        {COLOR_SWATCHES.map(c => (
+          <button key={c} type="button" onClick={() => onChange(c)}
+            className={`w-7 h-7 rounded-lg border-2 transition-transform hover:scale-110 ${hex.toUpperCase() === c ? 'border-black/50 scale-110' : 'border-transparent'}`}
+            style={{ backgroundColor: c }} />
+        ))}
+      </div>
     </div>
   )
 }

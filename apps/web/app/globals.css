@@ -58,3 +58,10 @@ html {
   .status-active   { @apply bg-black/5 text-black/70 border border-black/10 text-xs font-semibold px-2.5 py-1 rounded-full; }
   .status-inactive { @apply bg-black/5 text-black/30 text-xs font-semibold px-2.5 py-1 rounded-full; }
 }
+
+@keyframes stamp-pop {
+  0%   { transform: scale(0.5); opacity: 0; }
+  60%  { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.stamp-pop { animation: stamp-pop 0.4s cubic-bezier(0.2, 1.2, 0.4, 1) both; }

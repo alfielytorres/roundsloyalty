@@ -30,7 +30,7 @@ struct StampGrid: View {
     var body: some View {
         LazyVGrid(columns: gridColumns, spacing: 10) {
             ForEach(0..<count, id: \.self) { i in
-                StampSlot(icon: icon.isEmpty ? "☕" : icon, filled: i < filled, size: slotSize, emptyColor: emptyColor)
+                StampSlot(icon: icon.isEmpty ? "☕" : icon, filled: i < filled, size: slotSize, emptyColor: emptyColor, index: i)
             }
         }
     }
@@ -41,23 +41,36 @@ private struct StampSlot: View {
     let filled: Bool
     let size: CGFloat
     let emptyColor: Color
+    var index: Int = 0
+    @State private var popped = false
 
     var body: some View {
         ZStack {
             Text(icon).font(.system(size: size)).opacity(0)   // reserve consistent size
             if filled {
-                // Die-cut "sticker": stacked white outlines + a soft drop shadow.
+                // Die-cut "sticker": stacked white outlines + a soft drop shadow,
+                // with a staggered pop as it lands.
                 Text(icon).font(.system(size: size))
                     .shadow(color: .white, radius: 1)
                     .shadow(color: .white, radius: 1)
                     .shadow(color: .white, radius: 0.5)
                     .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 1)
+                    .scaleEffect(popped ? 1 : 0.5)
+                    .opacity(popped ? 1 : 0)
             } else {
-                // Flat silhouette placeholder.
-                emptyColor.mask { Text(icon).font(.system(size: size)) }
+                // Faint sticker-ring placeholder.
+                emptyColor.opacity(0.55)
+                    .mask { Text(icon).font(.system(size: size)) }
+                    .shadow(color: .white.opacity(0.6), radius: 0.6)
             }
         }
         .frame(maxWidth: .infinity)
+        .onAppear {
+            guard filled, !popped else { return }
+            withAnimation(.spring(response: 0.42, dampingFraction: 0.6).delay(Double(index) * 0.05)) {
+                popped = true
+            }
+        }
     }
 }
 

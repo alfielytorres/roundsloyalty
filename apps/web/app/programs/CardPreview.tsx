@@ -51,7 +51,10 @@ export default function CardPreview({ vendorName, logoUrl, brandHex, stampBgHex,
           {cardBgUrl && <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.18)' }} />}
           <div className="relative flex flex-wrap gap-2.5 justify-center">
             {Array.from({ length: display }).map((_, i) => (
-              <span key={i} className="text-[26px] leading-none" style={i < filled ? { filter: sticker } : { filter: emptyFilter, opacity: 0.85 }}>{icon}</span>
+              <span key={i} className={`text-[26px] leading-none ${i < filled ? 'stamp-pop' : ''}`}
+                style={i < filled
+                  ? { filter: sticker, animationDelay: `${i * 45}ms` }
+                  : { filter: `${emptyFilter} drop-shadow(0 0 0.6px rgba(255,255,255,0.85))`, opacity: 0.5 }}>{icon}</span>
             ))}
           </div>
         </div>
