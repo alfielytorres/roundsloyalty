@@ -49,7 +49,7 @@ private struct StampSlot: View {
                 Text(icon).font(.system(size: size))
             } else {
                 // Flat silhouette of the emoji.
-                emptyColor.mask(Text(icon).font(.system(size: size)))
+                emptyColor.mask { Text(icon).font(.system(size: size)) }
             }
         }
         .frame(maxWidth: .infinity)
@@ -76,7 +76,7 @@ struct LoyaltyCardView: View {
     var rewardsCount: Int = 0
 
     private var cardColor: Color { Color.vendorAccent(brandColorHex) }
-    private var cardIsLight: Bool { Color.luminanceHex(brandColorHex) > 0.6 }
+    private var cardIsLight: Bool { Color.luminanceHex(brandColorHex) > 0.4 }
     private var onCard: Color { Color.onColor(brandColorHex) }
     private var hasPanelColor: Bool { (stampBgColorHex?.isEmpty == false) }
     private var bgURL: URL? {
@@ -85,8 +85,9 @@ struct LoyaltyCardView: View {
     }
     private var emptyStampColor: Color {
         if bgURL != nil { return Color.white.opacity(0.92) }
-        let panelIsLight = hasPanelColor ? (Color.luminanceHex(stampBgColorHex) > 0.6) : cardIsLight
-        return panelIsLight ? Color.black.opacity(0.8) : Color.white.opacity(0.92)
+        // Dark silhouette on light panels (incl. white), white silhouette on dark.
+        let panelHex = hasPanelColor ? stampBgColorHex : brandColorHex
+        return Color.luminanceHex(panelHex) > 0.179 ? Color.black.opacity(0.8) : Color.white.opacity(0.92)
     }
     private var remaining: Int { max(0, required - current) }
 
@@ -95,9 +96,15 @@ struct LoyaltyCardView: View {
             // Header — logo top-left + name
             HStack(spacing: 8) {
                 if let logoUrl, let url = URL(string: logoUrl) {
-                    AsyncImage(url: url) { img in img.resizable().scaledToFill() }
-                        placeholder: { Color.white.opacity(0.2) }
-                        .frame(width: 30, height: 30)
+                    // White chip + aspect-fit so non-square logos fit without distortion.
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.white)
+                        .frame(width: 32, height: 32)
+                        .overlay(
+                            AsyncImage(url: url) { img in img.resizable().scaledToFit() }
+                                placeholder: { Color.clear }
+                                .padding(3)
+                        )
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 Text(businessName)

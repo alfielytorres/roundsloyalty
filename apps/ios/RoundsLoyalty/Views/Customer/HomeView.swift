@@ -249,9 +249,14 @@ private struct VendorCard: View {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(spacing: 6) {
                     if let logoUrl = membership.vendor?.logoUrl, let url = URL(string: logoUrl) {
-                        AsyncImage(url: url) { img in img.resizable().scaledToFill() }
-                            placeholder: { Color.black.opacity(0.06) }
-                            .frame(width: 20, height: 20)
+                        RoundedRectangle(cornerRadius: 5)
+                            .fill(Color.white)
+                            .frame(width: 22, height: 22)
+                            .overlay(
+                                AsyncImage(url: url) { img in img.resizable().scaledToFit() }
+                                    placeholder: { Color.clear }
+                                    .padding(2)
+                            )
                             .clipShape(RoundedRectangle(cornerRadius: 5))
                     }
                     Text(membership.vendor?.businessName ?? "Store")

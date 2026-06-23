@@ -14,16 +14,21 @@ interface Props {
   roundsRequired: number
 }
 
-const STAMP_ICONS = ['☕', '🥐', '🍩', '🍪', '🍞', '🧋', '🍕', '🍔', '🌮', '🍦', '🍰', '🧁', '🍺', '🍷', '⭐', '❤️', '🎁', '🌟']
+const STAMP_ICONS = [
+  // Food & drink
+  '☕', '🥐', '🍩', '🍪', '🍞', '🧋', '🍕', '🍔', '🌮', '🍦', '🍰', '🧁', '🍺', '🍷',
+  // Sport & fitness
+  '🎾', '🏓', '🏸', '🏀', '⚽', '🏐', '🏈', '⚾', '⛳', '🥊', '🏋️', '💪', '🧘', '🚴', '🏊', '🤸', '🥏', '🎯',
+  // General
+  '⭐', '❤️', '🎁', '🔥', '💎', '🏆',
+]
 
-// Relative luminance (0…1) of a #rrggbb colour.
+// WCAG relative luminance (0…1, gamma-corrected) of a #rrggbb colour.
 function lum(hex: string): number {
   const h = hex.replace('#', '').trim()
   if (h.length !== 6) return 0
-  const r = parseInt(h.slice(0, 2), 16) / 255
-  const g = parseInt(h.slice(2, 4), 16) / 255
-  const b = parseInt(h.slice(4, 6), 16) / 255
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b
+  const f = (v: number) => { const c = v / 255; return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4) }
+  return 0.2126 * f(parseInt(h.slice(0, 2), 16)) + 0.7152 * f(parseInt(h.slice(2, 4), 16)) + 0.0722 * f(parseInt(h.slice(4, 6), 16))
 }
 
 export default function BrandingEditor({
@@ -66,12 +71,13 @@ export default function BrandingEditor({
   const sampleRounds = Math.min(Math.floor(roundsRequired * 0.6), roundsRequired - 1) || 3
   const filledCount = Math.min(sampleRounds, displayStamps)
 
-  // Colours, mirroring the iOS LoyaltyCardView.
-  const cardIsLight = lum(brandColor) > 0.6
-  const onCard = cardIsLight ? '#1D1D1F' : '#ffffff'
+  // Colours, mirroring the iOS LoyaltyCardView (WCAG contrast crossover ≈ 0.179).
+  const cardL = lum(brandColor)
+  const onCard = cardL > 0.179 ? '#1D1D1F' : '#ffffff'
+  const overlayDark = cardL > 0.4
   const hasPanelColor = !!stampBgColor
-  const panelIsLight = hasPanelColor ? lum(stampBgColor) > 0.6 : cardIsLight
-  const emptyIsWhite = cardBgUrl ? true : !panelIsLight
+  const panelL = hasPanelColor ? lum(stampBgColor) : cardL
+  const emptyIsWhite = cardBgUrl ? true : panelL <= 0.179
   const emptyFilter = emptyIsWhite ? 'brightness(0) invert(1)' : 'brightness(0)'
 
   return (
@@ -181,14 +187,18 @@ export default function BrandingEditor({
           <div className="rounded-3xl p-4 shadow-lg flex flex-col gap-3.5" style={{ background: brandColor, boxShadow: '0 8px 24px rgba(0,0,0,0.18)' }}>
             {/* Header — logo top-left + name */}
             <div className="flex items-center gap-2">
-              {logoUrl ? <Image src={logoUrl} alt={vendorName} width={28} height={28} className="w-7 h-7 rounded-lg object-cover" unoptimized /> : null}
+              {logoUrl ? (
+                <span className="w-7 h-7 rounded-lg bg-white flex items-center justify-center overflow-hidden shrink-0">
+                  <Image src={logoUrl} alt={vendorName} width={28} height={28} className="max-w-full max-h-full object-contain p-px" unoptimized />
+                </span>
+              ) : null}
               <span className="text-[15px] font-bold truncate" style={{ color: onCard }}>{vendorName || 'Your Store'}</span>
             </div>
 
             {/* Stamp panel */}
             <div className="rounded-2xl p-3 relative overflow-hidden"
               style={{ background: cardBgUrl ? `url(${cardBgUrl}) center/cover` : (stampBgColor || brandColor) }}>
-              {(!hasPanelColor && !cardBgUrl) && <div className="absolute inset-0" style={{ background: cardIsLight ? 'rgba(0,0,0,0.16)' : 'rgba(255,255,255,0.16)' }} />}
+              {(!hasPanelColor && !cardBgUrl) && <div className="absolute inset-0" style={{ background: overlayDark ? 'rgba(0,0,0,0.14)' : 'rgba(255,255,255,0.16)' }} />}
               {cardBgUrl && <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.18)' }} />}
               <div className="relative flex flex-wrap gap-2.5 justify-center">
                 {Array.from({ length: displayStamps }).map((_, i) => {

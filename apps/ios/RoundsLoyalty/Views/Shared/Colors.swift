@@ -41,22 +41,27 @@ extension Color {
         return Color(hex: hex)
     }
 
-    /// Relative luminance (0…1) of a hex colour; 0 when missing/invalid.
+    /// WCAG relative luminance (0…1, gamma-corrected) of a hex colour; 0 when missing/invalid.
     static func luminanceHex(_ hex: String?) -> Double {
         guard let hex, !hex.isEmpty else { return 0 }
         let s = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         guard s.count == 6 else { return 0 }
         var int: UInt64 = 0
         Scanner(string: s).scanHexInt64(&int)
-        let r = Double((int >> 16) & 0xFF) / 255
-        let g = Double((int >> 8) & 0xFF) / 255
-        let b = Double(int & 0xFF) / 255
+        func lin(_ v: UInt64) -> Double {
+            let c = Double(v) / 255.0
+            return c <= 0.03928 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4)
+        }
+        let r = lin((int >> 16) & 0xFF)
+        let g = lin((int >> 8) & 0xFF)
+        let b = lin(int & 0xFF)
         return 0.2126 * r + 0.7152 * g + 0.0722 * b
     }
 
-    /// Readable foreground colour (dark or white) for a given background hex.
+    /// Readable foreground (near-black or white) for a background hex, chosen for
+    /// maximum contrast (WCAG black/white crossover ≈ 0.179). Missing → white.
     static func onColor(_ hex: String?) -> Color {
-        luminanceHex(hex) > 0.6 ? Color(hex: "#1D1D1F") : .white
+        luminanceHex(hex) > 0.179 ? Color(hex: "#1D1D1F") : .white
     }
 }
 
