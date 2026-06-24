@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { UserCog, Clock } from 'lucide-react'
+import { UserCog, Clock, ChevronRight } from 'lucide-react'
+import Modal from '@/components/Modal'
 
 interface StaffMember {
   id: string
@@ -31,6 +32,7 @@ export default function StaffClient({
   const [pending, setPending] = useState<StaffMember[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState<string | null>(null)
+  const [selected, setSelected] = useState<StaffMember | null>(null)
 
   const load = useCallback(() => {
     const supabase = createBrowserClient(
@@ -64,6 +66,16 @@ export default function StaffClient({
     })
     setBusy(null)
     load()
+  }
+
+  async function changeRole(staffId: string, role: string) {
+    await action('/api/staff/update-role', { staff_id: staffId, role })
+    setSelected(prev => prev && prev.id === staffId ? { ...prev, role } : prev)
+  }
+
+  async function removeStaff(staffId: string) {
+    await action('/api/staff/remove', { staff_id: staffId })
+    setSelected(null)
   }
 
   const getName = (m: StaffMember) => {
@@ -142,14 +154,15 @@ export default function StaffClient({
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-black/5 bg-black/[0.02]">
-                    {['Name', 'Email', 'Role', 'Status', 'Added', ...(canManage ? [''] : [])].map((h, i) => (
+                    {['Name', 'Email', 'Role', 'Status', 'Added', ''].map((h, i) => (
                       <th key={i} className="text-left px-5 py-3.5 text-xs font-semibold text-black/35 tracking-widest uppercase">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-black/5">
                   {staff.map(m => (
-                    <tr key={m.id} className="hover:bg-black/[0.02] transition-colors group">
+                    <tr key={m.id} onClick={() => setSelected(m)}
+                      className="hover:bg-black/[0.03] transition-colors group cursor-pointer">
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-full bg-black/8 flex items-center justify-center font-bold text-[#1D1D1F] text-sm shrink-0">
@@ -170,27 +183,9 @@ export default function StaffClient({
                         </span>
                       </td>
                       <td className="px-5 py-4 text-black/35 text-sm">{new Date(m.created_at).toLocaleDateString()}</td>
-                      {canManage && (
-                        <td className="px-5 py-4">
-                          {m.role !== 'owner' && (
-                            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <select defaultValue={m.role}
-                                onChange={async e => {
-                                  await action('/api/staff/update-role', { staff_id: m.id, role: e.target.value })
-                                }}
-                                className="text-xs border border-black/10 rounded-xl px-2.5 py-1.5 bg-white/80 text-[#1D1D1F] focus:outline-none">
-                                <option value="manager">Manager</option>
-                                <option value="staff">Staff</option>
-                              </select>
-                              <button disabled={busy === m.id}
-                                onClick={() => action('/api/staff/remove', { staff_id: m.id })}
-                                className="text-xs font-semibold text-black/30 hover:text-black/60 px-3 py-1.5 rounded-xl hover:bg-black/5 transition-colors disabled:opacity-40">
-                                Remove
-                              </button>
-                            </div>
-                          )}
-                        </td>
-                      )}
+                      <td className="px-5 py-4 text-right">
+                        <ChevronRight size={16} className="inline text-black/20 group-hover:text-black/45 transition-colors" />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -200,42 +195,87 @@ export default function StaffClient({
             {/* Mobile */}
             <div className="sm:hidden divide-y divide-black/5">
               {staff.map(m => (
-                <div key={m.id} className="px-5 py-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex items-center gap-3">
+                <button key={m.id} onClick={() => setSelected(m)} className="w-full text-left px-5 py-4 active:bg-black/[0.03] transition-colors">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-full bg-black/8 flex items-center justify-center font-bold text-[#1D1D1F] text-sm shrink-0">
                         {getName(m).charAt(0).toUpperCase()}
                       </div>
-                      <div>
-                        <p className="font-semibold text-[#1D1D1F] text-sm">{getName(m)}</p>
-                        <p className="text-black/40 text-xs">{getEmail(m)}</p>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-[#1D1D1F] text-sm truncate">{getName(m)}</p>
+                        <p className="text-black/40 text-xs truncate">{getEmail(m)}</p>
                       </div>
                     </div>
                     <span className={`text-xs font-bold px-2.5 py-1 rounded-full border shrink-0 ${roleBadge[m.role] ?? 'bg-black/5 text-black/40 border-black/10'}`}>
                       {m.role.charAt(0).toUpperCase() + m.role.slice(1)}
                     </span>
                   </div>
-                  {canManage && m.role !== 'owner' && (
-                    <div className="flex items-center gap-2 mt-3">
-                      <select defaultValue={m.role}
-                        onChange={async e => action('/api/staff/update-role', { staff_id: m.id, role: e.target.value })}
-                        className="text-xs border border-black/10 rounded-xl px-2.5 py-1.5 bg-white text-[#1D1D1F]">
-                        <option value="manager">Manager</option>
-                        <option value="staff">Staff</option>
-                      </select>
-                      <button disabled={busy === m.id}
-                        onClick={() => action('/api/staff/remove', { staff_id: m.id })}
-                        className="text-xs font-semibold text-black/30 px-3 py-1.5 rounded-xl border border-black/5 hover:bg-black/5 transition-colors disabled:opacity-40">
-                        Remove
-                      </button>
-                    </div>
-                  )}
-                </div>
+                </button>
               ))}
             </div>
           </div>
         )}
       </div>
+
+      <Modal isOpen={!!selected} onClose={() => setSelected(null)} title="Staff member">
+        {selected && (
+          <div className="flex flex-col gap-5">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-black/8 flex items-center justify-center font-bold text-[#1D1D1F] text-lg shrink-0">
+                {getName(selected).charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="font-bold text-[#1D1D1F]">{getName(selected)}</p>
+                <p className="text-black/40 text-sm truncate">{getEmail(selected)}</p>
+              </div>
+              <span className={`ml-auto text-xs font-bold px-2.5 py-1 rounded-full border shrink-0 ${roleBadge[selected.role] ?? 'bg-black/5 text-black/40 border-black/10'}`}>
+                {selected.role.charAt(0).toUpperCase() + selected.role.slice(1)}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl bg-black/[0.03] px-4 py-3">
+                <p className="text-[10px] font-bold tracking-widest uppercase text-black/30 mb-0.5">Status</p>
+                <p className="font-semibold text-[#1D1D1F] text-sm">{selected.status.charAt(0).toUpperCase() + selected.status.slice(1)}</p>
+              </div>
+              <div className="rounded-2xl bg-black/[0.03] px-4 py-3">
+                <p className="text-[10px] font-bold tracking-widest uppercase text-black/30 mb-0.5">Added</p>
+                <p className="font-semibold text-[#1D1D1F] text-sm">{new Date(selected.created_at).toLocaleDateString()}</p>
+              </div>
+            </div>
+
+            {canManage && selected.role !== 'owner' ? (
+              <>
+                <div>
+                  <label className="block text-xs font-semibold text-black/45 tracking-wide uppercase mb-1.5">Role</label>
+                  <div className="flex gap-2">
+                    {(['manager', 'staff'] as const).map(r => (
+                      <button key={r} disabled={busy === selected.id}
+                        onClick={() => changeRole(selected.id, r)}
+                        className={`flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors disabled:opacity-40 ${
+                          selected.role === r
+                            ? 'bg-[#1D1D1F] text-white border-transparent'
+                            : 'bg-white text-black/50 border-black/10 hover:border-black/25'
+                        }`}>
+                        {r.charAt(0).toUpperCase() + r.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <button disabled={busy === selected.id}
+                  onClick={() => removeStaff(selected.id)}
+                  className="text-sm font-semibold text-red-500/80 px-3.5 py-2.5 rounded-xl border border-red-500/15 hover:bg-red-500/5 transition-colors disabled:opacity-40">
+                  Remove from staff
+                </button>
+              </>
+            ) : (
+              <p className="text-sm text-black/35">
+                {selected.role === 'owner' ? 'The owner cannot be edited or removed.' : 'You do not have permission to edit staff.'}
+              </p>
+            )}
+          </div>
+        )}
+      </Modal>
     </main>
   )
 }

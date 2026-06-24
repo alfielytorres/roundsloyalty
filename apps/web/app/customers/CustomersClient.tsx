@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { Download } from 'lucide-react'
+import { Download, ChevronRight } from 'lucide-react'
+import Modal from '@/components/Modal'
 
 interface Member {
   id: string
@@ -23,10 +24,16 @@ const statusBadge: Record<string, string> = {
 const SEGMENTS = ['all', 'active', 'pending', 'inactive'] as const
 type Segment = typeof SEGMENTS[number]
 
+const memberName = (m: Member) => {
+  const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles
+  return (profile as { display_name?: string | null } | null)?.display_name ?? 'Anonymous'
+}
+
 export default function CustomersClient({ vendorId, vendorName }: { vendorId: string; vendorName: string }) {
   const [members, setMembers] = useState<Member[]>([])
   const [loading, setLoading] = useState(true)
   const [segment, setSegment] = useState<Segment>('all')
+  const [selected, setSelected] = useState<Member | null>(null)
 
   useEffect(() => {
     const supabase = createBrowserClient(
@@ -97,17 +104,17 @@ export default function CustomersClient({ vendorId, vendorName }: { vendorId: st
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-black/5 bg-black/[0.02]">
-                    {['Customer', 'Status', 'Current rounds', 'Lifetime rounds', 'Joined'].map(h => (
+                    {['Customer', 'Status', 'Current rounds', 'Lifetime rounds', 'Joined', ''].map(h => (
                       <th key={h} className="text-left px-5 py-3.5 text-xs font-semibold text-black/35 tracking-widest uppercase">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-black/5">
                   {filtered.map(m => {
-                    const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles
-                    const name = (profile as { display_name?: string | null } | null)?.display_name ?? 'Anonymous'
+                    const name = memberName(m)
                     return (
-                      <tr key={m.id} className="hover:bg-black/[0.02] transition-colors">
+                      <tr key={m.id} onClick={() => setSelected(m)}
+                        className="hover:bg-black/[0.03] transition-colors group cursor-pointer">
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 rounded-full bg-black/8 flex items-center justify-center font-bold text-[#1D1D1F] text-sm shrink-0">
@@ -124,6 +131,9 @@ export default function CustomersClient({ vendorId, vendorName }: { vendorId: st
                         <td className="px-5 py-4"><span className="font-bold text-[#1D1D1F] text-sm">{m.current_rounds ?? 0}</span></td>
                         <td className="px-5 py-4 text-black/60 text-sm font-medium">{m.lifetime_rounds ?? 0}</td>
                         <td className="px-5 py-4 text-black/35 text-sm">{m.activated_at ? new Date(m.activated_at).toLocaleDateString() : '—'}</td>
+                        <td className="px-5 py-4 text-right">
+                          <ChevronRight size={16} className="inline text-black/20 group-hover:text-black/45 transition-colors" />
+                        </td>
                       </tr>
                     )
                   })}
@@ -133,10 +143,9 @@ export default function CustomersClient({ vendorId, vendorName }: { vendorId: st
 
             <div className="sm:hidden divide-y divide-black/5">
               {filtered.map(m => {
-                const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles
-                const name = (profile as { display_name?: string | null } | null)?.display_name ?? 'Anonymous'
+                const name = memberName(m)
                 return (
-                  <div key={m.id} className="px-5 py-4 flex items-center justify-between gap-3">
+                  <button key={m.id} onClick={() => setSelected(m)} className="w-full text-left px-5 py-4 flex items-center justify-between gap-3 active:bg-black/[0.03] transition-colors">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-full bg-black/8 flex items-center justify-center font-bold text-[#1D1D1F] text-sm shrink-0">
                         {name.charAt(0).toUpperCase()}
@@ -150,13 +159,49 @@ export default function CustomersClient({ vendorId, vendorName }: { vendorId: st
                       <p className="font-black text-[#1D1D1F] text-xl leading-none">{m.current_rounds ?? 0}</p>
                       <p className="text-black/30 text-[10px] uppercase tracking-wide mt-0.5">rounds</p>
                     </div>
-                  </div>
+                  </button>
                 )
               })}
             </div>
           </div>
         )}
       </div>
+
+      <Modal isOpen={!!selected} onClose={() => setSelected(null)} title="Customer">
+        {selected && (
+          <div className="flex flex-col gap-5">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-black/8 flex items-center justify-center font-bold text-[#1D1D1F] text-lg shrink-0">
+                {memberName(selected).charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="font-bold text-[#1D1D1F]">{memberName(selected)}</p>
+                <span className={`inline-block mt-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusBadge[selected.status] ?? 'bg-black/5 text-black/35'}`}>
+                  {selected.status.charAt(0).toUpperCase() + selected.status.slice(1)}
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl bg-black/[0.03] px-4 py-3.5">
+                <p className="text-[10px] font-bold tracking-widest uppercase text-black/30 mb-0.5">Current rounds</p>
+                <p className="font-black text-[#1D1D1F] text-2xl leading-tight">{selected.current_rounds ?? 0}</p>
+              </div>
+              <div className="rounded-2xl bg-black/[0.03] px-4 py-3.5">
+                <p className="text-[10px] font-bold tracking-widest uppercase text-black/30 mb-0.5">Lifetime rounds</p>
+                <p className="font-black text-[#1D1D1F] text-2xl leading-tight">{selected.lifetime_rounds ?? 0}</p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl bg-black/[0.03] px-4 py-3">
+              <p className="text-[10px] font-bold tracking-widest uppercase text-black/30 mb-0.5">Joined</p>
+              <p className="font-semibold text-[#1D1D1F] text-sm">
+                {selected.activated_at ? new Date(selected.activated_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'Not yet activated'}
+              </p>
+            </div>
+          </div>
+        )}
+      </Modal>
     </main>
   )
 }
