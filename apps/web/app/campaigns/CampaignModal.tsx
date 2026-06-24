@@ -144,10 +144,16 @@ export default function CampaignModal({
               ))}
             </div>
           )}
-          <div className="grid grid-cols-2 gap-3">
-            <input type="datetime-local" value={start} onChange={e => setStart(e.target.value)} required readOnly={liveLocked}
-              className={`dark-input w-full ${liveLocked ? 'opacity-60 cursor-not-allowed' : ''}`} />
-            <input type="datetime-local" value={end} onChange={e => setEnd(e.target.value)} required className="dark-input w-full" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <span className="block text-[11px] font-semibold text-black/35 mb-1">Starts</span>
+              <input type="datetime-local" value={start} onChange={e => setStart(e.target.value)} required readOnly={liveLocked}
+                className={`dark-input w-full min-w-0 ${liveLocked ? 'opacity-60 cursor-not-allowed' : ''}`} />
+            </div>
+            <div>
+              <span className="block text-[11px] font-semibold text-black/35 mb-1">Ends</span>
+              <input type="datetime-local" value={end} onChange={e => setEnd(e.target.value)} required className="dark-input w-full min-w-0" />
+            </div>
           </div>
           {liveLocked && <p className="text-[11px] text-black/35 mt-1.5">This campaign is already live — only the end time can be changed.</p>}
         </div>
