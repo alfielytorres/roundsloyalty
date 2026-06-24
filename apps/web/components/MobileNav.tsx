@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import {
   LayoutDashboard, Award, Megaphone, Cpu, PackageCheck,
-  Users, UserCog, QrCode, Settings2, X,
+  Users, UserCog, QrCode, Settings2, X, Stamp,
 } from 'lucide-react'
 
 const groups = [
@@ -66,7 +66,7 @@ export default function MobileNav() {
         {/* Stamp — raised center button */}
         <button onClick={() => navigate('/stamp')}
           className="w-12 h-12 -mt-5 flex items-center justify-center rounded-full bg-[#1D1D1F] shadow-[0_4px_16px_rgba(0,0,0,0.25)] hover:bg-black transition-all active:scale-95 mx-1">
-          <Image src="/logo.svg" alt="Stamp" width={20} height={20} className="invert" />
+          <Stamp size={20} className="text-white" />
         </button>
 
         {/* Collections */}

@@ -1,8 +1,7 @@
 'use client'
 
 import { usePathname, useRouter } from 'next/navigation'
-import Image from 'next/image'
-import { LayoutDashboard, PackageCheck, Users, Settings2 } from 'lucide-react'
+import { LayoutDashboard, PackageCheck, Users, Settings2, Stamp } from 'lucide-react'
 
 const items = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Home' },
@@ -30,7 +29,7 @@ export default function BottomNav() {
           return (
             <button key={href} onClick={(e) => navigate(e, href)} title={label}
               className="flex items-center justify-center w-12 h-12 -mt-6 rounded-full bg-[#1D1D1F] hover:bg-black shadow-md transition-all mx-2">
-              <Image src="/logo.svg" alt="Stamp" width={22} height={22} className="invert" />
+              <Stamp size={22} className="text-white" />
             </button>
           )
         }
