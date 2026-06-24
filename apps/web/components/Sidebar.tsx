@@ -53,7 +53,7 @@ export default function Sidebar() {
       {/* Logo */}
       <div className="px-5 py-5 border-b border-black/5">
         <div className="flex items-center gap-3">
-          <Image src="/logo.svg" alt="Rounds" width={28} height={28} className="opacity-90" />
+          <Image src="/logo.svg" alt="Rounds" width={28} height={28} unoptimized className="rounded-md" />
           <span className="font-black text-[#111] tracking-wider text-sm">ROUND REWARDS</span>
         </div>
       </div>

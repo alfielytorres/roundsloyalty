@@ -86,7 +86,7 @@ export default function MobileNav() {
             {/* Header */}
             <div className="flex items-center justify-between px-5 pt-14 pb-5 border-b border-black/5">
               <div className="flex items-center gap-3">
-                <Image src="/logo.svg" alt="Rounds" width={22} height={22} />
+                <Image src="/logo.svg" alt="Rounds" width={22} height={22} unoptimized className="rounded-md" />
                 <p className="font-black text-[#111] tracking-wider text-sm leading-none">ROUND REWARDS</p>
               </div>
               <button onClick={() => setOpen(false)}

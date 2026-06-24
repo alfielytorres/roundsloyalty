@@ -48,7 +48,7 @@ export default async function NfcTagPage({ params }: { params: Promise<{ token: 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6 bg-[#F5F5F7]">
       <div className="w-full max-w-xs flex flex-col items-center text-center">
-        <Image src="/logo.svg" alt="Rounds" width={44} height={44} className="mb-4" />
+        <Image src="/logo.svg" alt="Rounds" width={56} height={56} unoptimized className="mb-4" />
         <p className="text-[11px] font-semibold tracking-widest text-black/25 uppercase mb-1.5">Round Rewards</p>
 
         {active && device ? (

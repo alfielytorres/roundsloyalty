@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import ConditionalNav from '@/components/ConditionalNav'
 import LayoutShell from '@/components/LayoutShell'
@@ -6,7 +6,11 @@ import LayoutShell from '@/components/LayoutShell'
 export const metadata: Metadata = {
   title: 'Round Rewards — Vendor Portal',
   description: 'Manage your loyalty program and reward your customers',
-  icons: { icon: '/logo.svg', apple: '/logo.svg' },
+  appleWebApp: { capable: true, title: 'Rounds', statusBarStyle: 'default' },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#E60128',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
