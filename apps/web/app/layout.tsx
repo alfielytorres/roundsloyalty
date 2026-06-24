@@ -4,7 +4,7 @@ import ConditionalNav from '@/components/ConditionalNav'
 import LayoutShell from '@/components/LayoutShell'
 
 export const metadata: Metadata = {
-  title: 'Round Rewards — Vendor Portal',
+  title: 'Rounds — Vendor Portal',
   description: 'Manage your loyalty program and reward your customers',
   appleWebApp: { capable: true, title: 'Rounds', statusBarStyle: 'default' },
 }

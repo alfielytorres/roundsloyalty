@@ -33,7 +33,7 @@ export default function SignUpPage() {
       <div className="w-full max-w-xs">
         <div className="flex flex-col items-center mb-8">
           <Image src="/logo.svg" alt="Rounds" width={56} height={56} unoptimized priority className="mb-4" />
-          <p className="text-[11px] font-semibold tracking-widest text-black/25 uppercase mb-1.5">Round Rewards</p>
+          <p className="text-base font-bold tracking-tight text-black/30 mb-1.5">Rounds</p>
           <h1 className="text-2xl font-bold text-[#1D1D1F]">Create account</h1>
           <p className="text-black/40 mt-0.5 text-sm">Set up your vendor portal</p>
         </div>

@@ -17,8 +17,9 @@ struct SignInView: View {
                     // Header
                     VStack(spacing: 8) {
                         RoundsLogoMark(size: 56)
-                        Text("Round Rewards")
+                        Text("Rounds")
                             .font(.largeTitle.bold())
+                            .kerning(-0.5)
                             .foregroundColor(.black)
                         Text("Welcome back")
                             .font(.subheadline)

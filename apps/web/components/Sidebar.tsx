@@ -54,7 +54,7 @@ export default function Sidebar() {
       <div className="px-5 py-5 border-b border-black/5">
         <div className="flex items-center gap-3">
           <Image src="/logo.svg" alt="Rounds" width={28} height={28} unoptimized className="rounded-md" />
-          <span className="font-black text-[#111] tracking-wider text-sm">ROUND REWARDS</span>
+          <span className="font-black text-[#111] tracking-tight text-base">Rounds</span>
         </div>
       </div>
 
@@ -104,7 +104,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="px-4 py-4 border-t border-black/5">
-        <p className="text-xs text-black/25 font-medium">© {new Date().getFullYear()} Round Rewards</p>
+        <p className="text-xs text-black/25 font-medium">© {new Date().getFullYear()} Rounds</p>
       </div>
     </aside>
   )
