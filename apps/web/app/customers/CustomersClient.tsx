@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { Download, ChevronRight } from 'lucide-react'
+import { Share2, ChevronRight } from 'lucide-react'
 import Modal from '@/components/Modal'
 
 interface Member {
@@ -51,6 +51,45 @@ export default function CustomersClient({ vendorId, vendorName }: { vendorId: st
 
   const filtered = segment === 'all' ? members : members.filter(m => m.status === segment)
 
+  function buildExport(format: 'csv' | 'json'): { content: string; mime: string; ext: string } {
+    const rows = members.map(m => ({
+      name: memberName(m),
+      status: m.status,
+      current_rounds: m.current_rounds ?? 0,
+      lifetime_rounds: m.lifetime_rounds ?? 0,
+      joined_at: m.activated_at ?? '',
+    }))
+    if (format === 'json') return { content: JSON.stringify(rows, null, 2), mime: 'application/json', ext: 'json' }
+    const headers = ['name', 'status', 'current_rounds', 'lifetime_rounds', 'joined_at']
+    const csv = [
+      headers.join(','),
+      ...rows.map(r => headers.map(h => JSON.stringify((r as Record<string, unknown>)[h] ?? '')).join(',')),
+    ].join('\n')
+    return { content: csv, mime: 'text/csv', ext: 'csv' }
+  }
+
+  // Hand the file to the native share sheet (AirDrop / Mail / Save to Files);
+  // fall back to a direct download where Web Share with files isn't supported.
+  async function shareExport(format: 'csv' | 'json') {
+    const { content, mime, ext } = buildExport(format)
+    const filename = `${vendorName.replace(/\s+/g, '-').toLowerCase() || 'customers'}-customers.${ext}`
+    const file = new File([content], filename, { type: mime })
+    const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean }
+    if (nav.canShare && nav.canShare({ files: [file] })) {
+      try {
+        await nav.share({ files: [file], title: `${vendorName} customers` })
+        return
+      } catch (e) {
+        if ((e as Error).name === 'AbortError') return // user dismissed the sheet
+        // any other error: fall through to download
+      }
+    }
+    const url = URL.createObjectURL(new Blob([content], { type: mime }))
+    const a = document.createElement('a')
+    a.href = url; a.download = filename; a.click()
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <main className="px-5 pt-10 pb-32">
       <div className="max-w-5xl mx-auto">
@@ -60,14 +99,14 @@ export default function CustomersClient({ vendorId, vendorName }: { vendorId: st
             <h1 className="text-2xl font-bold text-[#1D1D1F]">Customers</h1>
           </div>
           <div className="flex gap-2 mt-1">
-            <a href={`/api/export?vendor_id=${vendorId}&format=csv`}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/10 text-black/40 text-sm font-semibold hover:border-black/25 hover:text-black/60 transition-colors bg-white/60 backdrop-blur-sm">
-              <Download size={13} />CSV
-            </a>
-            <a href={`/api/export?vendor_id=${vendorId}&format=json`}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/10 text-black/40 text-sm font-semibold hover:border-black/25 hover:text-black/60 transition-colors bg-white/60 backdrop-blur-sm">
-              <Download size={13} />JSON
-            </a>
+            <button onClick={() => shareExport('csv')} disabled={loading || members.length === 0}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/10 text-black/40 text-sm font-semibold hover:border-black/25 hover:text-black/60 transition-colors bg-white/60 backdrop-blur-sm disabled:opacity-40">
+              <Share2 size={13} />CSV
+            </button>
+            <button onClick={() => shareExport('json')} disabled={loading || members.length === 0}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-black/10 text-black/40 text-sm font-semibold hover:border-black/25 hover:text-black/60 transition-colors bg-white/60 backdrop-blur-sm disabled:opacity-40">
+              <Share2 size={13} />JSON
+            </button>
           </div>
         </div>
 
