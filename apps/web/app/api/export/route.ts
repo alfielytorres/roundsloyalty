@@ -19,33 +19,37 @@ export async function GET(req: NextRequest) {
 
   if (!vendor_id) return new NextResponse('Missing vendor_id', { status: 400 })
 
-  const { data: vendor } = await supabase
-    .from('vendors')
-    .select('id, business_name')
-    .eq('id', vendor_id)
-    .eq('owner_id', user.id)
-    .maybeSingle()
+  // Access check: vendor owner OR active staff.
+  const { data: ownVendor } = await supabase
+    .from('vendors').select('id, business_name').eq('id', vendor_id).eq('owner_id', user.id).maybeSingle()
 
+  let vendor = ownVendor
+  if (!vendor) {
+    const { data: staff } = await supabase
+      .from('vendor_staff').select('id').eq('vendor_id', vendor_id).eq('user_id', user.id).eq('status', 'active').maybeSingle()
+    if (staff) {
+      const { data: v } = await supabase.from('vendors').select('id, business_name').eq('id', vendor_id).maybeSingle()
+      vendor = v ?? null
+    }
+  }
   if (!vendor) return new NextResponse('Not found', { status: 404 })
 
-  const { data: members } = await supabase
+  const { data: members, error } = await supabase
     .from('customer_vendor_memberships')
-    .select('customer_id, status, total_visits, last_visit_at, profiles(display_name), loyalty_balances(stamps_balance, points_balance)')
+    .select('customer_id, status, current_rounds, lifetime_rounds, activated_at, created_at, profiles(display_name)')
     .eq('vendor_id', vendor_id)
-    .order('total_visits', { ascending: false })
+    .order('lifetime_rounds', { ascending: false })
 
-  if (!members) return new NextResponse('No data', { status: 404 })
+  if (error) return new NextResponse(`Export failed: ${error.message}`, { status: 500 })
 
-  const rows = members.map((m) => {
+  const rows = (members ?? []).map((m) => {
     const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles
-    const balance = Array.isArray(m.loyalty_balances) ? m.loyalty_balances[0] : m.loyalty_balances
     return {
       display_name: (profile as { display_name?: string | null } | null)?.display_name ?? '',
-      status: m.status,
-      total_visits: m.total_visits ?? 0,
-      stamps_balance: (balance as { stamps_balance?: number } | null)?.stamps_balance ?? 0,
-      points_balance: (balance as { points_balance?: number } | null)?.points_balance ?? 0,
-      last_visit_at: m.last_visit_at ?? '',
+      status: m.status ?? '',
+      current_rounds: m.current_rounds ?? 0,
+      lifetime_rounds: m.lifetime_rounds ?? 0,
+      joined_at: m.activated_at ?? m.created_at ?? '',
     }
   })
 
@@ -60,7 +64,7 @@ export async function GET(req: NextRequest) {
     })
   }
 
-  const headers = ['display_name', 'status', 'total_visits', 'stamps_balance', 'points_balance', 'last_visit_at']
+  const headers = ['display_name', 'status', 'current_rounds', 'lifetime_rounds', 'joined_at']
   const csvRows = rows.map((r) =>
     headers.map((h) => JSON.stringify((r as Record<string, unknown>)[h] ?? '')).join(','),
   )
