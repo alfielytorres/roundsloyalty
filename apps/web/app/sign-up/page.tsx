@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
+import Spinner from '@/components/Spinner'
 
 export default function SignUpPage() {
   const router = useRouter()
@@ -56,8 +57,8 @@ export default function SignUpPage() {
             </div>
           ))}
           <button type="submit" disabled={loading}
-            className="w-full bg-[#1D1D1F] hover:bg-black disabled:opacity-40 text-white font-semibold py-3 rounded-xl transition-colors text-sm mt-1">
-            {loading ? 'Creating account…' : 'Create account'}
+            className="w-full inline-flex items-center justify-center gap-2 bg-[#1D1D1F] hover:bg-black disabled:opacity-40 text-white font-semibold py-3 rounded-xl transition-colors text-sm mt-1">
+            {loading ? <><Spinner />Creating account…</> : 'Create account'}
           </button>
         </form>
 

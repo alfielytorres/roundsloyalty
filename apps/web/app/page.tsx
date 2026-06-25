@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Spinner from '@/components/Spinner'
 
 export default function RootPage() {
   const router = useRouter()
@@ -53,8 +54,8 @@ export default function RootPage() {
               className="w-full bg-white/80 border border-black/10 rounded-xl px-3.5 py-2.5 text-[#1D1D1F] placeholder-black/25 text-sm focus:outline-none focus:border-black/25 transition-colors" />
           </div>
           <button type="submit" disabled={loading}
-            className="w-full bg-[#1D1D1F] hover:bg-black disabled:opacity-40 text-white font-semibold py-3 rounded-xl transition-colors text-sm mt-1">
-            {loading ? 'Signing in…' : 'Sign in'}
+            className="w-full inline-flex items-center justify-center gap-2 bg-[#1D1D1F] hover:bg-black disabled:opacity-40 text-white font-semibold py-3 rounded-xl transition-colors text-sm mt-1">
+            {loading ? <><Spinner />Signing in…</> : 'Sign in'}
           </button>
         </form>
 

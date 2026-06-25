@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { Cpu, Pencil } from 'lucide-react'
 import Modal from '@/components/Modal'
+import Spinner from '@/components/Spinner'
 
 interface Device {
   id: string
@@ -29,6 +30,7 @@ export default function DevicesClient({
   const [devices, setDevices] = useState<Device[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState<string | null>(null)
+  const [pending, setPending] = useState<string | null>(null)
   const [selected, setSelected] = useState<Device | null>(null)
   const [editName, setEditName] = useState('')
   const [editLocation, setEditLocation] = useState('')
@@ -58,6 +60,7 @@ export default function DevicesClient({
 
   async function deviceAction(path: string, deviceId: string) {
     setBusy(deviceId)
+    setPending(path)
     const nextStatus = path.includes('pause') ? 'paused' : path.includes('resume') ? 'active' : 'revoked'
     setDevices(prev => prev.map(d => d.id === deviceId ? { ...d, status: nextStatus } : d))
     setSelected(prev => prev && prev.id === deviceId ? { ...prev, status: nextStatus } : prev)
@@ -67,6 +70,7 @@ export default function DevicesClient({
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
     })
     setBusy(null)
+    setPending(null)
     load()
   }
 
@@ -75,6 +79,7 @@ export default function DevicesClient({
     const name = editName.trim()
     if (!name) { setSaveError('Name is required.'); return }
     setBusy(selected.id)
+    setPending('save')
     setSaveError(null)
     const body = new FormData()
     body.set('device_id', selected.id)
@@ -82,6 +87,7 @@ export default function DevicesClient({
     body.set('location_label', editLocation.trim())
     const res = await fetch('/api/devices/update', { method: 'POST', body })
     setBusy(null)
+    setPending(null)
     if (!res.ok) {
       const j = await res.json().catch(() => ({}))
       setSaveError(j.error ?? 'Could not save changes.')
@@ -212,25 +218,25 @@ export default function DevicesClient({
             <div className="flex flex-wrap items-center gap-2 pt-1">
               {selected.status === 'active' && (
                 <button disabled={busy === selected.id} onClick={() => deviceAction('/api/devices/pause', selected.id)}
-                  className="text-sm font-semibold text-black/60 px-3.5 py-2 rounded-xl border border-black/10 hover:bg-black/5 transition-colors disabled:opacity-40">
-                  Pause
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-black/60 px-3.5 py-2 rounded-xl border border-black/10 hover:bg-black/5 transition-colors disabled:opacity-40">
+                  {pending === '/api/devices/pause' && <Spinner size={14} />}Pause
                 </button>
               )}
               {selected.status === 'paused' && (
                 <button disabled={busy === selected.id} onClick={() => deviceAction('/api/devices/resume', selected.id)}
-                  className="text-sm font-semibold text-[#1D1D1F] px-3.5 py-2 rounded-xl border border-black/10 hover:bg-black/5 transition-colors disabled:opacity-40">
-                  Resume
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-[#1D1D1F] px-3.5 py-2 rounded-xl border border-black/10 hover:bg-black/5 transition-colors disabled:opacity-40">
+                  {pending === '/api/devices/resume' && <Spinner size={14} />}Resume
                 </button>
               )}
               {selected.status !== 'revoked' && (
                 <button disabled={busy === selected.id} onClick={() => deviceAction('/api/devices/revoke', selected.id)}
-                  className="text-sm font-semibold text-red-500/80 px-3.5 py-2 rounded-xl border border-red-500/15 hover:bg-red-500/5 transition-colors disabled:opacity-40">
-                  Revoke
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-red-500/80 px-3.5 py-2 rounded-xl border border-red-500/15 hover:bg-red-500/5 transition-colors disabled:opacity-40">
+                  {pending === '/api/devices/revoke' && <Spinner size={14} />}Revoke
                 </button>
               )}
               <button disabled={busy === selected.id} onClick={saveDevice}
-                className="ml-auto text-sm font-bold text-white bg-[#1D1D1F] px-5 py-2 rounded-xl hover:bg-black transition-colors disabled:opacity-40">
-                Save changes
+                className="ml-auto inline-flex items-center gap-2 text-sm font-bold text-white bg-[#1D1D1F] px-5 py-2 rounded-xl hover:bg-black transition-colors disabled:opacity-40">
+                {pending === 'save' && <Spinner size={14} />}Save changes
               </button>
             </div>
           </div>

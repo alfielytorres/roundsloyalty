@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Zap, Send, CheckCheck, MailOpen, Clock, Calendar } from 'lucide-react'
 import Modal from '@/components/Modal'
+import SubmitButton from '@/components/SubmitButton'
 
 // A fully-styled date/time field: we render our own formatted display and lay a
 // transparent native datetime-local input on top, so tapping it opens the native
@@ -391,10 +392,10 @@ export default function CampaignModal({
             className="flex-1 py-3 rounded-2xl border border-black/10 text-black/50 font-semibold text-sm hover:bg-black/5 transition-colors">
             Cancel
           </button>
-          <button type="submit"
-            className="flex-1 py-3 rounded-2xl bg-[#1D1D1F] text-white font-semibold text-sm hover:bg-black transition-colors">
+          <SubmitButton pendingText={editing ? 'Saving…' : 'Creating…'}
+            className="flex-1 py-3 rounded-2xl bg-[#1D1D1F] text-white font-semibold text-sm hover:bg-black transition-colors disabled:opacity-60">
             {editing ? 'Save changes' : 'Create campaign'}
-          </button>
+          </SubmitButton>
         </div>
       </form>
     </Modal>

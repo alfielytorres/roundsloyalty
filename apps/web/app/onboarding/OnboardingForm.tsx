@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Store, Users, Search, ArrowLeft, CheckCircle } from 'lucide-react'
+import Spinner from '@/components/Spinner'
 
 type Step = 'choose' | 'create' | 'join' | 'requested'
 
@@ -138,8 +139,8 @@ export default function OnboardingForm({ error: initialError, defaultBusinessNam
                       <p className="font-semibold text-[#1D1D1F] text-sm">{v.business_name}</p>
                       {v.category && <p className="text-black/35 text-xs capitalize mt-0.5">{v.category}</p>}
                     </div>
-                    <span className="text-xs font-semibold text-black/40 border border-black/10 rounded-xl px-3 py-1.5 shrink-0 hover:bg-black/5">
-                      {loading ? '...' : 'Request'}
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-black/40 border border-black/10 rounded-xl px-3 py-1.5 shrink-0 hover:bg-black/5">
+                      {loading ? <><Spinner size={12} />…</> : 'Request'}
                     </span>
                   </button>
                 ))}
@@ -204,7 +205,7 @@ export default function OnboardingForm({ error: initialError, defaultBusinessNam
               </div>
               <button type="submit" disabled={loading}
                 className="flex items-center justify-center gap-2 w-full bg-[#111] hover:bg-[#222] disabled:opacity-60 text-white font-bold py-3 rounded-2xl mt-1 transition-colors">
-                {loading ? 'Setting up...' : <><Store size={16} />Launch my store</>}
+                {loading ? <><Spinner />Setting up…</> : <><Store size={16} />Launch my store</>}
               </button>
             </form>
           </div>

@@ -4,6 +4,7 @@ import { useRef, useState, useEffect, ChangeEvent } from 'react'
 import Image from 'next/image'
 import { Minus, Plus, Check } from 'lucide-react'
 import CardPreview from './CardPreview'
+import SubmitButton from '@/components/SubmitButton'
 import { HEX6, resolveHex, STAMP_ICONS } from './colorUtils'
 
 interface ProgramData {
@@ -203,9 +204,10 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 
-          <button type="submit" className="btn-primary w-full inline-flex items-center justify-center gap-2">
+          <SubmitButton className="btn-primary w-full inline-flex items-center justify-center gap-2"
+            pendingText={program ? 'Saving…' : 'Creating…'}>
             <Check size={16} />{program ? 'Save changes' : 'Create program'}
-          </button>
+          </SubmitButton>
         </div>
 
         {/* Live preview */}

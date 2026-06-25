@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { Megaphone, Clock, Plus, Pencil, Send, MailOpen } from 'lucide-react'
 import CampaignModal, { EditableCampaign, CampaignStats } from './CampaignModal'
+import SubmitButton from '@/components/SubmitButton'
 
 interface Campaign {
   id: string
@@ -162,19 +163,19 @@ export default function CampaignsClient({ vendorId, vendorName }: { vendorId: st
                     {isLive && (
                       <form action="/api/campaigns/cancel" method="POST" onClick={(e) => e.stopPropagation()}>
                         <input type="hidden" name="campaign_id" value={c.id} />
-                        <button type="submit"
-                          className="text-xs font-semibold rounded-xl px-3 py-1.5 border border-black/10 text-black/40 hover:border-black/20 hover:text-black/60 transition-colors">
+                        <SubmitButton
+                          className="text-xs font-semibold rounded-xl px-3 py-1.5 border border-black/10 text-black/40 hover:border-black/20 hover:text-black/60 transition-colors disabled:opacity-60">
                           End
-                        </button>
+                        </SubmitButton>
                       </form>
                     )}
                     {st === 'scheduled' && (
                       <form action="/api/campaigns/cancel" method="POST" onClick={(e) => e.stopPropagation()}>
                         <input type="hidden" name="campaign_id" value={c.id} />
-                        <button type="submit"
-                          className="text-xs font-semibold rounded-xl px-3 py-1.5 border border-black/10 text-black/40 hover:border-black/20 hover:text-black/60 transition-colors">
+                        <SubmitButton
+                          className="text-xs font-semibold rounded-xl px-3 py-1.5 border border-black/10 text-black/40 hover:border-black/20 hover:text-black/60 transition-colors disabled:opacity-60">
                           Cancel
-                        </button>
+                        </SubmitButton>
                       </form>
                     )}
                   </div>

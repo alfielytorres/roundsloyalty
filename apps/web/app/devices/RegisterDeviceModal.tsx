@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react'
 import { Plus, Copy, Check } from 'lucide-react'
 import Modal from '@/components/Modal'
+import Spinner from '@/components/Spinner'
 
 export default function RegisterDeviceModal({ vendorId }: { vendorId: string }) {
   const [open, setOpen] = useState(false)
@@ -114,8 +115,8 @@ export default function RegisterDeviceModal({ vendorId }: { vendorId: string }) 
                 Cancel
               </button>
               <button type="submit" disabled={submitting}
-                className="flex-1 py-3 rounded-2xl bg-[#1D1D1F] text-white font-semibold text-sm hover:bg-black transition-colors disabled:opacity-50">
-                {submitting ? 'Registering…' : 'Register'}
+                className="flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-2xl bg-[#1D1D1F] text-white font-semibold text-sm hover:bg-black transition-colors disabled:opacity-50">
+                {submitting ? <><Spinner />Registering…</> : 'Register'}
               </button>
             </div>
           </form>

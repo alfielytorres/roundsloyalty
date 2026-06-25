@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
 import { UserCog, Clock, ChevronRight } from 'lucide-react'
 import Modal from '@/components/Modal'
+import Spinner from '@/components/Spinner'
 
 interface StaffMember {
   id: string
@@ -32,6 +33,7 @@ export default function StaffClient({
   const [pending, setPending] = useState<StaffMember[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState<string | null>(null)
+  const [pendingKey, setPendingKey] = useState<string | null>(null)
   const [selected, setSelected] = useState<StaffMember | null>(null)
 
   const load = useCallback(() => {
@@ -57,24 +59,26 @@ export default function StaffClient({
 
   useEffect(() => { load() }, [load])
 
-  async function action(path: string, body: Record<string, string>) {
+  async function action(path: string, body: Record<string, string>, key?: string) {
     setBusy(body.staff_id)
+    setPendingKey(key ?? body.staff_id)
     await fetch(path, {
       method: 'POST',
       body: new URLSearchParams(body),
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
     })
     setBusy(null)
+    setPendingKey(null)
     load()
   }
 
   async function changeRole(staffId: string, role: string) {
-    await action('/api/staff/update-role', { staff_id: staffId, role })
+    await action('/api/staff/update-role', { staff_id: staffId, role }, `role:${role}`)
     setSelected(prev => prev && prev.id === staffId ? { ...prev, role } : prev)
   }
 
   async function removeStaff(staffId: string) {
-    await action('/api/staff/remove', { staff_id: staffId })
+    await action('/api/staff/remove', { staff_id: staffId }, 'remove')
     setSelected(null)
   }
 
@@ -121,14 +125,14 @@ export default function StaffClient({
                   </div>
                   <div className="flex gap-2 shrink-0">
                     <button disabled={busy === m.id}
-                      onClick={() => action('/api/staff/reject', { staff_id: m.id })}
-                      className="text-xs font-semibold text-black/35 px-3 py-1.5 rounded-xl border border-black/8 hover:bg-black/5 transition-colors disabled:opacity-40">
-                      Reject
+                      onClick={() => action('/api/staff/reject', { staff_id: m.id }, `reject:${m.id}`)}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-black/35 px-3 py-1.5 rounded-xl border border-black/8 hover:bg-black/5 transition-colors disabled:opacity-40">
+                      {pendingKey === `reject:${m.id}` && <Spinner size={12} />}Reject
                     </button>
                     <button disabled={busy === m.id}
-                      onClick={() => action('/api/staff/approve', { staff_id: m.id })}
-                      className="text-xs font-semibold text-white bg-[#1D1D1F] px-3 py-1.5 rounded-xl hover:bg-black transition-colors disabled:opacity-40">
-                      Approve
+                      onClick={() => action('/api/staff/approve', { staff_id: m.id }, `approve:${m.id}`)}
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#1D1D1F] px-3 py-1.5 rounded-xl hover:bg-black transition-colors disabled:opacity-40">
+                      {pendingKey === `approve:${m.id}` && <Spinner size={12} />}Approve
                     </button>
                   </div>
                 </div>
@@ -252,20 +256,20 @@ export default function StaffClient({
                     {(['manager', 'staff'] as const).map(r => (
                       <button key={r} disabled={busy === selected.id}
                         onClick={() => changeRole(selected.id, r)}
-                        className={`flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-colors disabled:opacity-40 ${
+                        className={`flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-colors disabled:opacity-40 ${
                           selected.role === r
                             ? 'bg-[#1D1D1F] text-white border-transparent'
                             : 'bg-white text-black/50 border-black/10 hover:border-black/25'
                         }`}>
-                        {r.charAt(0).toUpperCase() + r.slice(1)}
+                        {pendingKey === `role:${r}` && <Spinner size={13} />}{r.charAt(0).toUpperCase() + r.slice(1)}
                       </button>
                     ))}
                   </div>
                 </div>
                 <button disabled={busy === selected.id}
                   onClick={() => removeStaff(selected.id)}
-                  className="text-sm font-semibold text-red-500/80 px-3.5 py-2.5 rounded-xl border border-red-500/15 hover:bg-red-500/5 transition-colors disabled:opacity-40">
-                  Remove from staff
+                  className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-red-500/80 px-3.5 py-2.5 rounded-xl border border-red-500/15 hover:bg-red-500/5 transition-colors disabled:opacity-40">
+                  {pendingKey === 'remove' && <Spinner size={14} />}Remove from staff
                 </button>
               </>
             ) : (

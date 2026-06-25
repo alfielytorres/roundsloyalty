@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Plus, Shield, User, Check } from 'lucide-react'
 import Modal from '@/components/Modal'
+import SubmitButton from '@/components/SubmitButton'
 
 const ROLES = [
   { value: 'staff' as const, icon: User, title: 'Staff', desc: 'Award rounds & handle collections' },
@@ -57,10 +58,10 @@ export default function AddStaffModal({ vendorId }: { vendorId: string }) {
               className="flex-1 py-3 rounded-2xl border border-black/10 text-black/50 font-semibold text-sm hover:bg-black/5 transition-colors">
               Cancel
             </button>
-            <button type="submit"
-              className="flex-1 py-3 rounded-2xl bg-[#1D1D1F] text-white font-semibold text-sm hover:bg-black transition-colors">
+            <SubmitButton pendingText="Adding…"
+              className="flex-1 py-3 rounded-2xl bg-[#1D1D1F] text-white font-semibold text-sm hover:bg-black transition-colors disabled:opacity-60">
               Add member
-            </button>
+            </SubmitButton>
           </div>
         </form>
       </Modal>

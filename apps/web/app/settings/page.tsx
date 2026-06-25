@@ -1,6 +1,7 @@
 import { getPortalData } from '@/lib/portal-data'
 import { LogOut } from 'lucide-react'
 import AddressAutocomplete from './AddressAutocomplete'
+import SubmitButton from '@/components/SubmitButton'
 
 export default async function SettingsPage() {
   const { user, vendor } = await getPortalData()
@@ -38,7 +39,7 @@ export default async function SettingsPage() {
               <p className="text-black/30 text-xs mt-1">Shown on the map in the customer app.</p>
             </div>
 
-            <button type="submit" className="btn-primary self-start text-sm py-2.5 px-5 mt-1">Save changes</button>
+            <SubmitButton pendingText="Saving…" className="btn-primary self-start text-sm py-2.5 px-5 mt-1 disabled:opacity-60">Save changes</SubmitButton>
           </form>
         </div>
 
@@ -46,9 +47,9 @@ export default async function SettingsPage() {
           <p className="text-sm font-semibold text-[#1D1D1F] mb-0.5">Account</p>
           <p className="text-black/40 text-sm mb-3">{user.email}</p>
           <form action="/api/auth/sign-out" method="POST">
-            <button type="submit" className="flex items-center gap-1.5 text-sm font-medium text-black/50 border border-black/10 px-4 py-2 rounded-xl hover:bg-black/5 transition-colors">
+            <SubmitButton pendingText="Signing out…" className="flex items-center gap-1.5 text-sm font-medium text-black/50 border border-black/10 px-4 py-2 rounded-xl hover:bg-black/5 transition-colors disabled:opacity-60">
               <LogOut size={14} />Sign out
-            </button>
+            </SubmitButton>
           </form>
         </div>
       </div>
