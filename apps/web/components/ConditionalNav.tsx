@@ -15,6 +15,7 @@ const PORTAL_ROUTES = [
   '/collections',
   '/staff',
   '/qr',
+  '/setup',
 ]
 
 export default function ConditionalNav() {

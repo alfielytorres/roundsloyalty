@@ -66,5 +66,6 @@ export async function POST(req: NextRequest) {
     status: 'active',
   })
 
-  return NextResponse.json({ success: true }, { status: 200 })
+  // New stores land in the setup guide to finish configuring their program.
+  return NextResponse.json({ success: true, redirect: '/setup' }, { status: 200 })
 }

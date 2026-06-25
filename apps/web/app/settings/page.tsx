@@ -1,5 +1,6 @@
+import Link from 'next/link'
 import { getPortalData } from '@/lib/portal-data'
-import { LogOut } from 'lucide-react'
+import { LogOut, Sparkles, ArrowRight } from 'lucide-react'
 import AddressAutocomplete from './AddressAutocomplete'
 import SubmitButton from '@/components/SubmitButton'
 import LocationsManager from './LocationsManager'
@@ -45,6 +46,17 @@ export default async function SettingsPage() {
         </div>
 
         <LocationsManager vendorId={vendor.id} />
+
+        <Link href="/setup" className="glass mb-3 flex items-center gap-3 hover:bg-white/90 transition-colors">
+          <div className="w-10 h-10 rounded-2xl bg-rounds-soft flex items-center justify-center shrink-0">
+            <Sparkles size={18} className="text-rounds" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold text-[#1D1D1F] text-sm">Setup guide</p>
+            <p className="text-black/40 text-xs">Walk through setting up your store again</p>
+          </div>
+          <ArrowRight size={16} className="text-black/30 shrink-0" />
+        </Link>
 
         <div className="glass">
           <p className="text-sm font-semibold text-[#1D1D1F] mb-0.5">Account</p>
