@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { Megaphone, Clock, Plus, Pencil } from 'lucide-react'
-import CampaignModal, { EditableCampaign } from './CampaignModal'
+import { Megaphone, Clock, Plus, Pencil, Send, MailOpen } from 'lucide-react'
+import CampaignModal, { EditableCampaign, CampaignStats } from './CampaignModal'
 
 interface Campaign {
   id: string
@@ -13,6 +13,8 @@ interface Campaign {
   ends_at: string
   status: string
   customer_message: string | null
+  notify_mode: string | null
+  notified_at: string | null
 }
 
 function campaignStatus(c: Campaign): 'live' | 'scheduled' | 'ended' | 'cancelled' {
@@ -30,24 +32,55 @@ const statusBadge = {
   cancelled: 'bg-black/5 text-black/40 border border-black/10',
 }
 
+const EMPTY_STATS: CampaignStats = { recipients: 0, delivered: 0, opened: 0, failed: 0, pending: 0 }
+
 export default function CampaignsClient({ vendorId }: { vendorId: string }) {
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
+  const [statsMap, setStatsMap] = useState<Record<string, CampaignStats>>({})
+  const [memberCount, setMemberCount] = useState<number | undefined>(undefined)
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
-  const [editing, setEditing] = useState<Campaign | null>(null)
+  const [selected, setSelected] = useState<Campaign | null>(null)
 
-  const load = useCallback(() => {
+  const load = useCallback(async () => {
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     )
-    supabase
-      .from('round_campaigns')
-      .select('id, name, round_value, starts_at, ends_at, status, customer_message')
-      .eq('vendor_id', vendorId)
-      .order('starts_at', { ascending: false })
-      .limit(50)
-      .then(({ data }) => { setCampaigns((data ?? []) as Campaign[]); setLoading(false) })
+
+    // Announce any "on_start" campaigns that have just become live.
+    await supabase.rpc('process_due_campaign_notifications', { p_vendor_id: vendorId })
+
+    const [campaignsRes, notifsRes, memberRes] = await Promise.all([
+      supabase.from('round_campaigns')
+        .select('id, name, round_value, starts_at, ends_at, status, customer_message, notify_mode, notified_at')
+        .eq('vendor_id', vendorId)
+        .order('starts_at', { ascending: false })
+        .limit(50),
+      supabase.from('customer_notifications')
+        .select('campaign_id, status, read_at')
+        .eq('vendor_id', vendorId)
+        .not('campaign_id', 'is', null),
+      supabase.from('customer_vendor_memberships')
+        .select('id', { count: 'exact', head: true })
+        .eq('vendor_id', vendorId).eq('status', 'active'),
+    ])
+
+    const map: Record<string, CampaignStats> = {}
+    for (const n of (notifsRes.data ?? []) as { campaign_id: string; status: string; read_at: string | null }[]) {
+      const s = map[n.campaign_id] ?? { ...EMPTY_STATS }
+      s.recipients++
+      if (n.status === 'delivered' || n.status === 'sent') s.delivered++
+      if (n.status === 'failed') s.failed++
+      if (n.status === 'pending') s.pending++
+      if (n.read_at) s.opened++
+      map[n.campaign_id] = s
+    }
+
+    setCampaigns((campaignsRes.data ?? []) as Campaign[])
+    setStatsMap(map)
+    setMemberCount(memberRes.count ?? undefined)
+    setLoading(false)
   }, [vendorId])
 
   useEffect(() => { load() }, [load])
@@ -83,10 +116,11 @@ export default function CampaignsClient({ vendorId }: { vendorId: string }) {
             const st = campaignStatus(c)
             const isLive = st === 'live'
             const editable = st === 'live' || st === 'scheduled'
+            const cs = statsMap[c.id]
             return (
               <div key={c.id}
-                onClick={editable ? () => setEditing(c) : undefined}
-                className={`glass group ${st === 'ended' || st === 'cancelled' ? 'opacity-55' : ''} ${editable ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}>
+                onClick={() => setSelected(c)}
+                className={`glass group cursor-pointer hover:shadow-md transition-shadow ${st === 'ended' || st === 'cancelled' ? 'opacity-70' : ''}`}>
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex-1 min-w-0">
                     <span className={`inline-block text-xs font-bold px-2.5 py-1 rounded-full ${statusBadge[st]}`}>
@@ -105,25 +139,36 @@ export default function CampaignsClient({ vendorId }: { vendorId: string }) {
                 {c.customer_message && (
                   <p className="text-black/40 text-sm italic mb-3 leading-relaxed">&ldquo;{c.customer_message}&rdquo;</p>
                 )}
-                {editable && (
-                  <div className="flex items-center justify-between pt-3 border-t border-black/5">
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-black/35 group-hover:text-black/60 transition-colors">
-                      <Pencil size={11} /> Tap to edit
-                    </span>
-                    {isLive ? (
-                      <div className="flex items-center gap-3">
-                        <span className="hidden sm:inline-flex items-center gap-1.5 text-black/45 text-xs font-medium">
-                          <Clock size={11} />Ends {new Date(c.ends_at).toLocaleString()}
-                        </span>
-                        <form action="/api/campaigns/cancel" method="POST" onClick={(e) => e.stopPropagation()}>
-                          <input type="hidden" name="campaign_id" value={c.id} />
-                          <button type="submit"
-                            className="text-xs font-semibold rounded-xl px-3 py-1.5 border border-black/10 text-black/40 hover:border-black/20 hover:text-black/60 transition-colors">
-                            End campaign
-                          </button>
-                        </form>
-                      </div>
-                    ) : (
+
+                <div className="flex items-center justify-between pt-3 border-t border-black/5 gap-3">
+                  {/* Notification mini-stats */}
+                  {cs && cs.recipients > 0 ? (
+                    <div className="flex items-center gap-3 text-xs font-semibold text-black/45 min-w-0">
+                      <span className="inline-flex items-center gap-1"><Send size={11} />{cs.recipients} sent</span>
+                      <span className="inline-flex items-center gap-1 text-emerald-600"><MailOpen size={11} />{cs.opened} opened</span>
+                    </div>
+                  ) : c.notify_mode === 'none' ? (
+                    <span className="text-xs text-black/30 font-medium">No notification</span>
+                  ) : (
+                    <span className="text-xs text-black/35 font-medium">Notifies on launch</span>
+                  )}
+
+                  <div className="flex items-center gap-3 shrink-0">
+                    {editable && (
+                      <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-black/35 group-hover:text-black/60 transition-colors">
+                        <Pencil size={11} /> Edit
+                      </span>
+                    )}
+                    {isLive && (
+                      <form action="/api/campaigns/cancel" method="POST" onClick={(e) => e.stopPropagation()}>
+                        <input type="hidden" name="campaign_id" value={c.id} />
+                        <button type="submit"
+                          className="text-xs font-semibold rounded-xl px-3 py-1.5 border border-black/10 text-black/40 hover:border-black/20 hover:text-black/60 transition-colors">
+                          End
+                        </button>
+                      </form>
+                    )}
+                    {st === 'scheduled' && (
                       <form action="/api/campaigns/cancel" method="POST" onClick={(e) => e.stopPropagation()}>
                         <input type="hidden" name="campaign_id" value={c.id} />
                         <button type="submit"
@@ -133,16 +178,23 @@ export default function CampaignsClient({ vendorId }: { vendorId: string }) {
                       </form>
                     )}
                   </div>
-                )}
+                </div>
               </div>
             )
           })}
         </div>
       )}
 
-      <CampaignModal vendorId={vendorId} isOpen={creating} onClose={() => setCreating(false)} />
-      <CampaignModal vendorId={vendorId} isOpen={!!editing} onClose={() => setEditing(null)}
-        campaign={editing as EditableCampaign | null} />
+      <CampaignModal vendorId={vendorId} isOpen={creating} onClose={() => setCreating(false)} activeMemberCount={memberCount} />
+      <CampaignModal
+        vendorId={vendorId}
+        isOpen={!!selected}
+        onClose={() => setSelected(null)}
+        campaign={selected as EditableCampaign | null}
+        stats={selected ? statsMap[selected.id] : undefined}
+        readOnly={selected ? (campaignStatus(selected) === 'ended' || campaignStatus(selected) === 'cancelled') : false}
+        activeMemberCount={memberCount}
+      />
     </>
   )
 }

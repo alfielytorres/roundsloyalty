@@ -27,6 +27,10 @@ export async function POST(req: NextRequest) {
   const starts_at = formData.get('starts_at') as string
   const ends_at = formData.get('ends_at') as string
   const customer_message = (formData.get('customer_message') as string)?.trim() || null
+  const notify_mode = (() => {
+    const m = formData.get('notify_mode') as string
+    return m === 'immediate' || m === 'none' ? m : 'on_start'
+  })()
 
   if (!campaign_id || !name || !starts_at || !ends_at || !round_value) {
     return NextResponse.redirect(new URL('/campaigns?error=' + encodeURIComponent('All required fields must be filled in.'), req.url))
@@ -43,7 +47,7 @@ export async function POST(req: NextRequest) {
   // Load the campaign so we know its vendor and can't edit ended/cancelled ones.
   const { data: existing } = await supabase
     .from('round_campaigns')
-    .select('id, vendor_id, status, ends_at')
+    .select('id, vendor_id, status, ends_at, notified_at')
     .eq('id', campaign_id)
     .maybeSingle()
 
@@ -79,11 +83,19 @@ export async function POST(req: NextRequest) {
       starts_at: new Date(starts_at).toISOString(),
       ends_at: new Date(ends_at).toISOString(),
       customer_message,
+      notify_mode,
     })
     .eq('id', campaign_id)
 
   if (error) {
     return NextResponse.redirect(new URL('/campaigns?error=' + encodeURIComponent(error.message), req.url))
+  }
+
+  // If it hasn't been announced yet and is now due (immediate, or on_start and
+  // already live), fan it out. fanout is idempotent via notified_at.
+  const startsNow = new Date(starts_at) <= new Date()
+  if (!existing.notified_at && (notify_mode === 'immediate' || (notify_mode === 'on_start' && startsNow))) {
+    await supabase.rpc('fanout_campaign_notifications', { p_campaign_id: campaign_id })
   }
 
   return NextResponse.redirect(new URL('/campaigns?success=' + encodeURIComponent('Campaign updated!'), req.url))
