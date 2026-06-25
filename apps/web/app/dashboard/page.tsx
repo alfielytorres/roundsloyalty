@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
-import { Users, Award, PackageCheck, Megaphone, Clock, Zap, Gift, type LucideIcon } from 'lucide-react'
+import { Users, Award, PackageCheck, Megaphone, Clock, Zap, Gift, MapPin, RotateCcw, type LucideIcon } from 'lucide-react'
 
 function StatCard({ value, label, sublabel, icon: Icon }: { value: string | number; label: string; sublabel: string; icon: LucideIcon }) {
   return (
@@ -156,6 +156,56 @@ async function RecentActivity({ vendorId }: { vendorId: string }) {
 }
 
 
+interface LocationStat {
+  location_id: string
+  name: string
+  visits: number
+  unique_customers: number
+  avg_return_days: number | null
+}
+
+async function LocationBreakdown({ vendorId }: { vendorId: string }) {
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { getAll: () => cookieStore.getAll() } },
+  )
+
+  const { data } = await supabase.rpc('location_visit_stats', { p_vendor_id: vendorId })
+  const rows = (data ?? []) as LocationStat[]
+  if (rows.length === 0) return null
+
+  return (
+    <div className="mb-6">
+      <p className="text-xs tracking-widest uppercase text-black/30 font-semibold mb-3 flex items-center gap-1.5">
+        <MapPin size={13} /> By location
+      </p>
+      <div className="flex flex-col gap-3">
+        {rows.map((r) => (
+          <div key={r.location_id} className="glass">
+            <div className="flex items-center justify-between mb-3">
+              <p className="font-bold text-[#1D1D1F] truncate">{r.name}</p>
+              <span className="text-xs text-black/35 shrink-0">{r.unique_customers} customer{r.unique_customers === 1 ? '' : 's'}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl bg-black/[0.03] px-4 py-3">
+                <div className="flex items-center gap-1.5 text-black/35 mb-1"><Zap size={13} /><span className="text-[11px] font-semibold">Loyalty visits</span></div>
+                <p className="text-2xl font-black text-[#1D1D1F] leading-none tabular-nums">{r.visits}</p>
+              </div>
+              <div className="rounded-2xl bg-black/[0.03] px-4 py-3">
+                <div className="flex items-center gap-1.5 text-black/35 mb-1"><RotateCcw size={13} /><span className="text-[11px] font-semibold">Avg return time</span></div>
+                <p className="text-2xl font-black text-[#1D1D1F] leading-none tabular-nums">{r.avg_return_days != null ? `${r.avg_return_days}d` : '—'}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p className="text-[11px] text-black/30 mt-2">Visits are counted from NFC tap-to-stamp at each location.</p>
+    </div>
+  )
+}
+
 export default async function DashboardPage() {
   const { vendor } = await getPortalData()
 
@@ -173,6 +223,10 @@ export default async function DashboardPage() {
           </div>
         }>
           <DashboardStats vendorId={vendor.id} />
+        </Suspense>
+
+        <Suspense fallback={null}>
+          <LocationBreakdown vendorId={vendor.id} />
         </Suspense>
 
         <div className="mb-6">

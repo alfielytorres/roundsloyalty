@@ -212,40 +212,49 @@ struct DiscoverMapView: View {
     }
 
     private func loadVendors() async {
-        struct VendorRow: Decodable {
+        // Each vendor location is a store pin. We pull the owning vendor's name and
+        // active status via the embedded relationship.
+        struct LocationRow: Decodable {
             let id: UUID
-            let businessName: String
-            let description: String?
+            let name: String
             let address: String?
             let lat: Double?
             let lng: Double?
-            enum CodingKeys: String, CodingKey {
-                case id
-                case businessName = "business_name"
-                case description
-                case address
-                case lat
-                case lng
+            let vendors: VendorRef?
+            struct VendorRef: Decodable {
+                let businessName: String
+                let status: String
+                enum CodingKeys: String, CodingKey {
+                    case businessName = "business_name"
+                    case status
+                }
             }
         }
         do {
-            let rows: [VendorRow] = try await supabase.database
-                .from("vendors")
-                .select("id, business_name, description, address, lat, lng")
-                .eq("status", value: "active")
+            let rows: [LocationRow] = try await supabase.database
+                .from("vendor_locations")
+                .select("id, name, address, lat, lng, vendors!inner(business_name, status)")
+                .eq("vendors.status", value: "active")
                 .execute()
                 .value
-            vendors = rows.map { row in
-                VendorPin(id: row.id, name: row.businessName, address: row.address,
-                          description: row.description, lat: row.lat ?? 0, lng: row.lng ?? 0)
+            let pins = rows.map { row in
+                VendorPin(
+                    id: row.id,
+                    name: row.vendors?.businessName ?? row.name,
+                    address: row.address,
+                    description: row.name,
+                    lat: row.lat ?? 0,
+                    lng: row.lng ?? 0
+                )
             }
+            vendors = pins
             mappableVendors = rows.compactMap { row in
                 guard let lat = row.lat, let lng = row.lng else { return nil }
-                return VendorPin(id: row.id, name: row.businessName, address: row.address,
-                                 description: row.description, lat: lat, lng: lng)
+                return VendorPin(id: row.id, name: row.vendors?.businessName ?? row.name,
+                                 address: row.address, description: row.name, lat: lat, lng: lng)
             }
         } catch {
-            print("Failed to load vendors: \(error)")
+            print("Failed to load locations: \(error)")
         }
         isLoading = false
     }

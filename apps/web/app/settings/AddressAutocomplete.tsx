@@ -13,9 +13,13 @@ interface Props {
   defaultValue?: string
   defaultLat?: number
   defaultLng?: number
+  // Controlled/callback mode (for non-form usage). When provided, fires on every
+  // change with the current address and resolved coords (null until one is picked).
+  onChange?: (v: { address: string; lat: number | null; lng: number | null }) => void
+  placeholder?: string
 }
 
-export default function AddressAutocomplete({ defaultValue = '', defaultLat, defaultLng }: Props) {
+export default function AddressAutocomplete({ defaultValue = '', defaultLat, defaultLng, onChange, placeholder = '123 Main St, City' }: Props) {
   const [value, setValue] = useState(defaultValue)
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [lat, setLat] = useState(defaultLat?.toString() ?? '')
@@ -40,6 +44,7 @@ export default function AddressAutocomplete({ defaultValue = '', defaultLat, def
     setValue(q)
     setLat('')
     setLng('')
+    onChange?.({ address: q, lat: null, lng: null })
     if (debounceRef.current) clearTimeout(debounceRef.current)
     if (q.length < 3) { setSuggestions([]); setOpen(false); return }
     debounceRef.current = setTimeout(async () => {
@@ -65,6 +70,7 @@ export default function AddressAutocomplete({ defaultValue = '', defaultLat, def
     setLng(s.lon)
     setSuggestions([])
     setOpen(false)
+    onChange?.({ address: s.display_name, lat: parseFloat(s.lat), lng: parseFloat(s.lon) })
   }
 
   return (
@@ -76,7 +82,7 @@ export default function AddressAutocomplete({ defaultValue = '', defaultLat, def
           value={value}
           onChange={handleChange}
           onFocus={() => suggestions.length > 0 && setOpen(true)}
-          placeholder="123 Main St, City"
+          placeholder={placeholder}
           autoComplete="off"
           className="w-full dark-input pl-9"
         />
