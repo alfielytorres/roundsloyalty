@@ -44,13 +44,16 @@ async function DashboardStats({ vendorId }: { vendorId: string }) {
     supabase.from('round_transactions').select('customer_id').eq('vendor_id', vendorId).gte('created_at', todayISO),
     supabase.from('reward_instances').select('*', { count: 'exact', head: true }).eq('vendor_id', vendorId).gte('created_at', todayISO),
     supabase.from('reward_collections').select('*', { count: 'exact', head: true }).eq('vendor_id', vendorId).in('status', ['requested', 'ready']),
-    supabase.from('round_campaigns').select('id, name, round_value, starts_at, ends_at, status').eq('vendor_id', vendorId).eq('status', 'scheduled').order('starts_at', { ascending: true }),
+    supabase.from('round_campaigns').select('id, name, round_value, starts_at, ends_at, status, campaign_type').eq('vendor_id', vendorId).eq('status', 'scheduled').order('starts_at', { ascending: true }),
   ])
 
   const uniqueCount = new Set((uniqueCustomersToday ?? []).map((r: { customer_id: string }) => r.customer_id)).size
   const now = new Date()
-  const liveCampaign = campaigns?.find((c) => new Date(c.starts_at) <= now && new Date(c.ends_at) > now) ?? null
-  const upcomingCampaign = campaigns?.find((c) => new Date(c.starts_at) > now) ?? null
+  // Birthday campaigns are per-customer standing templates, not a dated event, so
+  // they don't belong in the live/upcoming banner.
+  const dated = (campaigns ?? []).filter((c) => (c as { campaign_type?: string }).campaign_type !== 'birthday')
+  const liveCampaign = dated.find((c) => new Date(c.starts_at) <= now && new Date(c.ends_at) > now) ?? null
+  const upcomingCampaign = dated.find((c) => new Date(c.starts_at) > now) ?? null
 
   function timeRemaining(endsAt: string) {
     const diff = new Date(endsAt).getTime() - now.getTime()

@@ -47,6 +47,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.redirect(new URL('/campaigns?error=' + encodeURIComponent('Round value must be between 1 and 10.'), req.url))
   }
 
+  // Only one active birthday template per store.
+  if (campaign_type === 'birthday') {
+    const { data: existingBday } = await supabase
+      .from('round_campaigns')
+      .select('id')
+      .eq('vendor_id', vendor_id)
+      .eq('campaign_type', 'birthday')
+      .neq('status', 'cancelled')
+      .gt('ends_at', new Date().toISOString())
+      .limit(1)
+    if (existingBday && existingBday.length > 0) {
+      return NextResponse.redirect(
+        new URL('/campaigns?error=' + encodeURIComponent('You already have a birthday campaign — edit it instead of creating another.'), req.url),
+      )
+    }
+  }
+
   // Birthday campaigns are per-customer templates, so they don't conflict on a
   // shared time window — only standard campaigns get the overlap check.
   if (campaign_type === 'standard') {

@@ -20,16 +20,22 @@ interface Campaign {
   birthday_window_days: number | null
 }
 
-function campaignStatus(c: Campaign): 'live' | 'scheduled' | 'ended' | 'cancelled' {
+function campaignStatus(c: Campaign): 'live' | 'scheduled' | 'ended' | 'cancelled' | 'active' {
   if (c.status === 'cancelled') return 'cancelled'
   const now = new Date()
+  // Birthday templates are simply on (active) until cancelled or their long
+  // active period ends — they don't "start" on a single date.
+  if (c.campaign_type === 'birthday') {
+    return new Date(c.ends_at) > now ? 'active' : 'ended'
+  }
   if (new Date(c.starts_at) <= now && new Date(c.ends_at) > now) return 'live'
   if (new Date(c.starts_at) > now) return 'scheduled'
   return 'ended'
 }
 
-const statusBadge = {
+const statusBadge: Record<string, string> = {
   live: 'bg-black/10 text-[#1D1D1F] border border-black/15',
+  active: 'bg-emerald-500/10 text-emerald-700 border border-emerald-500/20',
   scheduled: 'bg-black/5 text-black/60 border border-black/10',
   ended: 'bg-black/5 text-black/30 border border-black/5',
   cancelled: 'bg-black/5 text-black/40 border border-black/10',
@@ -121,8 +127,8 @@ export default function CampaignsClient({ vendorId, vendorName }: { vendorId: st
         <div className="flex flex-col gap-3">
           {campaigns.map((c) => {
             const st = campaignStatus(c)
-            const isLive = st === 'live'
-            const editable = st === 'live' || st === 'scheduled'
+            const isLive = st === 'live' || st === 'active'
+            const editable = st === 'live' || st === 'scheduled' || st === 'active'
             const cs = statsMap[c.id]
             const isBirthday = c.campaign_type === 'birthday'
             return (
@@ -208,7 +214,9 @@ export default function CampaignsClient({ vendorId, vendorName }: { vendorId: st
         </div>
       )}
 
-      <CampaignModal vendorId={vendorId} vendorName={vendorName} isOpen={creating} onClose={() => setCreating(false)} activeMemberCount={memberCount} />
+      <CampaignModal vendorId={vendorId} vendorName={vendorName} isOpen={creating} onClose={() => setCreating(false)}
+        activeMemberCount={memberCount}
+        birthdayExists={campaigns.some(c => c.campaign_type === 'birthday' && c.status !== 'cancelled' && new Date(c.ends_at) > new Date())} />
       <CampaignModal
         vendorId={vendorId}
         vendorName={vendorName}

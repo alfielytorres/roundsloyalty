@@ -212,7 +212,7 @@ function NotifPreviewCard({ title, body }: { title: string; body: string }) {
 }
 
 export default function CampaignModal({
-  vendorId, vendorName, isOpen, onClose, campaign, stats, readOnly, activeMemberCount,
+  vendorId, vendorName, isOpen, onClose, campaign, stats, readOnly, activeMemberCount, birthdayExists,
 }: {
   vendorId: string
   vendorName: string
@@ -222,6 +222,7 @@ export default function CampaignModal({
   stats?: CampaignStats | null
   readOnly?: boolean
   activeMemberCount?: number
+  birthdayExists?: boolean
 }) {
   const editing = !!campaign
   // A live campaign has already started — its start time is locked.
@@ -357,15 +358,17 @@ export default function CampaignModal({
               className={`py-2.5 px-2 rounded-xl text-sm font-semibold border-2 transition-all ${!isBirthday ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
               📣 Announcement
             </button>
-            <button type="button" onClick={() => setCampaignType('birthday')}
-              className={`py-2.5 px-2 rounded-xl text-sm font-semibold border-2 transition-all ${isBirthday ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
+            <button type="button" disabled={!!birthdayExists && !editing} onClick={() => setCampaignType('birthday')}
+              className={`py-2.5 px-2 rounded-xl text-sm font-semibold border-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${isBirthday ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
               🎂 Birthday
             </button>
           </div>
           <p className="text-[11px] text-black/40 mt-1.5">
-            {isBirthday
-              ? 'A standing template — each customer is automatically wished around their birthday.'
-              : 'A one-time announcement to your customers over a time window.'}
+            {birthdayExists && !editing && !isBirthday
+              ? 'You already have a birthday campaign — edit that one to change it.'
+              : isBirthday
+                ? 'A standing template — each customer is automatically wished around their birthday.'
+                : 'A one-time announcement to your customers over a time window.'}
           </p>
         </div>
 
