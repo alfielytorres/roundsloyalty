@@ -38,7 +38,7 @@ export default async function SettingsPage() {
                 defaultLat={vendor.lat ?? undefined}
                 defaultLng={vendor.lng ?? undefined}
               />
-              <p className="text-black/30 text-xs mt-1">Shown on the map in the customer app.</p>
+              <p className="text-black/30 text-xs mt-1">Your main contact address. Stores shown on the customer map are managed under Locations below.</p>
             </div>
 
             <SubmitButton pendingText="Saving…" className="btn-primary self-start text-sm py-2.5 px-5 mt-1 disabled:opacity-60">Save changes</SubmitButton>

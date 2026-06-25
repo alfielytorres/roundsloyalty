@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
   const customerToken: string = body.customer_token?.trim()
   const source: string = body.source ?? 'staff_scan'
   const idempotencyKey: string = body.idempotency_key || crypto.randomUUID()
+  const locationId: string | null = body.location_id || null
 
   if (!customerToken) return NextResponse.json({ error: 'customer_token is required' }, { status: 400 })
 
@@ -63,6 +64,7 @@ export async function POST(req: NextRequest) {
     p_source: 'server_stamp',
     p_staff_user_id: user.id,
     p_idempotency_key: idempotencyKey,
+    p_location_id: locationId,
   })
 
   if (error) {

@@ -201,7 +201,7 @@ async function LocationBreakdown({ vendorId }: { vendorId: string }) {
           </div>
         ))}
       </div>
-      <p className="text-[11px] text-black/30 mt-2">Visits are counted from NFC tap-to-stamp at each location.</p>
+      <p className="text-[11px] text-black/30 mt-2">Visits are counted from stamps (QR or NFC) at each location.</p>
     </div>
   )
 }

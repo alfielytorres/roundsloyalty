@@ -2,7 +2,7 @@
 
 import { useRef, useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { Camera, X, CheckCircle, AlertCircle, ChevronRight, Zap } from 'lucide-react'
+import { Camera, X, CheckCircle, AlertCircle, ChevronRight, Zap, MapPin } from 'lucide-react'
 
 interface CustomerPreview {
   display_name: string
@@ -19,7 +19,7 @@ interface AwardResult {
   reward_name: string | null
 }
 
-export default function StampScanner({ vendorId }: { vendorId: string }) {
+export default function StampScanner({ vendorId, locations = [] }: { vendorId: string; locations?: { id: string; name: string }[] }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -33,7 +33,20 @@ export default function StampScanner({ vendorId }: { vendorId: string }) {
   const [preview, setPreview] = useState<CustomerPreview | null>(null)
   const [result, setResult] = useState<AwardResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [locationId, setLocationId] = useState('')
   const router = useRouter()
+
+  // Remember which store the staff is stamping at (so visits attribute correctly).
+  useEffect(() => {
+    if (locations.length === 0) return
+    const saved = localStorage.getItem('stampLocation:' + vendorId)
+    setLocationId(saved && locations.some(l => l.id === saved) ? saved : locations[0].id)
+  }, [vendorId, locations])
+
+  function pickLocation(id: string) {
+    setLocationId(id)
+    localStorage.setItem('stampLocation:' + vendorId, id)
+  }
 
   useEffect(() => { if (!cameraOpen) inputRef.current?.focus() }, [cameraOpen])
 
@@ -111,7 +124,7 @@ export default function StampScanner({ vendorId }: { vendorId: string }) {
     const res = await fetch('/api/stamp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ customer_token: token.trim(), vendor_id: vendorId, source: 'staff_scan', idempotency_key: crypto.randomUUID() }),
+      body: JSON.stringify({ customer_token: token.trim(), vendor_id: vendorId, source: 'staff_scan', idempotency_key: crypto.randomUUID(), location_id: locationId || null }),
     })
     const json = await res.json()
     setLoading(false)
@@ -202,6 +215,15 @@ export default function StampScanner({ vendorId }: { vendorId: string }) {
       )}
 
       <div className="p-4 space-y-3">
+        {locations.length > 1 && (
+          <div className="flex items-center gap-2">
+            <MapPin size={14} className="text-black/35 shrink-0" />
+            <select value={locationId} onChange={(e) => pickLocation(e.target.value)}
+              className="flex-1 text-sm rounded-xl bg-black/[0.04] border border-transparent px-3 py-2 text-[#1D1D1F] focus:outline-none focus:bg-white focus:border-black/15 transition-all">
+              {locations.map((l) => <option key={l.id} value={l.id}>Stamping at {l.name}</option>)}
+            </select>
+          </div>
+        )}
         {cameraError && (
           <div className="flex items-start gap-2 p-2.5 bg-red-50 border border-red-100 rounded-xl">
             <AlertCircle size={14} className="text-red-500 shrink-0 mt-0.5" />

@@ -92,7 +92,12 @@ function SectionLabel({ icon: Icon, children }: { icon: React.ElementType; child
 }
 
 export default async function StampPage() {
-  const { vendor } = await getPortalData()
+  const { vendor, supabase } = await getPortalData()
+  const { data: locations } = await supabase
+    .from('vendor_locations')
+    .select('id, name')
+    .eq('vendor_id', vendor.id)
+    .order('created_at')
 
   return (
     <main className="px-5 sm:px-8 pt-8 sm:pt-12 pb-32">
@@ -112,7 +117,7 @@ export default async function StampPage() {
           {/* Scanner — wider column */}
           <div className="lg:col-span-3">
             <SectionLabel icon={QrCode}>Scan customer</SectionLabel>
-            <StampScanner vendorId={vendor.id} />
+            <StampScanner vendorId={vendor.id} locations={(locations ?? []) as { id: string; name: string }[]} />
           </div>
 
           {/* Sidebar — store QR + recent */}
