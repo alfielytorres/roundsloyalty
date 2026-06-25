@@ -16,6 +16,8 @@ interface Campaign {
   customer_message: string | null
   notify_mode: string | null
   notified_at: string | null
+  campaign_type: string | null
+  birthday_window_days: number | null
 }
 
 function campaignStatus(c: Campaign): 'live' | 'scheduled' | 'ended' | 'cancelled' {
@@ -49,12 +51,16 @@ export default function CampaignsClient({ vendorId, vendorName }: { vendorId: st
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     )
 
-    // Announce any "on_start" campaigns that have just become live.
-    await supabase.rpc('process_due_campaign_notifications', { p_vendor_id: vendorId })
+    // Announce any "on_start" campaigns that just went live, and wish any
+    // customers whose birthday is now inside an active birthday template's window.
+    await Promise.all([
+      supabase.rpc('process_due_campaign_notifications', { p_vendor_id: vendorId }),
+      supabase.rpc('process_due_birthday_notifications', { p_vendor_id: vendorId }),
+    ])
 
     const [campaignsRes, notifsRes, memberRes] = await Promise.all([
       supabase.from('round_campaigns')
-        .select('id, name, round_value, starts_at, ends_at, status, customer_message, notify_mode, notified_at')
+        .select('id, name, round_value, starts_at, ends_at, status, customer_message, notify_mode, notified_at, campaign_type, birthday_window_days')
         .eq('vendor_id', vendorId)
         .order('starts_at', { ascending: false })
         .limit(50),
@@ -118,23 +124,37 @@ export default function CampaignsClient({ vendorId, vendorName }: { vendorId: st
             const isLive = st === 'live'
             const editable = st === 'live' || st === 'scheduled'
             const cs = statsMap[c.id]
+            const isBirthday = c.campaign_type === 'birthday'
             return (
               <div key={c.id}
                 onClick={() => setSelected(c)}
                 className={`glass group cursor-pointer hover:shadow-md transition-shadow ${st === 'ended' || st === 'cancelled' ? 'opacity-70' : ''}`}>
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex-1 min-w-0">
-                    <span className={`inline-block text-xs font-bold px-2.5 py-1 rounded-full ${statusBadge[st]}`}>
-                      {st.charAt(0).toUpperCase() + st.slice(1)}
-                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className={`inline-block text-xs font-bold px-2.5 py-1 rounded-full ${statusBadge[st]}`}>
+                        {st.charAt(0).toUpperCase() + st.slice(1)}
+                      </span>
+                      {isBirthday && (
+                        <span className="inline-block text-xs font-bold px-2.5 py-1 rounded-full bg-black/5 text-black/60 border border-black/10">🎂 Birthday</span>
+                      )}
+                    </div>
                     <h3 className="font-bold text-[#1D1D1F] text-base mt-2 truncate">{c.name}</h3>
                     <p className="text-black/40 text-xs mt-0.5">
-                      {new Date(c.starts_at).toLocaleDateString()} — {new Date(c.ends_at).toLocaleDateString()}
+                      {isBirthday
+                        ? `Around each customer's birthday${(c.birthday_window_days ?? 0) > 0 ? ` (±${c.birthday_window_days}d)` : ''}`
+                        : `${new Date(c.starts_at).toLocaleDateString()} — ${new Date(c.ends_at).toLocaleDateString()}`}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-4xl font-black text-[#1D1D1F] leading-none">{c.round_value}×</p>
-                    <p className="text-black/30 text-xs tracking-widest uppercase mt-1">rounds</p>
+                    {c.round_value > 1 ? (
+                      <>
+                        <p className="text-4xl font-black text-[#1D1D1F] leading-none">{c.round_value}×</p>
+                        <p className="text-black/30 text-xs tracking-widest uppercase mt-1">rounds</p>
+                      </>
+                    ) : (
+                      <p className="text-3xl leading-none">{isBirthday ? '🎁' : '📣'}</p>
+                    )}
                   </div>
                 </div>
                 {c.customer_message && (
@@ -148,6 +168,8 @@ export default function CampaignsClient({ vendorId, vendorName }: { vendorId: st
                       <span className="inline-flex items-center gap-1"><Send size={11} />{cs.recipients} sent</span>
                       <span className="inline-flex items-center gap-1 text-emerald-600"><MailOpen size={11} />{cs.opened} opened</span>
                     </div>
+                  ) : isBirthday ? (
+                    <span className="text-xs text-black/35 font-medium">Wishes customers on their birthday</span>
                   ) : c.notify_mode === 'none' ? (
                     <span className="text-xs text-black/30 font-medium">No notification</span>
                   ) : (

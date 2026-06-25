@@ -27,6 +27,8 @@ export async function POST(req: NextRequest) {
   const starts_at = formData.get('starts_at') as string
   const ends_at = formData.get('ends_at') as string
   const customer_message = (formData.get('customer_message') as string)?.trim() || null
+  const campaign_type = (formData.get('campaign_type') as string) === 'birthday' ? 'birthday' : 'standard'
+  const birthday_window_days = Math.max(0, Math.min(31, parseInt(formData.get('birthday_window_days') as string) || 0))
   const notify_mode = (() => {
     const m = formData.get('notify_mode') as string
     return m === 'immediate' || m === 'none' ? m : 'on_start'
@@ -40,23 +42,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.redirect(new URL('/campaigns?error=' + encodeURIComponent('End date must be after start date.'), req.url))
   }
 
-  if (round_value < 2 || round_value > 10) {
-    return NextResponse.redirect(new URL('/campaigns?error=' + encodeURIComponent('Round value must be between 2 and 10.'), req.url))
+  // round_value 1 = announcement only (no bonus); 2–10 = a multiplier.
+  if (round_value < 1 || round_value > 10) {
+    return NextResponse.redirect(new URL('/campaigns?error=' + encodeURIComponent('Round value must be between 1 and 10.'), req.url))
   }
 
-  // Check for overlapping active/scheduled campaigns
-  const { data: overlapping } = await supabase
-    .from('round_campaigns')
-    .select('id, name')
-    .eq('vendor_id', vendor_id)
-    .eq('status', 'scheduled')
-    .lt('starts_at', ends_at)
-    .gt('ends_at', starts_at)
+  // Birthday campaigns are per-customer templates, so they don't conflict on a
+  // shared time window — only standard campaigns get the overlap check.
+  if (campaign_type === 'standard') {
+    const { data: overlapping } = await supabase
+      .from('round_campaigns')
+      .select('id, name')
+      .eq('vendor_id', vendor_id)
+      .eq('status', 'scheduled')
+      .eq('campaign_type', 'standard')
+      .lt('starts_at', ends_at)
+      .gt('ends_at', starts_at)
 
-  if (overlapping && overlapping.length > 0) {
-    return NextResponse.redirect(
-      new URL('/campaigns?error=' + encodeURIComponent(`Overlaps with existing campaign: "${overlapping[0].name}"`), req.url),
-    )
+    if (overlapping && overlapping.length > 0) {
+      return NextResponse.redirect(
+        new URL('/campaigns?error=' + encodeURIComponent(`Overlaps with existing campaign: "${overlapping[0].name}"`), req.url),
+      )
+    }
   }
 
   const { data: created, error } = await supabase.from('round_campaigns').insert({
@@ -68,6 +75,8 @@ export async function POST(req: NextRequest) {
     customer_message,
     status: 'scheduled',
     notify_mode,
+    campaign_type,
+    birthday_window_days,
   }).select('id').single()
 
   if (error) {
@@ -78,8 +87,12 @@ export async function POST(req: NextRequest) {
   // already live the moment it's created. Future "on_start" ones are picked up
   // by process_due_campaign_notifications when their start time arrives.
   const startsNow = new Date(starts_at) <= new Date()
-  if (created && (notify_mode === 'immediate' || (notify_mode === 'on_start' && startsNow))) {
+  if (created && campaign_type === 'standard' && (notify_mode === 'immediate' || (notify_mode === 'on_start' && startsNow))) {
     await supabase.rpc('fanout_campaign_notifications', { p_campaign_id: created.id })
+  }
+  // Birthday templates: immediately wish anyone already inside their window.
+  if (created && campaign_type === 'birthday') {
+    await supabase.rpc('process_due_birthday_notifications', { p_vendor_id: vendor_id })
   }
 
   return NextResponse.redirect(new URL('/campaigns?success=' + encodeURIComponent('Campaign created!'), req.url))

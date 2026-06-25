@@ -27,6 +27,8 @@ export async function POST(req: NextRequest) {
   const starts_at = formData.get('starts_at') as string
   const ends_at = formData.get('ends_at') as string
   const customer_message = (formData.get('customer_message') as string)?.trim() || null
+  const campaign_type = (formData.get('campaign_type') as string) === 'birthday' ? 'birthday' : 'standard'
+  const birthday_window_days = Math.max(0, Math.min(31, parseInt(formData.get('birthday_window_days') as string) || 0))
   const notify_mode = (() => {
     const m = formData.get('notify_mode') as string
     return m === 'immediate' || m === 'none' ? m : 'on_start'
@@ -40,8 +42,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.redirect(new URL('/campaigns?error=' + encodeURIComponent('End date must be after start date.'), req.url))
   }
 
-  if (round_value < 2 || round_value > 10) {
-    return NextResponse.redirect(new URL('/campaigns?error=' + encodeURIComponent('Round value must be between 2 and 10.'), req.url))
+  if (round_value < 1 || round_value > 10) {
+    return NextResponse.redirect(new URL('/campaigns?error=' + encodeURIComponent('Round value must be between 1 and 10.'), req.url))
   }
 
   // Load the campaign so we know its vendor and can't edit ended/cancelled ones.
@@ -58,20 +60,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.redirect(new URL('/campaigns?error=' + encodeURIComponent('This campaign has ended and can no longer be edited.'), req.url))
   }
 
-  // Reject overlap with OTHER scheduled campaigns for the same vendor.
-  const { data: overlapping } = await supabase
-    .from('round_campaigns')
-    .select('id, name')
-    .eq('vendor_id', existing.vendor_id)
-    .eq('status', 'scheduled')
-    .neq('id', campaign_id)
-    .lt('starts_at', ends_at)
-    .gt('ends_at', starts_at)
+  // Only standard campaigns get the shared-window overlap check.
+  if (campaign_type === 'standard') {
+    const { data: overlapping } = await supabase
+      .from('round_campaigns')
+      .select('id, name')
+      .eq('vendor_id', existing.vendor_id)
+      .eq('status', 'scheduled')
+      .eq('campaign_type', 'standard')
+      .neq('id', campaign_id)
+      .lt('starts_at', ends_at)
+      .gt('ends_at', starts_at)
 
-  if (overlapping && overlapping.length > 0) {
-    return NextResponse.redirect(
-      new URL('/campaigns?error=' + encodeURIComponent(`Overlaps with existing campaign: "${overlapping[0].name}"`), req.url),
-    )
+    if (overlapping && overlapping.length > 0) {
+      return NextResponse.redirect(
+        new URL('/campaigns?error=' + encodeURIComponent(`Overlaps with existing campaign: "${overlapping[0].name}"`), req.url),
+      )
+    }
   }
 
   // RLS limits this update to the campaign's vendor owner/staff.
@@ -84,6 +89,8 @@ export async function POST(req: NextRequest) {
       ends_at: new Date(ends_at).toISOString(),
       customer_message,
       notify_mode,
+      campaign_type,
+      birthday_window_days,
     })
     .eq('id', campaign_id)
 
@@ -94,8 +101,11 @@ export async function POST(req: NextRequest) {
   // If it hasn't been announced yet and is now due (immediate, or on_start and
   // already live), fan it out. fanout is idempotent via notified_at.
   const startsNow = new Date(starts_at) <= new Date()
-  if (!existing.notified_at && (notify_mode === 'immediate' || (notify_mode === 'on_start' && startsNow))) {
+  if (campaign_type === 'standard' && !existing.notified_at && (notify_mode === 'immediate' || (notify_mode === 'on_start' && startsNow))) {
     await supabase.rpc('fanout_campaign_notifications', { p_campaign_id: campaign_id })
+  }
+  if (campaign_type === 'birthday') {
+    await supabase.rpc('process_due_birthday_notifications', { p_vendor_id: existing.vendor_id })
   }
 
   return NextResponse.redirect(new URL('/campaigns?success=' + encodeURIComponent('Campaign updated!'), req.url))

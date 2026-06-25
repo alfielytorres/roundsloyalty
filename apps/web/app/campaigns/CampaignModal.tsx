@@ -40,14 +40,23 @@ function DateTimeField({ label, value, onChange, disabled }: {
 // matches the push the customer actually receives.
 function notifPreview(
   vendorName: string, name: string, value: number, start: string, end: string, message: string,
+  type: 'standard' | 'birthday' = 'standard',
 ): { title: string; body: string } {
-  const title = `${vendorName || 'Your store'}: ${value}× rounds!`
   const trimmed = message.trim()
+  if (type === 'birthday') {
+    const title = `${vendorName || 'A store'} 🎂 Happy birthday!`
+    if (trimmed) return { title, body: trimmed }
+    const body = `Happy birthday from ${vendorName || 'us'}! ` +
+      (value > 1 ? `Enjoy ${value}× rounds this week.` : 'Come celebrate with us.')
+    return { title, body }
+  }
+  const title = value > 1 ? `${vendorName || 'Your store'}: ${value}× rounds!` : (vendorName || 'Your store')
   if (trimmed) return { title, body: trimmed }
   const fmt = (s: string) => s ? new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''
   const startsNow = !!start && new Date(start) <= new Date()
   const when = startsNow ? `now through ${fmt(end)}` : `starting ${fmt(start)}`
-  return { title, body: `${name || 'Your campaign'} — earn ${value}× rounds ${when}.` }
+  if (value > 1) return { title, body: `${name || 'Your campaign'} — earn ${value}× rounds ${when}.` }
+  return { title, body: `${name || 'Your campaign'} — ${when}.` }
 }
 
 export interface CampaignStats {
@@ -68,7 +77,16 @@ export interface EditableCampaign {
   status: string
   notify_mode?: string | null
   notified_at?: string | null
+  campaign_type?: string | null
+  birthday_window_days?: number | null
 }
+
+const BIRTHDAY_WINDOWS = [
+  { v: 0, label: 'On the day' },
+  { v: 3, label: '3 days before' },
+  { v: 7, label: 'A week before' },
+  { v: 31, label: 'Their birthday month' },
+]
 
 function toLocalInput(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0')
@@ -216,6 +234,8 @@ export default function CampaignModal({
   const [end, setEnd] = useState('')
   const [message, setMessage] = useState('')
   const [notifyMode, setNotifyMode] = useState('on_start')
+  const [campaignType, setCampaignType] = useState<'standard' | 'birthday'>('standard')
+  const [birthdayWindow, setBirthdayWindow] = useState(7)
 
   // Sync form whenever the modal opens (for a new campaign or a different one).
   useEffect(() => {
@@ -227,11 +247,23 @@ export default function CampaignModal({
       setEnd(toLocalInput(new Date(campaign.ends_at)))
       setMessage(campaign.customer_message ?? '')
       setNotifyMode(campaign.notify_mode ?? 'on_start')
+      setCampaignType(campaign.campaign_type === 'birthday' ? 'birthday' : 'standard')
+      setBirthdayWindow(campaign.birthday_window_days ?? 7)
     } else {
       const [ds, de] = defaultWindow()
       setName(''); setValue(2); setStart(ds); setEnd(de); setMessage(''); setNotifyMode('on_start')
+      setCampaignType('standard'); setBirthdayWindow(7)
     }
   }, [isOpen, campaign])
+
+  // Birthday templates run as a standing year-long rule; they don't use a visible
+  // time window or the mass-blast notify modes.
+  const isBirthday = campaignType === 'birthday'
+  const submitStart = isBirthday ? toLocalInput(new Date()) : start
+  const submitEnd = isBirthday
+    ? toLocalInput((() => { const d = new Date(); d.setFullYear(d.getFullYear() + 1); return d })())
+    : end
+  const submitNotify = isBirthday ? 'none' : notifyMode
 
   function setWindow(startD: Date, endD: Date) { setStart(toLocalInput(startD)); setEnd(toLocalInput(endD)) }
 
@@ -294,25 +326,51 @@ export default function CampaignModal({
         <input type="hidden" name="vendor_id" value={vendorId} />
         {editing && <input type="hidden" name="campaign_id" value={campaign!.id} />}
         <input type="hidden" name="round_value" value={value} />
-        <input type="hidden" name="starts_at" value={start} />
-        <input type="hidden" name="ends_at" value={end} />
-        <input type="hidden" name="notify_mode" value={notifyMode} />
+        <input type="hidden" name="starts_at" value={submitStart} />
+        <input type="hidden" name="ends_at" value={submitEnd} />
+        <input type="hidden" name="notify_mode" value={submitNotify} />
+        <input type="hidden" name="campaign_type" value={campaignType} />
+        <input type="hidden" name="birthday_window_days" value={isBirthday ? birthdayWindow : 0} />
 
         {/* Live preview */}
         <div className="rounded-2xl p-4 text-white shadow-lg" style={{ background: 'linear-gradient(135deg,#1D1D1F,#3a3a40)' }}>
-          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-white/60"><Zap size={12} /> Bonus rounds</div>
-          <p className="text-lg font-bold mt-1 truncate">{name || 'Your campaign'}</p>
+          <div className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-white/60">
+            {isBirthday ? <>🎂 Birthday reward</> : <><Zap size={12} /> {value > 1 ? 'Bonus rounds' : 'Announcement'}</>}
+          </div>
+          <p className="text-lg font-bold mt-1 truncate">{name || (isBirthday ? 'Birthday treat' : 'Your campaign')}</p>
           <div className="flex items-end justify-between mt-1 gap-3">
-            <span className="text-5xl font-black leading-none">{value}×</span>
-            <span className="text-[11px] text-white/60 text-right leading-tight">{fmtRange(start, end)}</span>
+            <span className="text-5xl font-black leading-none">{value > 1 ? `${value}×` : (isBirthday ? '🎁' : '📣')}</span>
+            <span className="text-[11px] text-white/60 text-right leading-tight">
+              {isBirthday ? `Around each customer's birthday` : fmtRange(start, end)}
+            </span>
           </div>
         </div>
 
         {/* Notification analytics for an existing campaign */}
         {editing && <NotificationStats stats={stats} campaign={campaign!} activeMemberCount={activeMemberCount} />}
 
-        {/* Quick start presets — only for new campaigns */}
-        {!editing && (
+        {/* Campaign type */}
+        <div>
+          <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Type</label>
+          <div className="grid grid-cols-2 gap-2">
+            <button type="button" onClick={() => setCampaignType('standard')}
+              className={`py-2.5 px-2 rounded-xl text-sm font-semibold border-2 transition-all ${!isBirthday ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
+              📣 Announcement
+            </button>
+            <button type="button" onClick={() => setCampaignType('birthday')}
+              className={`py-2.5 px-2 rounded-xl text-sm font-semibold border-2 transition-all ${isBirthday ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
+              🎂 Birthday
+            </button>
+          </div>
+          <p className="text-[11px] text-black/40 mt-1.5">
+            {isBirthday
+              ? 'A standing template — each customer is automatically wished around their birthday.'
+              : 'A one-time announcement to your customers over a time window.'}
+          </p>
+        </div>
+
+        {/* Quick start presets — only for new standard campaigns */}
+        {!editing && !isBirthday && (
           <div className="flex flex-wrap gap-2">
             {PRESETS.map(p => (
               <button key={p.label} type="button" onClick={() => applyPreset(p)}
@@ -324,67 +382,91 @@ export default function CampaignModal({
         )}
 
         <div>
-          <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Campaign name</label>
-          <input name="name" value={name} onChange={e => setName(e.target.value)} required placeholder="e.g. Double Round Weekend" className="dark-input w-full" />
+          <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">{isBirthday ? 'Reward name' : 'Campaign name'}</label>
+          <input name="name" value={name} onChange={e => setName(e.target.value)} required placeholder={isBirthday ? 'e.g. Birthday Treat' : 'e.g. Double Round Weekend'} className="dark-input w-full" />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Round multiplier</label>
-          <div className="grid grid-cols-4 gap-2">
-            {[2, 3, 4, 5].map(n => (
+          <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Bonus rounds {isBirthday ? '(optional)' : ''}</label>
+          <div className="grid grid-cols-5 gap-2">
+            {[1, 2, 3, 4, 5].map(n => (
               <button key={n} type="button" onClick={() => setValue(n)}
-                className={`py-3 rounded-2xl font-black text-lg border-2 transition-all ${value === n ? 'bg-[#1D1D1F] text-white border-[#1D1D1F] scale-[1.03]' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>{n}×</button>
+                className={`py-3 rounded-2xl font-black text-base border-2 transition-all ${value === n ? 'bg-[#1D1D1F] text-white border-[#1D1D1F] scale-[1.03]' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
+                {n === 1 ? 'None' : `${n}×`}
+              </button>
             ))}
           </div>
+          <p className="text-[11px] text-black/40 mt-1.5">
+            {value > 1
+              ? (isBirthday ? `Customers earn ${value}× rounds during their birthday window.` : `Customers earn ${value}× rounds during the campaign.`)
+              : 'No bonus — this just sends an announcement.'}
+          </p>
         </div>
 
-        <div>
-          <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">When</label>
-          {!liveLocked && (
-            <div className="flex flex-wrap gap-2 mb-2">
-              {[{ k: 'tonight' as const, l: 'Next 3 hours' }, { k: 'weekend' as const, l: 'This weekend' }, { k: 'week' as const, l: 'Next 7 days' }].map(q => (
-                <button key={q.k} type="button" onClick={() => quick(q.k)}
-                  className="text-xs font-semibold text-black/55 bg-white/60 border border-black/10 rounded-full px-3 py-1.5 hover:bg-white hover:border-black/20 transition-colors">{q.l}</button>
+        {isBirthday ? (
+          <div>
+            <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Birthday window</label>
+            <div className="grid grid-cols-2 gap-2">
+              {BIRTHDAY_WINDOWS.map(w => (
+                <button key={w.v} type="button" onClick={() => setBirthdayWindow(w.v)}
+                  className={`py-2.5 px-2 rounded-xl text-sm font-semibold border-2 transition-all ${birthdayWindow === w.v ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
+                  {w.label}
+                </button>
               ))}
             </div>
-          )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <DateTimeField label="Starts" value={start} onChange={setStart} disabled={liveLocked} />
-            <DateTimeField label="Ends" value={end} onChange={setEnd} />
+            <p className="text-[11px] text-black/40 mt-1.5">How close to their birthday the wish (and any bonus) kicks in.</p>
           </div>
-          {liveLocked && <p className="text-[11px] text-black/35 mt-1.5">This campaign is already live — only the end time can be changed.</p>}
-        </div>
-
-        {/* Announcement timing — store chooses when customers get the push */}
-        <div>
-          <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Notify customers</label>
-          {alreadyNotified ? (
-            <p className="text-sm text-black/55 bg-black/[0.03] border border-black/8 rounded-xl px-3.5 py-2.5">
-              ✓ Customers have already been notified for this campaign.
-            </p>
-          ) : (
-            <>
-              <div className="grid grid-cols-3 gap-2">
-                {NOTIFY_OPTIONS.map(o => (
-                  <button key={o.v} type="button" onClick={() => setNotifyMode(o.v)}
-                    className={`py-2.5 px-1 rounded-xl text-xs font-semibold border-2 transition-all ${notifyMode === o.v ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
-                    {o.label}
-                  </button>
+        ) : (
+          <div>
+            <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">When</label>
+            {!liveLocked && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {[{ k: 'tonight' as const, l: 'Next 3 hours' }, { k: 'weekend' as const, l: 'This weekend' }, { k: 'week' as const, l: 'Next 7 days' }].map(q => (
+                  <button key={q.k} type="button" onClick={() => quick(q.k)}
+                    className="text-xs font-semibold text-black/55 bg-white/60 border border-black/10 rounded-full px-3 py-1.5 hover:bg-white hover:border-black/20 transition-colors">{q.l}</button>
                 ))}
               </div>
-              <p className="text-[11px] text-black/40 mt-1.5">{NOTIFY_OPTIONS.find(o => o.v === notifyMode)?.hint}</p>
-            </>
-          )}
-        </div>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <DateTimeField label="Starts" value={start} onChange={setStart} disabled={liveLocked} />
+              <DateTimeField label="Ends" value={end} onChange={setEnd} />
+            </div>
+            {liveLocked && <p className="text-[11px] text-black/35 mt-1.5">This campaign is already live — only the end time can be changed.</p>}
+          </div>
+        )}
+
+        {/* Announcement timing — standard campaigns only (birthday notifies per customer) */}
+        {!isBirthday && (
+          <div>
+            <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Notify customers</label>
+            {alreadyNotified ? (
+              <p className="text-sm text-black/55 bg-black/[0.03] border border-black/8 rounded-xl px-3.5 py-2.5">
+                ✓ Customers have already been notified for this campaign.
+              </p>
+            ) : (
+              <>
+                <div className="grid grid-cols-3 gap-2">
+                  {NOTIFY_OPTIONS.map(o => (
+                    <button key={o.v} type="button" onClick={() => setNotifyMode(o.v)}
+                      className={`py-2.5 px-1 rounded-xl text-xs font-semibold border-2 transition-all ${notifyMode === o.v ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[11px] text-black/40 mt-1.5">{NOTIFY_OPTIONS.find(o => o.v === notifyMode)?.hint}</p>
+              </>
+            )}
+          </div>
+        )}
 
         <div>
-          <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Customer message (optional)</label>
-          <textarea name="customer_message" value={message} onChange={e => setMessage(e.target.value)} rows={2} placeholder="Used as the push notification text" className="dark-input w-full resize-none" />
+          <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">{isBirthday ? 'Birthday message (optional)' : 'Customer message (optional)'}</label>
+          <textarea name="customer_message" value={message} onChange={e => setMessage(e.target.value)} rows={2} placeholder={isBirthday ? 'e.g. Happy birthday! Free slice on us 🎂' : 'Used as the push notification text'} className="dark-input w-full resize-none" />
         </div>
 
         {/* Live preview of the push the customer will receive */}
-        {notifyMode !== 'none'
-          ? <NotifPreviewCard {...notifPreview(vendorName, name, value, start, end, message)} />
+        {submitNotify !== 'none' || isBirthday
+          ? <NotifPreviewCard {...notifPreview(vendorName, name, value, start, end, message, campaignType)} />
           : <p className="text-[11px] text-black/35">No push will be sent for this campaign.</p>}
 
         <div className="flex gap-3 pt-1">
