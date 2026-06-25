@@ -355,11 +355,11 @@ export default function CampaignModal({
           <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Type</label>
           <div className="grid grid-cols-2 gap-2">
             <button type="button" onClick={() => setCampaignType('standard')}
-              className={`py-2.5 px-2 rounded-xl text-sm font-semibold border-2 transition-all ${!isBirthday ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
+              className={`py-2.5 px-2 rounded-xl text-sm font-semibold border-2 transition-all ${!isBirthday ? 'bg-rounds text-white border-rounds' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
               📣 Announcement
             </button>
             <button type="button" disabled={!!birthdayExists && !editing} onClick={() => setCampaignType('birthday')}
-              className={`py-2.5 px-2 rounded-xl text-sm font-semibold border-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${isBirthday ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
+              className={`py-2.5 px-2 rounded-xl text-sm font-semibold border-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed ${isBirthday ? 'bg-rounds text-white border-rounds' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
               🎂 Birthday
             </button>
           </div>
@@ -394,7 +394,7 @@ export default function CampaignModal({
           <div className="grid grid-cols-5 gap-2">
             {[1, 2, 3, 4, 5].map(n => (
               <button key={n} type="button" onClick={() => setValue(n)}
-                className={`py-3 rounded-2xl font-black text-base border-2 transition-all ${value === n ? 'bg-[#1D1D1F] text-white border-[#1D1D1F] scale-[1.03]' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
+                className={`py-3 rounded-2xl font-black text-base border-2 transition-all ${value === n ? 'bg-rounds text-white border-rounds scale-[1.03]' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
                 {n === 1 ? 'None' : `${n}×`}
               </button>
             ))}
@@ -412,7 +412,7 @@ export default function CampaignModal({
             <div className="grid grid-cols-2 gap-2">
               {BIRTHDAY_WINDOWS.map(w => (
                 <button key={w.v} type="button" onClick={() => setBirthdayWindow(w.v)}
-                  className={`py-2.5 px-2 rounded-xl text-sm font-semibold border-2 transition-all ${birthdayWindow === w.v ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
+                  className={`py-2.5 px-2 rounded-xl text-sm font-semibold border-2 transition-all ${birthdayWindow === w.v ? 'bg-rounds text-white border-rounds' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
                   {w.label}
                 </button>
               ))}
@@ -451,7 +451,7 @@ export default function CampaignModal({
                 <div className="grid grid-cols-3 gap-2">
                   {NOTIFY_OPTIONS.map(o => (
                     <button key={o.v} type="button" onClick={() => setNotifyMode(o.v)}
-                      className={`py-2.5 px-1 rounded-xl text-xs font-semibold border-2 transition-all ${notifyMode === o.v ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
+                      className={`py-2.5 px-1 rounded-xl text-xs font-semibold border-2 transition-all ${notifyMode === o.v ? 'bg-rounds text-white border-rounds' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>
                       {o.label}
                     </button>
                   ))}
@@ -478,7 +478,7 @@ export default function CampaignModal({
             Cancel
           </button>
           <SubmitButton pendingText={editing ? 'Saving…' : 'Creating…'}
-            className="flex-1 py-3 rounded-2xl bg-[#1D1D1F] text-white font-semibold text-sm hover:bg-black transition-colors disabled:opacity-60">
+            className="flex-1 py-3 rounded-2xl bg-rounds text-white font-semibold text-sm hover:bg-rounds-hover transition-colors disabled:opacity-60">
             {editing ? 'Save changes' : 'Create campaign'}
           </SubmitButton>
         </div>

@@ -107,7 +107,7 @@ export default function CampaignsClient({ vendorId, vendorName }: { vendorId: st
           <p className="text-black/40 text-sm mt-0.5">Run bonus round events to reward loyal customers</p>
         </div>
         <button onClick={() => setCreating(true)}
-          className="mt-1 w-10 h-10 flex items-center justify-center bg-[#1D1D1F] hover:bg-black text-white rounded-full transition-colors shadow-sm shrink-0"
+          className="mt-1 w-10 h-10 flex items-center justify-center bg-rounds hover:bg-rounds-hover text-white rounded-full transition-colors shadow-sm shrink-0"
           title="New campaign">
           <Plus size={20} />
         </button>

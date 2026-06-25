@@ -4,12 +4,17 @@ import Foundation
 // MARK: - Monochrome palette
 
 extension Color {
+    // Rounds signature accent (matches the logo / web chrome)
+    static let roundsAccent      = Color(hex: "#E60128")
+    static let roundsAccentHover = Color(hex: "#C70125")
+
     static let appBackground  = Color(hex: "#F5F5F7")
     static let glassCard      = Color.white.opacity(0.72)
     static let glassBorder    = Color.white.opacity(0.90)
     static let primaryText    = Color(hex: "#1D1D1F")
     static let secondaryText  = Color.black.opacity(0.40)
-    static let accentDefault  = Color(hex: "#1D1D1F")
+    // App-chrome accent for primary actions, the scan button and selected tabs.
+    static let accentDefault  = roundsAccent
 
     // Legacy compatibility
     static let brandGreen       = Color.black

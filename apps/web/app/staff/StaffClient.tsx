@@ -131,7 +131,7 @@ export default function StaffClient({
                     </button>
                     <button disabled={busy === m.id}
                       onClick={() => action('/api/staff/approve', { staff_id: m.id }, `approve:${m.id}`)}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#1D1D1F] px-3 py-1.5 rounded-xl hover:bg-black transition-colors disabled:opacity-40">
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-rounds px-3 py-1.5 rounded-xl hover:bg-rounds-hover transition-colors disabled:opacity-40">
                       {pendingKey === `approve:${m.id}` && <Spinner size={12} />}Approve
                     </button>
                   </div>
@@ -258,7 +258,7 @@ export default function StaffClient({
                         onClick={() => changeRole(selected.id, r)}
                         className={`flex-1 inline-flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold border transition-colors disabled:opacity-40 ${
                           selected.role === r
-                            ? 'bg-[#1D1D1F] text-white border-transparent'
+                            ? 'bg-rounds text-white border-transparent'
                             : 'bg-white text-black/50 border-black/10 hover:border-black/25'
                         }`}>
                         {pendingKey === `role:${r}` && <Spinner size={13} />}{r.charAt(0).toUpperCase() + r.slice(1)}

@@ -136,7 +136,7 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
                 <div className="flex gap-1.5 mt-2">
                   {[6, 8, 10, 12].map(n => (
                     <button key={n} type="button" onClick={() => setRounds(n)}
-                      className={`flex-1 text-xs font-bold py-1.5 rounded-lg border transition-colors ${rounds === n ? 'bg-[#1D1D1F] text-white border-[#1D1D1F]' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>{n}</button>
+                      className={`flex-1 text-xs font-bold py-1.5 rounded-lg border transition-colors ${rounds === n ? 'bg-rounds text-white border-rounds' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>{n}</button>
                   ))}
                 </div>
               </Field>

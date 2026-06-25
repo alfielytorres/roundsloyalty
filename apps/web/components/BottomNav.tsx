@@ -28,7 +28,7 @@ export default function BottomNav() {
         if (primary) {
           return (
             <button key={href} onClick={(e) => navigate(e, href)} title={label}
-              className="flex items-center justify-center w-12 h-12 -mt-6 rounded-full bg-[#1D1D1F] hover:bg-black shadow-md transition-all mx-2">
+              className="flex items-center justify-center w-12 h-12 -mt-6 rounded-full bg-rounds hover:bg-rounds-hover shadow-md transition-all mx-2">
               <Stamp size={22} className="text-white" />
             </button>
           )
@@ -37,7 +37,7 @@ export default function BottomNav() {
         return (
           <button key={href} onClick={(e) => navigate(e, href)} title={label}
             className={`flex flex-col items-center justify-center w-11 h-11 rounded-full gap-0.5 transition-all ${
-              active ? 'text-[#1D1D1F]' : 'text-black/30 hover:text-black/55'
+              active ? 'text-rounds' : 'text-black/30 hover:text-black/55'
             }`}>
             {Icon && <Icon size={18} strokeWidth={active ? 2.2 : 1.7} />}
             <span className="text-[9px] font-semibold leading-none">{label}</span>

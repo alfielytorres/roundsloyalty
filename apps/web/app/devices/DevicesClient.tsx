@@ -235,7 +235,7 @@ export default function DevicesClient({
                 </button>
               )}
               <button disabled={busy === selected.id} onClick={saveDevice}
-                className="ml-auto inline-flex items-center gap-2 text-sm font-bold text-white bg-[#1D1D1F] px-5 py-2 rounded-xl hover:bg-black transition-colors disabled:opacity-40">
+                className="ml-auto inline-flex items-center gap-2 text-sm font-bold text-white bg-rounds px-5 py-2 rounded-xl hover:bg-rounds-hover transition-colors disabled:opacity-40">
                 {pending === 'save' && <Spinner size={14} />}Save changes
               </button>
             </div>

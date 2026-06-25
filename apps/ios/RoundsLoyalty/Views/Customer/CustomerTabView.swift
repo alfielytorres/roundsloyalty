@@ -52,7 +52,7 @@ struct DarkTabBar: View {
                 Button(action: onScanTap) {
                     ZStack {
                         Circle()
-                            .fill(Color.black)
+                            .fill(Color.accentDefault)
                             .frame(width: 56, height: 56)
                         Image(systemName: "qrcode.viewfinder")
                             .font(.system(size: 22, weight: .semibold))
@@ -87,10 +87,10 @@ struct DarkTabItem: View {
             VStack(spacing: 3) {
                 Image(systemName: icon)
                     .font(.system(size: 20, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(isSelected ? Color.black : Color.black.opacity(0.28))
+                    .foregroundColor(isSelected ? Color.accentDefault : Color.black.opacity(0.28))
                 Text(label)
                     .font(.system(size: 10, weight: isSelected ? .semibold : .regular))
-                    .foregroundColor(isSelected ? Color.black : Color.black.opacity(0.28))
+                    .foregroundColor(isSelected ? Color.accentDefault : Color.black.opacity(0.28))
             }
             .frame(maxWidth: .infinity)
             .padding(.top, 12)

@@ -160,7 +160,7 @@ export default function CustomersClient({ vendorId, vendorName }: { vendorId: st
                         <span className="tabular-nums text-black/45">{b.count}</span>
                       </div>
                       <div className="h-2 rounded-full bg-black/5 overflow-hidden">
-                        <div className="h-full rounded-full bg-[#1D1D1F] transition-[width] duration-500" style={{ width: `${Math.max(pct, b.count > 0 ? 5 : 0)}%` }} />
+                        <div className="h-full rounded-full bg-rounds transition-[width] duration-500" style={{ width: `${Math.max(pct, b.count > 0 ? 5 : 0)}%` }} />
                       </div>
                     </div>
                   )
@@ -178,7 +178,7 @@ export default function CustomersClient({ vendorId, vendorName }: { vendorId: st
             <button key={seg} onClick={() => setSegment(seg)}
               className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors border ${
                 segment === seg
-                  ? 'bg-[#1D1D1F] text-white border-transparent'
+                  ? 'bg-rounds text-white border-transparent'
                   : 'bg-white/70 text-black/40 border-black/10 hover:border-black/25 hover:text-black/60'
               }`}>
               {seg.charAt(0).toUpperCase() + seg.slice(1)}

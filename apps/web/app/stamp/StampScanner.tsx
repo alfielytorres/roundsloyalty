@@ -157,7 +157,7 @@ export default function StampScanner({ vendorId }: { vendorId: string }) {
         )}
         <button
           onClick={handleReset}
-          className="mt-7 inline-flex items-center gap-1 text-sm font-semibold text-white bg-[#1D1D1F] hover:bg-black px-5 py-2.5 rounded-full transition-colors"
+          className="mt-7 inline-flex items-center gap-1 text-sm font-semibold text-white bg-rounds hover:bg-rounds-hover px-5 py-2.5 rounded-full transition-colors"
         >
           Stamp another <ChevronRight size={15} />
         </button>
@@ -250,7 +250,7 @@ export default function StampScanner({ vendorId }: { vendorId: string }) {
               <div className="flex items-center gap-2 mt-1">
                 <div className="flex-1 h-1 bg-black/10 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-[#1D1D1F] rounded-full transition-all"
+                    className="h-full bg-rounds rounded-full transition-all"
                     style={{ width: `${Math.min((preview.current_rounds / preview.rounds_required) * 100, 100)}%` }}
                   />
                 </div>
@@ -265,7 +265,7 @@ export default function StampScanner({ vendorId }: { vendorId: string }) {
           type="button"
           onClick={handleAward}
           disabled={loading || !token.trim()}
-          className="w-full py-3.5 rounded-xl font-bold text-white text-sm bg-[#1D1D1F] hover:bg-black disabled:opacity-25 disabled:hover:bg-[#1D1D1F] transition-all flex items-center justify-center gap-2"
+          className="w-full py-3.5 rounded-xl font-bold text-white text-sm bg-rounds hover:bg-rounds-hover disabled:opacity-25 disabled:hover:bg-rounds transition-all flex items-center justify-center gap-2"
         >
           {loading ? (
             <>

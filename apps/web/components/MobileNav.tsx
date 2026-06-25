@@ -65,14 +65,14 @@ export default function MobileNav() {
 
         {/* Stamp — raised center button */}
         <button onClick={() => navigate('/stamp')}
-          className="w-12 h-12 -mt-5 flex items-center justify-center rounded-full bg-[#1D1D1F] shadow-[0_4px_16px_rgba(0,0,0,0.25)] hover:bg-black transition-all active:scale-95 mx-1">
+          className="w-12 h-12 -mt-5 flex items-center justify-center rounded-full bg-rounds shadow-[0_4px_16px_rgba(230,1,40,0.35)] hover:bg-rounds-hover transition-all active:scale-95 mx-1">
           <Stamp size={20} className="text-white" />
         </button>
 
         {/* Collections */}
         <button onClick={() => navigate('/collections')}
           className={`w-11 h-11 flex items-center justify-center rounded-full transition-all ${
-            pathname.startsWith('/collections') ? 'text-[#1D1D1F] bg-black/8' : 'text-black/40 hover:text-black/70 hover:bg-black/5'
+            pathname.startsWith('/collections') ? 'text-rounds bg-rounds-soft' : 'text-black/40 hover:text-black/70 hover:bg-black/5'
           }`}>
           <PackageCheck size={20} strokeWidth={pathname.startsWith('/collections') ? 2.2 : 1.7} />
         </button>
@@ -99,7 +99,7 @@ export default function MobileNav() {
             <div className="px-4 pt-4 pb-2">
               <button
                 onClick={() => navigate('/stamp')}
-                className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-bold text-sm bg-[#1D1D1F] text-white hover:bg-black transition-all"
+                className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-bold text-sm bg-rounds text-white hover:bg-rounds-hover transition-all"
               >
                 <QrCode size={17} strokeWidth={2.2} />
                 Stamp Customer
@@ -120,7 +120,7 @@ export default function MobileNav() {
                         <button key={href} onClick={() => navigate(href)}
                           className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all text-left ${
                             active
-                              ? 'bg-black/8 text-[#1D1D1F] font-semibold'
+                              ? 'bg-rounds-soft text-rounds font-semibold'
                               : 'text-black/40 font-medium hover:bg-black/5 hover:text-black/70'
                           }`}>
                           <Icon size={17} strokeWidth={active ? 2.2 : 1.7} />

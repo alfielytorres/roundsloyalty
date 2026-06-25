@@ -62,11 +62,7 @@ export default function Sidebar() {
       <div className="px-3 pt-4 pb-2">
         <Link
           href="/stamp"
-          className={`flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-bold text-sm transition-all ${
-            isActive('/stamp')
-              ? 'bg-[#1D1D1F] text-white'
-              : 'bg-[#1D1D1F] text-white hover:bg-black'
-          }`}
+          className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl font-bold text-sm transition-all bg-rounds hover:bg-rounds-hover text-white"
         >
           <QrCode size={17} strokeWidth={2.2} />
           Stamp Customer
@@ -89,7 +85,7 @@ export default function Sidebar() {
                     href={href}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
                       active
-                        ? 'bg-black/8 text-[#1D1D1F] font-semibold'
+                        ? 'bg-rounds-soft text-rounds font-semibold'
                         : 'text-black/40 font-medium hover:bg-black/5 hover:text-black/70'
                     }`}
                   >

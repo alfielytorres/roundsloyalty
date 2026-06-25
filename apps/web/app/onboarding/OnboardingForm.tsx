@@ -225,7 +225,7 @@ export default function OnboardingForm({ error: initialError, defaultBusinessNam
 
         <div className="flex flex-col gap-3">
           <button onClick={() => setStep('create')}
-            className="flex items-center gap-4 p-5 bg-[#1D1D1F] text-white rounded-3xl text-left hover:bg-black transition-colors">
+            className="flex items-center gap-4 p-5 bg-rounds text-white rounded-3xl text-left hover:bg-rounds-hover transition-colors">
             <div className="w-10 h-10 rounded-2xl bg-white/10 flex items-center justify-center shrink-0">
               <Store size={20} />
             </div>

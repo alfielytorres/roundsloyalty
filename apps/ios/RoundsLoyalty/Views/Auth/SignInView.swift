@@ -76,7 +76,7 @@ struct SignInView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(Color.black)
+                            .background(Color.accentDefault)
                             .foregroundColor(.white)
                             .cornerRadius(12)
                         }

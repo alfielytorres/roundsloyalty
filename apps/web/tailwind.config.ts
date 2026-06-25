@@ -9,17 +9,24 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        primary: '#22C55E',
-        'primary-light': '#86EFAC',
-        'primary-dark': '#16A34A',
-        bg: '#081C12',
-        surface: '#0D2418',
+        // Rounds signature accent (from the logo / PWA theme)
+        rounds: {
+          DEFAULT: '#E60128',
+          hover: '#C70125',
+          soft: 'rgba(230,1,40,0.08)',
+        },
+        ink: '#1D1D1F',
+        surface: '#F5F5F7',
       },
       fontFamily: {
-        sans: ['DM Sans', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-display)', 'var(--font-sans)', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         '4xl': '2rem',
+      },
+      boxShadow: {
+        glass: '0 6px 24px rgba(0,0,0,0.06)',
       },
     },
   },

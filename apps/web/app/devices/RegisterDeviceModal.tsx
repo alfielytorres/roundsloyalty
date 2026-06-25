@@ -66,7 +66,7 @@ export default function RegisterDeviceModal({ vendorId }: { vendorId: string }) 
   return (
     <>
       <button onClick={() => setOpen(true)}
-        className="w-10 h-10 flex items-center justify-center bg-[#1D1D1F] hover:bg-black text-white rounded-full transition-colors shadow-sm"
+        className="w-10 h-10 flex items-center justify-center bg-rounds hover:bg-rounds-hover text-white rounded-full transition-colors shadow-sm"
         title="Add device">
         <Plus size={20} />
       </button>
@@ -91,7 +91,7 @@ export default function RegisterDeviceModal({ vendorId }: { vendorId: string }) 
               Shown only once — we store a hash, not the token. Register a new device any time if you lose it.
             </p>
             <button onClick={close}
-              className="w-full py-3 rounded-2xl bg-[#1D1D1F] text-white font-semibold text-sm hover:bg-black transition-colors">
+              className="w-full py-3 rounded-2xl bg-rounds text-white font-semibold text-sm hover:bg-rounds-hover transition-colors">
               Done
             </button>
           </div>
@@ -115,7 +115,7 @@ export default function RegisterDeviceModal({ vendorId }: { vendorId: string }) 
                 Cancel
               </button>
               <button type="submit" disabled={submitting}
-                className="flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-2xl bg-[#1D1D1F] text-white font-semibold text-sm hover:bg-black transition-colors disabled:opacity-50">
+                className="flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-2xl bg-rounds text-white font-semibold text-sm hover:bg-rounds-hover transition-colors disabled:opacity-50">
                 {submitting ? <><Spinner />Registering…</> : 'Register'}
               </button>
             </div>

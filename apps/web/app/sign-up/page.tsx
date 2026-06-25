@@ -57,7 +57,7 @@ export default function SignUpPage() {
             </div>
           ))}
           <button type="submit" disabled={loading}
-            className="w-full inline-flex items-center justify-center gap-2 bg-[#1D1D1F] hover:bg-black disabled:opacity-40 text-white font-semibold py-3 rounded-xl transition-colors text-sm mt-1">
+            className="w-full inline-flex items-center justify-center gap-2 bg-rounds hover:bg-rounds-hover disabled:opacity-40 text-white font-semibold py-3 rounded-xl transition-colors text-sm mt-1">
             {loading ? <><Spinner />Creating account…</> : 'Create account'}
           </button>
         </form>

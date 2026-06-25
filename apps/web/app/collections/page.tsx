@@ -44,7 +44,7 @@ function CollectionCard({ c, onAction }: { c: Collection; onAction: (id: string,
         )}
         {(c.status === 'requested' || c.status === 'ready') && (
           <button onClick={() => onAction(c.id, 'collected')}
-            className="flex-1 py-2 rounded-xl bg-[#1D1D1F] text-white text-xs font-bold hover:bg-black transition-colors">
+            className="flex-1 py-2 rounded-xl bg-rounds text-white text-xs font-bold hover:bg-rounds-hover transition-colors">
             Collected
           </button>
         )}
