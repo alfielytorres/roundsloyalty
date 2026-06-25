@@ -34,7 +34,7 @@ const statusBadge = {
 
 const EMPTY_STATS: CampaignStats = { recipients: 0, delivered: 0, opened: 0, failed: 0, pending: 0 }
 
-export default function CampaignsClient({ vendorId }: { vendorId: string }) {
+export default function CampaignsClient({ vendorId, vendorName }: { vendorId: string; vendorName: string }) {
   const [campaigns, setCampaigns] = useState<Campaign[]>([])
   const [statsMap, setStatsMap] = useState<Record<string, CampaignStats>>({})
   const [memberCount, setMemberCount] = useState<number | undefined>(undefined)
@@ -185,9 +185,10 @@ export default function CampaignsClient({ vendorId }: { vendorId: string }) {
         </div>
       )}
 
-      <CampaignModal vendorId={vendorId} isOpen={creating} onClose={() => setCreating(false)} activeMemberCount={memberCount} />
+      <CampaignModal vendorId={vendorId} vendorName={vendorName} isOpen={creating} onClose={() => setCreating(false)} activeMemberCount={memberCount} />
       <CampaignModal
         vendorId={vendorId}
+        vendorName={vendorName}
         isOpen={!!selected}
         onClose={() => setSelected(null)}
         campaign={selected as EditableCampaign | null}

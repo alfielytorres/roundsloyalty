@@ -1,8 +1,23 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { Zap, Send, CheckCheck, MailOpen, Clock } from 'lucide-react'
 import Modal from '@/components/Modal'
+
+// Mirrors fanout_campaign_notifications() in migration 025 so the preview
+// matches the push the customer actually receives.
+function notifPreview(
+  vendorName: string, name: string, value: number, start: string, end: string, message: string,
+): { title: string; body: string } {
+  const title = `${vendorName || 'Your store'}: ${value}× rounds!`
+  const trimmed = message.trim()
+  if (trimmed) return { title, body: trimmed }
+  const fmt = (s: string) => s ? new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''
+  const startsNow = !!start && new Date(start) <= new Date()
+  const when = startsNow ? `now through ${fmt(end)}` : `starting ${fmt(start)}`
+  return { title, body: `${name || 'Your campaign'} — earn ${value}× rounds ${when}.` }
+}
 
 export interface CampaignStats {
   recipients: number
@@ -128,10 +143,30 @@ function NotificationStats({ stats, campaign, activeMemberCount }: {
   )
 }
 
+function NotifPreviewCard({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="rounded-2xl bg-black/[0.04] border border-black/8 p-3">
+      <p className="text-[10px] font-bold tracking-widest uppercase text-black/30 mb-2">What customers see</p>
+      <div className="rounded-2xl bg-white shadow-sm border border-black/5 px-3 py-2.5 flex gap-3">
+        <Image src="/logo.svg" alt="" width={36} height={36} unoptimized className="rounded-lg shrink-0 self-start" />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] font-bold tracking-tight text-black/45 uppercase">Rounds</span>
+            <span className="text-[11px] text-black/30 shrink-0">now</span>
+          </div>
+          <p className="font-semibold text-[#1D1D1F] text-sm leading-snug mt-0.5 break-words">{title}</p>
+          <p className="text-black/55 text-sm leading-snug break-words">{body}</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function CampaignModal({
-  vendorId, isOpen, onClose, campaign, stats, readOnly, activeMemberCount,
+  vendorId, vendorName, isOpen, onClose, campaign, stats, readOnly, activeMemberCount,
 }: {
   vendorId: string
+  vendorName: string
   isOpen: boolean
   onClose: () => void
   campaign?: EditableCampaign | null
@@ -205,8 +240,12 @@ export default function CampaignModal({
               <span className="text-[11px] text-white/60 text-right leading-tight">{fmtRange(campaign.starts_at, campaign.ends_at)}</span>
             </div>
           </div>
-          {campaign.customer_message && (
-            <p className="text-black/45 text-sm italic leading-relaxed">&ldquo;{campaign.customer_message}&rdquo;</p>
+          {(campaign.notify_mode ?? 'on_start') !== 'none' && (
+            <NotifPreviewCard {...notifPreview(
+              vendorName, campaign.name, campaign.round_value,
+              toLocalInput(new Date(campaign.starts_at)), toLocalInput(new Date(campaign.ends_at)),
+              campaign.customer_message ?? '',
+            )} />
           )}
           <NotificationStats stats={stats} campaign={campaign} activeMemberCount={activeMemberCount} />
           <button type="button" onClick={onClose}
@@ -318,6 +357,11 @@ export default function CampaignModal({
           <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Customer message (optional)</label>
           <textarea name="customer_message" value={message} onChange={e => setMessage(e.target.value)} rows={2} placeholder="Used as the push notification text" className="dark-input w-full resize-none" />
         </div>
+
+        {/* Live preview of the push the customer will receive */}
+        {notifyMode !== 'none'
+          ? <NotifPreviewCard {...notifPreview(vendorName, name, value, start, end, message)} />
+          : <p className="text-[11px] text-black/35">No push will be sent for this campaign.</p>}
 
         <div className="flex gap-3 pt-1">
           <button type="button" onClick={onClose}

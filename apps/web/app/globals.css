@@ -19,6 +19,24 @@ html {
   height: 100%;
 }
 
+/* iOS Safari centers the value of native date/time inputs and adds vertical
+   margins via these pseudo-elements, making the fields look taller and
+   off-centre next to text inputs. Left-align and strip the margins so they
+   match. */
+input[type="datetime-local"]::-webkit-date-and-time-value,
+input[type="date"]::-webkit-date-and-time-value,
+input[type="time"]::-webkit-date-and-time-value {
+  text-align: left;
+  margin: 0;
+}
+input[type="datetime-local"]::-webkit-datetime-edit {
+  padding: 0;
+  line-height: 1.35;
+}
+input[type="datetime-local"] {
+  min-height: 0;
+}
+
 :root {
   --color-bg: #F5F5F7;
   --color-surface: rgba(255,255,255,0.72);

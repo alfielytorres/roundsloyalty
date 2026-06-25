@@ -15,7 +15,7 @@ export default async function CampaignsPage({ searchParams }: { searchParams: Pr
           <div className="mb-5 p-4 bg-black/5 border border-black/15 rounded-2xl text-black/70 text-sm font-semibold">{query.success}</div>
         )}
 
-        <CampaignsClient vendorId={vendor.id} />
+        <CampaignsClient vendorId={vendor.id} vendorName={vendor.business_name} />
       </div>
     </main>
   )
