@@ -11,9 +11,9 @@ const config: Config = {
       colors: {
         // Rounds signature accent (from the logo / PWA theme)
         rounds: {
-          DEFAULT: '#E60128',
-          hover: '#C70125',
-          soft: 'rgba(230,1,40,0.08)',
+          DEFAULT: '#9E1B32',
+          hover: '#7E1428',
+          soft: 'rgba(158,27,50,0.09)',
         },
         ink: '#1D1D1F',
         surface: '#F5F5F7',

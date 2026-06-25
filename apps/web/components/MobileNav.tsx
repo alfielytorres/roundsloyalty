@@ -65,7 +65,7 @@ export default function MobileNav() {
 
         {/* Stamp — raised center button */}
         <button onClick={() => navigate('/stamp')}
-          className="w-12 h-12 -mt-5 flex items-center justify-center rounded-full bg-rounds shadow-[0_4px_16px_rgba(230,1,40,0.35)] hover:bg-rounds-hover transition-all active:scale-95 mx-1">
+          className="w-12 h-12 -mt-5 flex items-center justify-center rounded-full bg-rounds shadow-[0_4px_16px_rgba(158,27,50,0.35)] hover:bg-rounds-hover transition-all active:scale-95 mx-1">
           <Stamp size={20} className="text-white" />
         </button>
 
