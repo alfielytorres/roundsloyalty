@@ -18,13 +18,34 @@ struct StampGrid: View {
     let filled: Int
     let total: Int
     var emptyColor: Color = Color.white.opacity(0.9)
-    var maxDisplay: Int = 10
-    var columns: Int = 5
+    var maxDisplay: Int = 20
     var slotSize: CGFloat = 34
 
     private var count: Int { max(1, min(total, maxDisplay)) }
+
+    // Most balanced grid width (columns >= rows): 8 -> 4, 9 -> 3, 10 -> 5.
+    // Mirrors gridColumns() in the web CardPreview so both platforms match.
+    private func balancedColumns(_ n: Int) -> Int {
+        if n <= 1 { return 1 }
+        var cols = n
+        var bestDiff = Int.max
+        var r = 1
+        while r * r <= n {
+            if n % r == 0 {
+                let c = n / r
+                if c - r < bestDiff { bestDiff = c - r; cols = c }
+            }
+            r += 1
+        }
+        if cols == n && n >= 7 {
+            let rows = Int(Double(n).squareRoot())
+            cols = Int(ceil(Double(n) / Double(rows)))
+        }
+        return cols
+    }
+
     private var gridColumns: [GridItem] {
-        Array(repeating: GridItem(.flexible(), spacing: 8), count: min(columns, count))
+        Array(repeating: GridItem(.flexible(), spacing: 8), count: balancedColumns(count))
     }
 
     var body: some View {
@@ -154,7 +175,7 @@ struct LoyaltyCardView: View {
                     RoundedRectangle(cornerRadius: 18).fill(Color.black.opacity(0.18))
                 }
                 StampGrid(icon: icon, filled: current, total: required,
-                          emptyColor: emptyStampColor, maxDisplay: 10, columns: 5, slotSize: 34)
+                          emptyColor: emptyStampColor, maxDisplay: 20, slotSize: 34)
                     .padding(16)
             }
 

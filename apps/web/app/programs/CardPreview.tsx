@@ -14,6 +14,26 @@ interface Props {
   rewardName: string
 }
 
+// Most balanced grid width for n stamps (columns >= rows). Prefers an exact
+// factorisation (8 -> 4 cols/2 rows, 9 -> 3, 10 -> 5); for an awkward prime that
+// would force one long row, falls back to a near-square grid with a partial row.
+export function gridColumns(n: number): number {
+  if (n <= 1) return 1
+  let cols = n
+  let bestDiff = Infinity
+  for (let r = 1; r * r <= n; r++) {
+    if (n % r === 0) {
+      const c = n / r
+      if (c - r < bestDiff) { bestDiff = c - r; cols = c }
+    }
+  }
+  if (cols === n && n >= 7) {
+    const rows = Math.floor(Math.sqrt(n))
+    cols = Math.ceil(n / rows)
+  }
+  return cols
+}
+
 // Live loyalty card — mirrors the iOS LoyaltyCardView exactly.
 export default function CardPreview({ vendorName, logoUrl, brandHex, stampBgHex, cardBgUrl, icon, rounds, rewardName }: Props) {
   const cardL = lum(brandHex)
@@ -25,9 +45,10 @@ export default function CardPreview({ vendorName, logoUrl, brandHex, stampBgHex,
   const emptyFilter = emptyIsWhite ? 'brightness(0) invert(1)' : 'brightness(0)'
 
   const total = Math.max(1, rounds || 1)
-  const display = Math.min(total, 10)
+  const display = Math.min(total, 20)
   const sample = Math.min(Math.floor(total * 0.6), total - 1) || Math.min(3, display)
   const filled = Math.min(sample, display)
+  const cols = gridColumns(display)
 
   // Die-cut "sticker" look: stacked white outlines + a soft drop shadow.
   const sticker = 'drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff) drop-shadow(0 1.5px 1px rgba(0,0,0,0.28))'
@@ -49,9 +70,9 @@ export default function CardPreview({ vendorName, logoUrl, brandHex, stampBgHex,
         <div className="rounded-2xl p-3 relative overflow-hidden transition-colors" style={{ background: cardBgUrl ? `url(${cardBgUrl}) center/cover` : panelHex }}>
           {(!hasPanel && !cardBgUrl) && <div className="absolute inset-0" style={{ background: overlayDark ? 'rgba(0,0,0,0.14)' : 'rgba(255,255,255,0.16)' }} />}
           {cardBgUrl && <div className="absolute inset-0" style={{ background: 'rgba(0,0,0,0.18)' }} />}
-          <div className="relative flex flex-wrap gap-2.5 justify-center">
+          <div className="relative grid gap-2.5 justify-center" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, auto))` }}>
             {Array.from({ length: display }).map((_, i) => (
-              <span key={i} className={`text-[26px] leading-none ${i < filled ? 'stamp-pop' : ''}`}
+              <span key={i} className={`text-[26px] leading-none text-center ${i < filled ? 'stamp-pop' : ''}`}
                 style={i < filled
                   ? { filter: sticker, animationDelay: `${i * 45}ms` }
                   : { filter: `${emptyFilter} drop-shadow(0 0 0.6px rgba(255,255,255,0.85))`, opacity: 0.5 }}>{icon}</span>
