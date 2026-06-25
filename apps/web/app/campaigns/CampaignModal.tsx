@@ -29,6 +29,14 @@ function toLocalInput(d: Date): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
+// A sensible default window for a brand-new campaign so the date fields are
+// never empty (an empty iOS datetime-local renders as a blank, broken-looking box).
+function defaultWindow(): [string, string] {
+  const s = new Date(); s.setMinutes(0, 0, 0); s.setHours(s.getHours() + 1)
+  const e = new Date(s); e.setDate(e.getDate() + 7)
+  return [toLocalInput(s), toLocalInput(e)]
+}
+
 function fmtRange(s: string, e: string): string {
   if (!s || !e) return 'Pick a time'
   const opts: Intl.DateTimeFormatOptions = { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }
@@ -154,7 +162,8 @@ export default function CampaignModal({
       setMessage(campaign.customer_message ?? '')
       setNotifyMode(campaign.notify_mode ?? 'on_start')
     } else {
-      setName(''); setValue(2); setStart(''); setEnd(''); setMessage(''); setNotifyMode('on_start')
+      const [ds, de] = defaultWindow()
+      setName(''); setValue(2); setStart(ds); setEnd(de); setMessage(''); setNotifyMode('on_start')
     }
   }, [isOpen, campaign])
 
