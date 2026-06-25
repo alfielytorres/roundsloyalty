@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { createBrowserClient } from '@supabase/ssr'
-import { PackageCheck, Clock, CheckCircle } from 'lucide-react'
+import { PackageCheck, Clock, CheckCircle, RefreshCw } from 'lucide-react'
 
 interface Collection {
   id: string
@@ -66,6 +66,7 @@ function ColumnHeader({ icon: Icon, title, count }: { icon: React.ElementType; t
 export default function CollectionsPage() {
   const [collections, setCollections] = useState<Collection[]>([])
   const [loading, setLoading] = useState(true)
+  const [refreshing, setRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [vendorId, setVendorId] = useState<string | null>(null)
 
@@ -90,7 +91,6 @@ export default function CollectionsPage() {
         return
       }
 
-      console.log('Collections data:', data)
       setCollections((data ?? []) as unknown as Collection[])
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Unknown error'
@@ -136,10 +136,11 @@ export default function CollectionsPage() {
     init()
   }, [supabase, fetchCollections])
 
-  useEffect(() => {
+  const refresh = useCallback(async () => {
     if (!vendorId) return
-    const interval = setInterval(() => fetchCollections(vendorId), 30000)
-    return () => clearInterval(interval)
+    setRefreshing(true)
+    await fetchCollections(vendorId)
+    setRefreshing(false)
   }, [vendorId, fetchCollections])
 
   async function handleAction(id: string, action: 'ready' | 'collected') {
@@ -155,29 +156,20 @@ export default function CollectionsPage() {
   const ready = collections.filter((c) => c.status === 'ready')
   const collected = collections.filter((c) => c.status === 'collected').slice(0, 20)
 
-  if (loading) {
-    return (
-      <main className="px-5 pt-10 pb-32">
-        <div className="max-w-5xl mx-auto">
-          <div className="mb-6">
-            <p className="text-black/30 text-xs font-semibold tracking-widest uppercase mb-0.5">Loading…</p>
-            <h1 className="text-2xl font-bold text-[#1D1D1F]">Collections</h1>
-          </div>
-          <div className="flex items-center justify-center py-16">
-            <div className="w-8 h-8 border-2 border-black/10 border-t-black/60 rounded-full animate-spin" />
-          </div>
-        </div>
-      </main>
-    )
-  }
-
   return (
     <main className="px-5 pt-10 pb-32">
       <div className="max-w-5xl mx-auto">
-        <div className="mb-6">
-          <p className="text-black/30 text-xs font-semibold tracking-widest uppercase mb-0.5">Collections</p>
-          <h1 className="text-2xl font-bold text-[#1D1D1F]">Reward Collections</h1>
-          <p className="text-black/40 text-sm mt-0.5">Auto-refreshes every 30s</p>
+        <div className="flex items-start justify-between gap-3 mb-6">
+          <div>
+            <p className="text-black/30 text-xs font-semibold tracking-widest uppercase mb-0.5">Collections</p>
+            <h1 className="text-2xl font-bold text-[#1D1D1F]">Reward Collections</h1>
+            <p className="text-black/40 text-sm mt-0.5">Hand over rewards customers have claimed</p>
+          </div>
+          <button onClick={refresh} disabled={loading || refreshing}
+            className="mt-1 w-10 h-10 flex items-center justify-center rounded-full border border-black/10 text-black/50 hover:text-black/70 hover:border-black/25 hover:bg-black/5 transition-colors disabled:opacity-50 shrink-0"
+            title="Refresh">
+            <RefreshCw size={17} className={loading || refreshing ? 'animate-spin' : ''} />
+          </button>
         </div>
 
         {error && (
@@ -186,6 +178,11 @@ export default function CollectionsPage() {
           </div>
         )}
 
+        {loading ? (
+          <div className="glass px-6 py-14 flex justify-center">
+            <div className="w-5 h-5 border-2 border-black/15 border-t-black/50 rounded-full animate-spin" />
+          </div>
+        ) : (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <ColumnHeader icon={Clock} title="Requested" count={requested.length} />
@@ -233,6 +230,7 @@ export default function CollectionsPage() {
             </div>
           </div>
         </div>
+        )}
       </div>
     </main>
   )
