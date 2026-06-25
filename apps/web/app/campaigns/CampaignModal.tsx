@@ -2,8 +2,38 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { Zap, Send, CheckCheck, MailOpen, Clock } from 'lucide-react'
+import { Zap, Send, CheckCheck, MailOpen, Clock, Calendar } from 'lucide-react'
 import Modal from '@/components/Modal'
+
+// A fully-styled date/time field: we render our own formatted display and lay a
+// transparent native datetime-local input on top, so tapping it opens the native
+// picker while the ugly/inconsistent native rendering stays invisible.
+function DateTimeField({ label, value, onChange, disabled }: {
+  label: string; value: string; onChange: (v: string) => void; disabled?: boolean
+}) {
+  const display = value
+    ? new Date(value).toLocaleString(undefined, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+    : 'Pick a date & time'
+  return (
+    <div>
+      <span className="block text-[11px] font-semibold text-black/35 mb-1">{label}</span>
+      <div className={`relative ${disabled ? 'opacity-60' : ''}`}>
+        <div className="dark-input w-full flex items-center justify-between gap-2">
+          <span className={`text-sm truncate ${value ? 'text-[#1D1D1F]' : 'text-black/25'}`}>{display}</span>
+          <Calendar size={15} className="text-black/30 shrink-0" />
+        </div>
+        <input
+          type="datetime-local"
+          value={value}
+          disabled={disabled}
+          onChange={e => onChange(e.target.value)}
+          aria-label={label}
+          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+        />
+      </div>
+    </div>
+  )
+}
 
 // Mirrors fanout_campaign_notifications() in migration 025 so the preview
 // matches the push the customer actually receives.
@@ -318,15 +348,8 @@ export default function CampaignModal({
             </div>
           )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <span className="block text-[11px] font-semibold text-black/35 mb-1">Starts</span>
-              <input type="datetime-local" value={start} onChange={e => setStart(e.target.value)} required readOnly={liveLocked}
-                className={`dark-input w-full min-w-0 ${liveLocked ? 'opacity-60 cursor-not-allowed' : ''}`} />
-            </div>
-            <div>
-              <span className="block text-[11px] font-semibold text-black/35 mb-1">Ends</span>
-              <input type="datetime-local" value={end} onChange={e => setEnd(e.target.value)} required className="dark-input w-full min-w-0" />
-            </div>
+            <DateTimeField label="Starts" value={start} onChange={setStart} disabled={liveLocked} />
+            <DateTimeField label="Ends" value={end} onChange={setEnd} />
           </div>
           {liveLocked && <p className="text-[11px] text-black/35 mt-1.5">This campaign is already live — only the end time can be changed.</p>}
         </div>
