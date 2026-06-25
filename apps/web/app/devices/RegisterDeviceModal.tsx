@@ -1,22 +1,38 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
+import { useState, useEffect, type FormEvent } from 'react'
+import { createBrowserClient } from '@supabase/ssr'
 import { Plus, Copy, Check } from 'lucide-react'
 import Modal from '@/components/Modal'
 import Spinner from '@/components/Spinner'
+
+interface LocationOption { id: string; name: string }
 
 export default function RegisterDeviceModal({ vendorId }: { vendorId: string }) {
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
   const [location, setLocation] = useState('')
+  const [locationId, setLocationId] = useState('')
+  const [locations, setLocations] = useState<LocationOption[]>([])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [tagUrl, setTagUrl] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
+  useEffect(() => {
+    if (!open) return
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    )
+    supabase.from('vendor_locations').select('id, name').eq('vendor_id', vendorId).order('created_at')
+      .then(({ data }) => setLocations((data ?? []) as LocationOption[]))
+  }, [open, vendorId])
+
   function reset() {
     setName('')
     setLocation('')
+    setLocationId('')
     setError(null)
     setTagUrl(null)
     setCopied(false)
@@ -41,7 +57,7 @@ export default function RegisterDeviceModal({ vendorId }: { vendorId: string }) 
       const res = await fetch('/api/devices/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ vendor_id: vendorId, name, location_label: location }),
+        body: JSON.stringify({ vendor_id: vendorId, name, location_label: location, location_id: locationId || null }),
       })
       const data = await res.json()
       if (!res.ok) {
@@ -101,8 +117,17 @@ export default function RegisterDeviceModal({ vendorId }: { vendorId: string }) 
               <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Device name</label>
               <input value={name} onChange={(e) => setName(e.target.value)} required placeholder="e.g. Counter A" className="dark-input w-full" />
             </div>
+            {locations.length > 0 && (
+              <div>
+                <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Location</label>
+                <select value={locationId} onChange={(e) => setLocationId(e.target.value)} className="dark-input w-full">
+                  <option value="">No specific location</option>
+                  {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+                </select>
+              </div>
+            )}
             <div>
-              <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Location label</label>
+              <label className="block text-xs font-semibold text-black/40 tracking-widest uppercase mb-2">Spot label <span className="text-black/25 normal-case font-normal">(optional)</span></label>
               <input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Front counter" className="dark-input w-full" />
             </div>
             <p className="text-black/30 text-xs">

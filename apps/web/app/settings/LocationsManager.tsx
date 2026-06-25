@@ -1,0 +1,94 @@
+'use client'
+
+import { useEffect, useState, useCallback } from 'react'
+import { createBrowserClient } from '@supabase/ssr'
+import { MapPin, Plus, Trash2 } from 'lucide-react'
+import Spinner from '@/components/Spinner'
+
+interface Location {
+  id: string
+  name: string
+  address: string | null
+}
+
+export default function LocationsManager({ vendorId }: { vendorId: string }) {
+  const [locations, setLocations] = useState<Location[]>([])
+  const [loading, setLoading] = useState(true)
+  const [name, setName] = useState('')
+  const [address, setAddress] = useState('')
+  const [adding, setAdding] = useState(false)
+  const [busy, setBusy] = useState<string | null>(null)
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  )
+
+  const load = useCallback(() => {
+    supabase.from('vendor_locations')
+      .select('id, name, address')
+      .eq('vendor_id', vendorId)
+      .order('created_at', { ascending: true })
+      .then(({ data }) => { setLocations((data ?? []) as Location[]); setLoading(false) })
+  }, [supabase, vendorId])
+
+  useEffect(() => { load() }, [load])
+
+  async function add(e: React.FormEvent) {
+    e.preventDefault()
+    const n = name.trim()
+    if (!n) return
+    setAdding(true)
+    await supabase.from('vendor_locations').insert({ vendor_id: vendorId, name: n, address: address.trim() || null })
+    setName(''); setAddress('')
+    setAdding(false)
+    load()
+  }
+
+  async function remove(id: string) {
+    setBusy(id)
+    await supabase.from('vendor_locations').delete().eq('id', id)
+    setBusy(null)
+    load()
+  }
+
+  return (
+    <div className="glass mb-3">
+      <div className="flex items-center gap-2 mb-1">
+        <MapPin size={15} className="text-black/40" />
+        <h2 className="text-sm font-semibold text-[#1D1D1F]">Locations</h2>
+      </div>
+      <p className="text-black/40 text-xs mb-4">One loyalty card works across all your locations. Assign NFC devices to a location to track where stamps happen.</p>
+
+      {loading ? (
+        <div className="flex justify-center py-4"><Spinner size={18} className="text-black/40" /></div>
+      ) : (
+        <div className="flex flex-col gap-2 mb-4">
+          {locations.length === 0 && <p className="text-black/30 text-sm">No locations yet — add your first below.</p>}
+          {locations.map(l => (
+            <div key={l.id} className="flex items-center justify-between gap-3 p-3 rounded-2xl bg-black/[0.02] border border-black/5">
+              <div className="min-w-0">
+                <p className="font-semibold text-[#1D1D1F] text-sm truncate">{l.name}</p>
+                {l.address && <p className="text-black/35 text-xs truncate">{l.address}</p>}
+              </div>
+              <button onClick={() => remove(l.id)} disabled={busy === l.id}
+                className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full text-black/30 hover:text-red-500 hover:bg-red-500/5 transition-colors disabled:opacity-40"
+                title="Remove location">
+                {busy === l.id ? <Spinner size={14} /> : <Trash2 size={15} />}
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <form onSubmit={add} className="flex flex-col sm:flex-row gap-2">
+        <input value={name} onChange={e => setName(e.target.value)} placeholder="Location name (e.g. Downtown)" className="dark-input flex-1" />
+        <input value={address} onChange={e => setAddress(e.target.value)} placeholder="Address (optional)" className="dark-input flex-1" />
+        <button type="submit" disabled={adding || !name.trim()}
+          className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-2xl bg-rounds text-white font-semibold text-sm hover:bg-rounds-hover transition-colors disabled:opacity-40 shrink-0">
+          {adding ? <Spinner size={14} /> : <Plus size={16} />}Add
+        </button>
+      </form>
+    </div>
+  )
+}

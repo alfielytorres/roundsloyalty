@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
   const device_id = formData.get('device_id') as string
   const name = (formData.get('name') as string)?.trim()
   const location_label = (formData.get('location_label') as string)?.trim() || null
+  const location_id = (formData.get('location_id') as string) || null
 
   if (!device_id || !name) {
     return NextResponse.json({ error: 'Device id and name are required.' }, { status: 400 })
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
   // RLS limits this update to the device's vendor owner/staff.
   const { error } = await supabase
     .from('nfc_stamp_devices')
-    .update({ name, location_label })
+    .update({ name, location_label, location_id })
     .eq('id', device_id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })

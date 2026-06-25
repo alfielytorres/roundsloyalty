@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
   const vendor_id = body?.vendor_id as string | undefined
   const name = (body?.name as string | undefined)?.trim()
   const location_label = (body?.location_label as string | undefined)?.trim() || null
+  const location_id = (body?.location_id as string | undefined) || null
 
   if (!vendor_id || !name) {
     return NextResponse.json({ error: 'Vendor and device name are required.' }, { status: 400 })
@@ -44,6 +45,7 @@ export async function POST(req: NextRequest) {
     vendor_id,
     name,
     location_label,
+    location_id,
     device_token_hash,
     status: 'active',
   })

@@ -2,6 +2,7 @@ import { getPortalData } from '@/lib/portal-data'
 import { LogOut } from 'lucide-react'
 import AddressAutocomplete from './AddressAutocomplete'
 import SubmitButton from '@/components/SubmitButton'
+import LocationsManager from './LocationsManager'
 
 export default async function SettingsPage() {
   const { user, vendor } = await getPortalData()
@@ -42,6 +43,8 @@ export default async function SettingsPage() {
             <SubmitButton pendingText="Saving…" className="btn-primary self-start text-sm py-2.5 px-5 mt-1 disabled:opacity-60">Save changes</SubmitButton>
           </form>
         </div>
+
+        <LocationsManager vendorId={vendor.id} />
 
         <div className="glass">
           <p className="text-sm font-semibold text-[#1D1D1F] mb-0.5">Account</p>

@@ -10,9 +10,12 @@ interface Device {
   id: string
   name: string
   location_label: string | null
+  location_id: string | null
   status: string
   last_used_at: string | null
 }
+
+interface LocationOption { id: string; name: string }
 
 const statusBadge: Record<string, string> = {
   active: 'bg-black/10 text-[#1D1D1F] border-black/15',
@@ -34,16 +37,22 @@ export default function DevicesClient({
   const [selected, setSelected] = useState<Device | null>(null)
   const [editName, setEditName] = useState('')
   const [editLocation, setEditLocation] = useState('')
+  const [editLocationId, setEditLocationId] = useState('')
+  const [locations, setLocations] = useState<LocationOption[]>([])
   const [saveError, setSaveError] = useState<string | null>(null)
+
+  const locationName = (id: string | null) => locations.find(l => l.id === id)?.name ?? null
 
   const load = useCallback(() => {
     const supabase = createBrowserClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     )
+    supabase.from('vendor_locations').select('id, name').eq('vendor_id', vendorId).order('created_at')
+      .then(({ data }) => setLocations((data ?? []) as LocationOption[]))
     supabase
       .from('nfc_stamp_devices')
-      .select('id, name, location_label, status, last_used_at')
+      .select('id, name, location_label, location_id, status, last_used_at')
       .eq('vendor_id', vendorId)
       .order('created_at', { ascending: false })
       .then(({ data }) => { setDevices((data ?? []) as Device[]); setLoading(false) })
@@ -55,6 +64,7 @@ export default function DevicesClient({
     setSelected(d)
     setEditName(d.name)
     setEditLocation(d.location_label ?? '')
+    setEditLocationId(d.location_id ?? '')
     setSaveError(null)
   }
 
@@ -85,6 +95,7 @@ export default function DevicesClient({
     body.set('device_id', selected.id)
     body.set('name', name)
     body.set('location_label', editLocation.trim())
+    body.set('location_id', editLocationId)
     const res = await fetch('/api/devices/update', { method: 'POST', body })
     setBusy(null)
     setPending(null)
@@ -93,7 +104,7 @@ export default function DevicesClient({
       setSaveError(j.error ?? 'Could not save changes.')
       return
     }
-    setDevices(prev => prev.map(d => d.id === selected.id ? { ...d, name, location_label: editLocation.trim() || null } : d))
+    setDevices(prev => prev.map(d => d.id === selected.id ? { ...d, name, location_label: editLocation.trim() || null, location_id: editLocationId || null } : d))
     setSelected(null)
     load()
   }
@@ -143,7 +154,10 @@ export default function DevicesClient({
                           <span className="font-semibold text-[#1D1D1F] text-sm">{d.name}</span>
                         </div>
                       </td>
-                      <td className="px-5 py-4 text-black/40 text-sm">{d.location_label ?? '—'}</td>
+                      <td className="px-5 py-4 text-black/40 text-sm">
+                        {locationName(d.location_id) ?? d.location_label ?? '—'}
+                        {locationName(d.location_id) && d.location_label ? <span className="text-black/25"> · {d.location_label}</span> : null}
+                      </td>
                       <td className="px-5 py-4">
                         <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${statusBadge[d.status] ?? 'bg-black/5 text-black/40 border-black/5'}`}>
                           {d.status.charAt(0).toUpperCase() + d.status.slice(1)}
@@ -173,7 +187,7 @@ export default function DevicesClient({
                       </div>
                       <div>
                         <p className="font-semibold text-[#1D1D1F] text-sm">{d.name}</p>
-                        <p className="text-black/35 text-xs">{d.location_label ?? 'No location'}</p>
+                        <p className="text-black/35 text-xs">{locationName(d.location_id) ?? d.location_label ?? 'No location'}</p>
                       </div>
                     </div>
                     <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${statusBadge[d.status] ?? 'bg-black/5 text-black/40 border-black/5'}`}>
@@ -196,8 +210,18 @@ export default function DevicesClient({
                 className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-white text-[#1D1D1F] text-sm focus:outline-none focus:border-black/30 transition-colors"
                 placeholder="Front counter tag" />
             </div>
+            {locations.length > 0 && (
+              <div>
+                <label className="block text-xs font-semibold text-black/45 tracking-wide uppercase mb-1.5">Location</label>
+                <select value={editLocationId} onChange={e => setEditLocationId(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-white text-[#1D1D1F] text-sm focus:outline-none focus:border-black/30 transition-colors">
+                  <option value="">No specific location</option>
+                  {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+                </select>
+              </div>
+            )}
             <div>
-              <label className="block text-xs font-semibold text-black/45 tracking-wide uppercase mb-1.5">Location <span className="text-black/25 normal-case font-normal">(optional)</span></label>
+              <label className="block text-xs font-semibold text-black/45 tracking-wide uppercase mb-1.5">Spot label <span className="text-black/25 normal-case font-normal">(optional)</span></label>
               <input value={editLocation} onChange={e => setEditLocation(e.target.value)}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-black/10 bg-white text-[#1D1D1F] text-sm focus:outline-none focus:border-black/30 transition-colors"
                 placeholder="By the register" />
