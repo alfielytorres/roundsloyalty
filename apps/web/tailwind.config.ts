@@ -10,10 +10,12 @@ const config: Config = {
     extend: {
       colors: {
         // Rounds signature accent (from the logo / PWA theme)
+        // Primary chrome is monochrome black; colour is reserved for meaning
+        // (red = error, green = success).
         rounds: {
-          DEFAULT: '#9E1B32',
-          hover: '#7E1428',
-          soft: 'rgba(158,27,50,0.09)',
+          DEFAULT: '#1D1D1F',
+          hover: '#000000',
+          soft: 'rgba(0,0,0,0.06)',
         },
         ink: '#1D1D1F',
         surface: '#F5F5F7',

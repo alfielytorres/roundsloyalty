@@ -51,10 +51,10 @@ input[type="datetime-local"] {
   --color-text-secondary: rgba(0,0,0,0.45);
   --color-text-muted: rgba(0,0,0,0.28);
 
-  /* Rounds signature accent */
-  --accent: #9E1B32;
-  --accent-hover: #7E1428;
-  --accent-soft: rgba(158,27,50,0.09);
+  /* Primary chrome is monochrome black; colour is reserved for meaning. */
+  --accent: #1D1D1F;
+  --accent-hover: #000000;
+  --accent-soft: rgba(0,0,0,0.06);
   --shadow-glass: 0 6px 24px rgba(0,0,0,0.06);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }

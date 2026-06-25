@@ -35,7 +35,7 @@ function campaignStatus(c: Campaign): 'live' | 'scheduled' | 'ended' | 'cancelle
 
 const statusBadge: Record<string, string> = {
   live: 'bg-black/10 text-[#1D1D1F] border border-black/15',
-  active: 'bg-emerald-500/10 text-emerald-700 border border-emerald-500/20',
+  active: 'bg-black/10 text-[#1D1D1F] border border-black/15',
   scheduled: 'bg-black/5 text-black/60 border border-black/10',
   ended: 'bg-black/5 text-black/30 border border-black/5',
   cancelled: 'bg-black/5 text-black/40 border border-black/10',

@@ -13,8 +13,8 @@ extension Color {
     static let glassBorder    = Color.white.opacity(0.90)
     static let primaryText    = Color(hex: "#1D1D1F")
     static let secondaryText  = Color.black.opacity(0.40)
-    // App-chrome accent for primary actions, the scan button and selected tabs.
-    static let accentDefault  = roundsAccent
+    // Primary chrome is monochrome black; colour is reserved for meaning.
+    static let accentDefault  = Color(hex: "#1D1D1F")
 
     // Legacy compatibility
     static let brandGreen       = Color.black
