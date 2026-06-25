@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from 'next'
+import { Suspense } from 'react'
 import './globals.css'
 import ConditionalNav from '@/components/ConditionalNav'
 import LayoutShell from '@/components/LayoutShell'
+import { ToastProvider } from '@/components/Toast'
+import UrlMessageToaster from '@/components/UrlMessageToaster'
 
 export const metadata: Metadata = {
   title: 'Rounds — Vendor Portal',
@@ -17,8 +20,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="min-h-screen">
       <body className="min-h-screen bg-black/5 text-[#1D1D1F] antialiased">
-        <ConditionalNav />
-        <LayoutShell>{children}</LayoutShell>
+        <ToastProvider>
+          <ConditionalNav />
+          <LayoutShell>{children}</LayoutShell>
+          <Suspense fallback={null}>
+            <UrlMessageToaster />
+          </Suspense>
+        </ToastProvider>
       </body>
     </html>
   )

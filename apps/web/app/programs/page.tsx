@@ -90,9 +90,8 @@ function Row({ label, value }: { label: string; value: string }) {
   )
 }
 
-export default async function ProgramsPage({ searchParams }: { searchParams: Promise<{ error?: string; success?: string }> }) {
+export default async function ProgramsPage() {
   const { vendor, role } = await getPortalData()
-  const query = await searchParams
 
   return (
     <main className="px-6 pt-10 pb-32">
@@ -102,9 +101,6 @@ export default async function ProgramsPage({ searchParams }: { searchParams: Pro
           <h1 className="text-2xl font-bold text-[#1D1D1F]">Program</h1>
           <p className="text-black/40 mt-1">Design your loyalty card and reward — see it update live.</p>
         </div>
-
-        {query.error && <div className="mb-5 p-4 bg-black/5 border border-black/10 rounded-2xl text-black/60 text-sm">{query.error}</div>}
-        {query.success && <div className="mb-5 p-4 bg-black/5 border border-black/15 rounded-2xl text-black/70 text-sm font-semibold">{query.success}</div>}
 
         <Suspense fallback={null}>
           <ProgramView vendorId={vendor.id} vendorData={vendor} role={role} />

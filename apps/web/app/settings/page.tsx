@@ -2,9 +2,8 @@ import { getPortalData } from '@/lib/portal-data'
 import { LogOut } from 'lucide-react'
 import AddressAutocomplete from './AddressAutocomplete'
 
-export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ error?: string; success?: string }> }) {
+export default async function SettingsPage() {
   const { user, vendor } = await getPortalData()
-  const query = await searchParams
 
   return (
     <main className="px-5 pt-8 pb-32">
@@ -13,9 +12,6 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           <p className="text-xs font-semibold tracking-widest text-black/25 uppercase mb-1">{vendor.business_name}</p>
           <h1 className="text-2xl font-bold text-[#1D1D1F]">Settings</h1>
         </div>
-
-        {query.error && <div className="mb-4 p-3 bg-black/5 border border-black/10 rounded-2xl text-black/60 text-sm">{query.error}</div>}
-        {query.success && <div className="mb-4 p-3 bg-black/5 border border-black/10 rounded-2xl text-black/70 text-sm font-semibold">{query.success}</div>}
 
         <div className="glass mb-3">
           <h2 className="text-sm font-semibold text-[#1D1D1F] mb-4">Business details</h2>
