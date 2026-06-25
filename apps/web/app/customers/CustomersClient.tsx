@@ -12,7 +12,7 @@ interface Member {
   current_rounds: number
   lifetime_rounds: number
   activated_at: string | null
-  profiles: { display_name: string | null } | null
+  profiles: { display_name: string | null; birthday: string | null } | null
 }
 
 const statusBadge: Record<string, string> = {
@@ -24,10 +24,29 @@ const statusBadge: Record<string, string> = {
 const SEGMENTS = ['all', 'active', 'pending', 'inactive'] as const
 type Segment = typeof SEGMENTS[number]
 
-const memberName = (m: Member) => {
-  const profile = Array.isArray(m.profiles) ? m.profiles[0] : m.profiles
-  return (profile as { display_name?: string | null } | null)?.display_name ?? 'Anonymous'
+const profileOf = (m: Member) => (Array.isArray(m.profiles) ? m.profiles[0] : m.profiles) as { display_name?: string | null; birthday?: string | null } | null
+const memberName = (m: Member) => profileOf(m)?.display_name ?? 'Anonymous'
+const memberBirthday = (m: Member) => profileOf(m)?.birthday ?? null
+
+function ageFrom(birthday: string | null): number | null {
+  if (!birthday) return null
+  const d = new Date(birthday)
+  if (isNaN(d.getTime())) return null
+  const now = new Date()
+  let age = now.getFullYear() - d.getFullYear()
+  const md = now.getMonth() - d.getMonth()
+  if (md < 0 || (md === 0 && now.getDate() < d.getDate())) age--
+  return age >= 0 && age <= 120 ? age : null
 }
+
+const AGE_BUCKETS: { label: string; test: (a: number) => boolean }[] = [
+  { label: 'Under 18', test: a => a < 18 },
+  { label: '18–24', test: a => a >= 18 && a <= 24 },
+  { label: '25–34', test: a => a >= 25 && a <= 34 },
+  { label: '35–44', test: a => a >= 35 && a <= 44 },
+  { label: '45–54', test: a => a >= 45 && a <= 54 },
+  { label: '55+', test: a => a >= 55 },
+]
 
 export default function CustomersClient({ vendorId, vendorName }: { vendorId: string; vendorName: string }) {
   const [members, setMembers] = useState<Member[]>([])
@@ -42,7 +61,7 @@ export default function CustomersClient({ vendorId, vendorName }: { vendorId: st
     )
     supabase
       .from('customer_vendor_memberships')
-      .select('id, customer_id, status, current_rounds, lifetime_rounds, activated_at, profiles(display_name)')
+      .select('id, customer_id, status, current_rounds, lifetime_rounds, activated_at, profiles(display_name, birthday)')
       .eq('vendor_id', vendorId)
       .order('lifetime_rounds', { ascending: false })
       .limit(500)
@@ -51,16 +70,25 @@ export default function CustomersClient({ vendorId, vendorName }: { vendorId: st
 
   const filtered = segment === 'all' ? members : members.filter(m => m.status === segment)
 
+  // Age distribution across all members with a known birthday.
+  const ages = members.map(m => ageFrom(memberBirthday(m))).filter((a): a is number => a !== null)
+  const knownAges = ages.length
+  const avgAge = knownAges > 0 ? Math.round(ages.reduce((s, a) => s + a, 0) / knownAges) : null
+  const buckets = AGE_BUCKETS.map(b => ({ label: b.label, count: ages.filter(b.test).length }))
+  const maxBucket = Math.max(1, ...buckets.map(b => b.count))
+
   function buildExport(format: 'csv' | 'json'): { content: string; mime: string; ext: string } {
     const rows = members.map(m => ({
       name: memberName(m),
       status: m.status,
       current_rounds: m.current_rounds ?? 0,
       lifetime_rounds: m.lifetime_rounds ?? 0,
+      birthday: memberBirthday(m) ?? '',
+      age: ageFrom(memberBirthday(m)) ?? '',
       joined_at: m.activated_at ?? '',
     }))
     if (format === 'json') return { content: JSON.stringify(rows, null, 2), mime: 'application/json', ext: 'json' }
-    const headers = ['name', 'status', 'current_rounds', 'lifetime_rounds', 'joined_at']
+    const headers = ['name', 'status', 'current_rounds', 'lifetime_rounds', 'birthday', 'age', 'joined_at']
     const csv = [
       headers.join(','),
       ...rows.map(r => headers.map(h => JSON.stringify((r as Record<string, unknown>)[h] ?? '')).join(',')),
@@ -110,6 +138,40 @@ export default function CustomersClient({ vendorId, vendorName }: { vendorId: st
           </div>
         </div>
 
+        {/* Age range — who's visiting */}
+        {!loading && (
+          <div className="glass mb-5">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-bold tracking-widest uppercase text-black/35">Age range</p>
+              {knownAges > 0 ? (
+                <p className="text-xs text-black/40"><b className="text-[#1D1D1F]">{avgAge}</b> avg · {knownAges} of {members.length} known</p>
+              ) : (
+                <p className="text-xs text-black/35">No birthdays yet</p>
+              )}
+            </div>
+            {knownAges > 0 ? (
+              <div className="flex flex-col gap-2">
+                {buckets.map(b => {
+                  const pct = Math.round((b.count / maxBucket) * 100)
+                  return (
+                    <div key={b.label}>
+                      <div className="flex items-center justify-between text-xs mb-0.5">
+                        <span className="font-semibold text-[#1D1D1F]">{b.label}</span>
+                        <span className="tabular-nums text-black/45">{b.count}</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-black/5 overflow-hidden">
+                        <div className="h-full rounded-full bg-[#1D1D1F] transition-[width] duration-500" style={{ width: `${Math.max(pct, b.count > 0 ? 5 : 0)}%` }} />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-black/40">Customers can add their birthday in the Rounds app — once they do, their age range shows up here.</p>
+            )}
+          </div>
+        )}
+
         {/* Filter tabs — instant, no navigation */}
         <div className="flex gap-2 mb-5 flex-wrap">
           {SEGMENTS.map(seg => (
@@ -143,7 +205,7 @@ export default function CustomersClient({ vendorId, vendorName }: { vendorId: st
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-black/5 bg-black/[0.02]">
-                    {['Customer', 'Status', 'Current rounds', 'Lifetime rounds', 'Joined', ''].map(h => (
+                    {['Customer', 'Age', 'Status', 'Current rounds', 'Lifetime rounds', 'Joined', ''].map(h => (
                       <th key={h} className="text-left px-5 py-3.5 text-xs font-semibold text-black/35 tracking-widest uppercase">{h}</th>
                     ))}
                   </tr>
@@ -151,6 +213,7 @@ export default function CustomersClient({ vendorId, vendorName }: { vendorId: st
                 <tbody className="divide-y divide-black/5">
                   {filtered.map(m => {
                     const name = memberName(m)
+                    const age = ageFrom(memberBirthday(m))
                     return (
                       <tr key={m.id} onClick={() => setSelected(m)}
                         className="hover:bg-black/[0.03] transition-colors group cursor-pointer">
@@ -162,6 +225,7 @@ export default function CustomersClient({ vendorId, vendorName }: { vendorId: st
                             <span className="font-semibold text-[#1D1D1F] text-sm">{name}</span>
                           </div>
                         </td>
+                        <td className="px-5 py-4 text-black/45 text-sm tabular-nums">{age ?? '—'}</td>
                         <td className="px-5 py-4">
                           <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${statusBadge[m.status] ?? 'bg-black/5 text-black/35'}`}>
                             {m.status.charAt(0).toUpperCase() + m.status.slice(1)}
@@ -191,7 +255,10 @@ export default function CustomersClient({ vendorId, vendorName }: { vendorId: st
                       </div>
                       <div className="min-w-0">
                         <p className="font-semibold text-[#1D1D1F] text-sm truncate">{name}</p>
-                        <p className="text-black/35 text-xs">{m.lifetime_rounds ?? 0} lifetime rounds</p>
+                        <p className="text-black/35 text-xs">
+                          {(() => { const a = ageFrom(memberBirthday(m)); return a !== null ? `Age ${a} · ` : '' })()}
+                          {m.lifetime_rounds ?? 0} lifetime rounds
+                        </p>
                       </div>
                     </div>
                     <div className="text-right shrink-0">
@@ -232,11 +299,24 @@ export default function CustomersClient({ vendorId, vendorName }: { vendorId: st
               </div>
             </div>
 
-            <div className="rounded-2xl bg-black/[0.03] px-4 py-3">
-              <p className="text-[10px] font-bold tracking-widest uppercase text-black/30 mb-0.5">Joined</p>
-              <p className="font-semibold text-[#1D1D1F] text-sm">
-                {selected.activated_at ? new Date(selected.activated_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'Not yet activated'}
-              </p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl bg-black/[0.03] px-4 py-3">
+                <p className="text-[10px] font-bold tracking-widest uppercase text-black/30 mb-0.5">Age</p>
+                <p className="font-semibold text-[#1D1D1F] text-sm">
+                  {(() => {
+                    const a = ageFrom(memberBirthday(selected))
+                    const b = memberBirthday(selected)
+                    if (a === null) return 'Not shared'
+                    return `${a}${b ? ` · ${new Date(b).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}` : ''}`
+                  })()}
+                </p>
+              </div>
+              <div className="rounded-2xl bg-black/[0.03] px-4 py-3">
+                <p className="text-[10px] font-bold tracking-widest uppercase text-black/30 mb-0.5">Joined</p>
+                <p className="font-semibold text-[#1D1D1F] text-sm">
+                  {selected.activated_at ? new Date(selected.activated_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'Not yet activated'}
+                </p>
+              </div>
             </div>
           </div>
         )}
