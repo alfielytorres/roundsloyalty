@@ -5,8 +5,15 @@ struct CustomerProfileView: View {
     @State private var isSigningOut = false
     @State private var showQR = false
     @State private var showEditName = false
+    @State private var showEditBirthday = false
 
     var profile: Profile? { sessionManager.profile }
+
+    private var birthdayDisplay: String {
+        guard let d = BirthdayFormat.date(from: profile?.birthday) else { return "Add" }
+        let f = DateFormatter(); f.dateFormat = "MMM d, yyyy"
+        return f.string(from: d)
+    }
 
     private var initials: String {
         let name = profile?.displayName ?? "C"
@@ -74,6 +81,9 @@ struct CustomerProfileView: View {
                             Button { showEditName = true } label: {
                                 ProfileRow(icon: "person.circle", label: "Edit Name")
                             }
+                            Button { showEditBirthday = true } label: {
+                                ProfileRow(icon: "gift", label: "Birthday", value: birthdayDisplay)
+                            }
                         }
                         .padding(.horizontal, 20)
 
@@ -115,6 +125,11 @@ struct CustomerProfileView: View {
             }
             .sheet(isPresented: $showEditName) {
                 EditNameSheet(currentName: profile?.displayName ?? "") {
+                    await sessionManager.reloadProfile()
+                }
+            }
+            .sheet(isPresented: $showEditBirthday) {
+                EditBirthdaySheet(current: profile?.birthday) {
                     await sessionManager.reloadProfile()
                 }
             }
@@ -215,9 +230,93 @@ struct EditNameSheet: View {
     }
 }
 
+struct EditBirthdaySheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var birthday: Date
+    @State private var saving = false
+    @State private var error: String?
+    var onSaved: () async -> Void
+
+    init(current: String?, onSaved: @escaping () async -> Void) {
+        _birthday = State(initialValue: BirthdayFormat.date(from: current) ?? BirthdayFormat.defaultDate)
+        self.onSaved = onSaved
+    }
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.appBackground.ignoresSafeArea()
+                VStack(spacing: 24) {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("BIRTHDAY")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(.secondaryText)
+                            .tracking(1.5)
+                        DatePicker("", selection: $birthday, in: BirthdayFormat.range, displayedComponents: .date)
+                            .labelsHidden()
+                            .datePickerStyle(.graphical)
+                            .padding(8)
+                            .background(Color.glassCard)
+                            .cornerRadius(12)
+                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.glassBorder))
+                        Text("Stores use this for birthday treats — never shown publicly.")
+                            .font(.caption)
+                            .foregroundColor(.secondaryText)
+                    }
+                    if let error {
+                        Text(error).font(.caption).foregroundColor(.red)
+                    }
+                    Button {
+                        Task { await save() }
+                    } label: {
+                        Group {
+                            if saving { ProgressView().tint(.white) }
+                            else { Text("Save").font(.headline) }
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.accentDefault)
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                    }
+                    .disabled(saving)
+                    Spacer()
+                }
+                .padding(24)
+            }
+            .navigationTitle("Birthday")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                        .foregroundColor(.secondaryText)
+                }
+            }
+        }
+    }
+
+    private func save() async {
+        saving = true
+        error = nil
+        do {
+            try await supabase.database
+                .from("profiles")
+                .update(["birthday": BirthdayFormat.string(from: birthday)])
+                .eq("id", value: (try? await supabase.auth.session.user.id.uuidString) ?? "")
+                .execute()
+            await onSaved()
+            dismiss()
+        } catch let e {
+            error = e.localizedDescription
+        }
+        saving = false
+    }
+}
+
 struct ProfileRow: View {
     let icon: String
     let label: String
+    var value: String? = nil
 
     var body: some View {
         HStack(spacing: 14) {
@@ -229,6 +328,11 @@ struct ProfileRow: View {
                 .font(.subheadline)
                 .foregroundColor(.primaryText)
             Spacer()
+            if let value {
+                Text(value)
+                    .font(.subheadline)
+                    .foregroundColor(.secondaryText)
+            }
             Image(systemName: "chevron.right")
                 .font(.caption)
                 .foregroundColor(.secondaryText)

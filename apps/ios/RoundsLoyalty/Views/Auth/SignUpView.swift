@@ -6,6 +6,7 @@ struct SignUpView: View {
     @State private var displayName = ""
     @State private var email = ""
     @State private var password = ""
+    @State private var birthday = BirthdayFormat.defaultDate
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var successMessage: String?
@@ -38,6 +39,23 @@ struct SignUpView: View {
                                 .background(Color.white.opacity(0.7))
                                 .cornerRadius(12)
                                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.black.opacity(0.15), lineWidth: 1))
+                        }
+
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Birthday")
+                                .font(.caption.weight(.semibold))
+                                .foregroundColor(.black)
+                            DatePicker("", selection: $birthday, in: BirthdayFormat.range, displayedComponents: .date)
+                                .labelsHidden()
+                                .datePickerStyle(.compact)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding()
+                                .background(Color.white.opacity(0.7))
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Color.black.opacity(0.15), lineWidth: 1))
+                            Text("Used by stores for birthday treats — never shown publicly.")
+                                .font(.caption2)
+                                .foregroundColor(.brandTaupe)
                         }
 
                         VStack(alignment: .leading, spacing: 6) {
@@ -121,10 +139,10 @@ struct SignUpView: View {
         do {
             let response = try await supabase.auth.signUp(email: email, password: password)
             let user = response.user
-            struct ProfileUpdate: Encodable { let display_name: String }
+            struct ProfileUpdate: Encodable { let display_name: String; let birthday: String }
             try await supabase.database
                 .from("profiles")
-                .update(ProfileUpdate(display_name: displayName))
+                .update(ProfileUpdate(display_name: displayName, birthday: BirthdayFormat.string(from: birthday)))
                 .eq("id", value: user.id.uuidString)
                 .execute()
             successMessage = "Account created! Please check your email to confirm your account."

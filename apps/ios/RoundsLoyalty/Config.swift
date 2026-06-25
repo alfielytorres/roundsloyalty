@@ -16,4 +16,12 @@ enum Config {
         }
         return value
     }
+
+    /// Public web app base URL (used as the password-reset redirect target).
+    static var webURL: String {
+        if let value = Bundle.main.object(forInfoDictionaryKey: "WEB_URL") as? String, !value.isEmpty {
+            return value
+        }
+        return "https://roundsloyalty.vercel.app"
+    }
 }
