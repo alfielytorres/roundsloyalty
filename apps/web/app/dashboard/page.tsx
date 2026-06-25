@@ -120,7 +120,7 @@ async function RecentActivity({ vendorId }: { vendorId: string }) {
   if (!txns?.length) {
     return (
       <div className="glass text-center py-10">
-        <p className="text-black/30 font-medium">No activity yet today.</p>
+        <p className="text-black/30 font-medium">No activity yet.</p>
       </div>
     )
   }
