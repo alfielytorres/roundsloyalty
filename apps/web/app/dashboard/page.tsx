@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { getPortalData } from '@/lib/portal-data'
-import { Users, Award, PackageCheck, Megaphone, Clock, Zap, Gift, MapPin, RotateCcw, type LucideIcon } from 'lucide-react'
+import { Users, Award, PackageCheck, Megaphone, Clock, Zap, Gift, MapPin, RotateCcw, Sparkles, ChevronRight, type LucideIcon } from 'lucide-react'
 
 function StatCard({ value, label, sublabel, icon: Icon }: { value: string | number; label: string; sublabel: string; icon: LucideIcon }) {
   return (
@@ -102,6 +102,36 @@ async function DashboardStats({ vendorId }: { vendorId: string }) {
         </div>
       )}
     </>
+  )
+}
+
+async function WinbackNudge({ vendorId }: { vendorId: string }) {
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { getAll: () => cookieStore.getAll() } },
+  )
+
+  const { data } = await supabase.rpc('at_risk_customers', { p_vendor_id: vendorId, p_threshold_days: 14 })
+  const count = (data ?? []).length
+  if (count === 0) return null
+
+  return (
+    <Link href="/winback" className="block mb-6">
+      <div className="glass flex items-center gap-4 hover:bg-white/90 hover:-translate-y-0.5 transition-all">
+        <div className="w-11 h-11 rounded-2xl bg-black/5 flex items-center justify-center shrink-0">
+          <Sparkles size={19} className="text-black/50" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="font-bold text-[#1D1D1F] text-sm leading-tight">
+            {count} customer{count === 1 ? '' : 's'} slipping away
+          </p>
+          <p className="text-black/40 text-xs mt-0.5">Inactive 14+ days — send a win-back to bring them back</p>
+        </div>
+        <ChevronRight size={18} className="text-black/25 shrink-0" />
+      </div>
+    </Link>
   )
 }
 
@@ -223,6 +253,10 @@ export default async function DashboardPage() {
           </div>
         }>
           <DashboardStats vendorId={vendor.id} />
+        </Suspense>
+
+        <Suspense fallback={null}>
+          <WinbackNudge vendorId={vendor.id} />
         </Suspense>
 
         <Suspense fallback={null}>

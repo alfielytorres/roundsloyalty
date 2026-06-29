@@ -13,6 +13,7 @@ import {
   UserCog,
   QrCode,
   Settings2,
+  Sparkles,
 } from 'lucide-react'
 
 const groups = [
@@ -29,6 +30,7 @@ const groups = [
     items: [
       { href: '/programs', icon: Award, label: 'Program' },
       { href: '/campaigns', icon: Megaphone, label: 'Campaigns' },
+      { href: '/winback', icon: Sparkles, label: 'Win-back' },
       { href: '/staff', icon: UserCog, label: 'Staff' },
     ],
   },

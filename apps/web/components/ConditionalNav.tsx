@@ -11,6 +11,7 @@ const PORTAL_ROUTES = [
   '/settings',
   '/programs',
   '/campaigns',
+  '/winback',
   '/devices',
   '/collections',
   '/staff',
