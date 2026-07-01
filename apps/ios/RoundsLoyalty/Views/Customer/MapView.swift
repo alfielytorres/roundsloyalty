@@ -60,6 +60,7 @@ struct DiscoverMapView: View {
     @State private var vendors: [VendorPin] = []
     @State private var mappableVendors: [VendorPin] = []
     @State private var selectedVendor: VendorPin?
+    @State private var previewStore: VendorPin?
     @State private var presentedStore: VendorPin?
     @State private var isLoading = true
     @State private var region = MKCoordinateRegion(
@@ -78,7 +79,8 @@ struct DiscoverMapView: View {
                         annotationItems: mappableVendors) { v in
                         MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: v.lat, longitude: v.lng)) {
                             VendorMapPin(pin: v, isSelected: selectedVendor?.id == v.id)
-                                .onTapGesture { presentedStore = v }
+                                .onTapGesture(count: 2) { openFull(v) }
+                                .onTapGesture { selectStore(v) }
                         }
                     }
                     .ignoresSafeArea()
@@ -99,12 +101,22 @@ struct DiscoverMapView: View {
                                     .shadow(color: .black.opacity(0.4), radius: 6, x: 0, y: 2)
                             }
                             .padding(.trailing, 16)
-                            .padding(.bottom, sheetHeight + 12)
+                            .padding(.bottom, bottomInset + 12)
                         }
                     }
 
-                    bottomSheet
-                        .frame(height: sheetHeight)
+                    // Tapping a store peeks a compact preview + centres the map;
+                    // tapping the preview (or double-tapping a pin) opens full details.
+                    if let preview = previewStore {
+                        StorePreviewCard(pin: preview,
+                                         onExpand: { presentedStore = preview },
+                                         onClose: dismissPreview)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    } else {
+                        bottomSheet
+                            .frame(height: sheetHeight)
+                            .transition(.move(edge: .bottom))
+                    }
                 }
                 .ignoresSafeArea(edges: .bottom)
             }
@@ -164,7 +176,7 @@ struct DiscoverMapView: View {
                     LazyVStack(spacing: 0) {
                         ForEach(vendors) { vendor in
                             VendorListRow(vendor: vendor, isSelected: selectedVendor?.id == vendor.id)
-                                .onTapGesture { presentedStore = vendor }
+                                .onTapGesture { selectStore(vendor) }
                             if vendor.id != vendors.last?.id {
                                 Divider().padding(.leading, 60).overlay(Color.black.opacity(0.06))
                             }
@@ -188,6 +200,36 @@ struct DiscoverMapView: View {
                     sheetHeight = min(max(newHeight, 120), 520)
                 }
         )
+    }
+
+    // Space between the recenter button and whatever occupies the bottom (peek
+    // card while previewing, otherwise the resizable store list).
+    private var bottomInset: CGFloat { previewStore != nil ? 210 : sheetHeight }
+
+    // Single tap / list tap: centre the map on the store and peek a preview card.
+    // A slight downward centre bias lifts the pin above the peeking card.
+    private func selectStore(_ v: VendorPin) {
+        withAnimation(.spring(response: 0.35)) {
+            selectedVendor = v
+            previewStore = v
+            region.center = CLLocationCoordinate2D(
+                latitude: v.lat - region.span.latitudeDelta * 0.18,
+                longitude: v.lng)
+        }
+    }
+
+    // Double tap / preview tap: centre, then open the full details sheet. The
+    // preview stays underneath so dismissing details returns to the peek card.
+    private func openFull(_ v: VendorPin) {
+        selectStore(v)
+        presentedStore = v
+    }
+
+    private func dismissPreview() {
+        withAnimation(.spring(response: 0.3)) {
+            previewStore = nil
+            selectedVendor = nil
+        }
     }
 
     private func recenterMap() {
@@ -446,7 +488,7 @@ struct StoreDetailView: View {
                                 .font(.subheadline)
                                 .foregroundColor(.primaryText)
                         }
-                        Button(action: openDirections) {
+                        Button(action: { openStoreDirections(pin) }) {
                             HStack {
                                 Image(systemName: "location.fill")
                                 Text("Get Directions").font(.headline)
@@ -479,19 +521,6 @@ struct StoreDetailView: View {
         }
     }
 
-    private func openDirections() {
-        let dest: String
-        if let address = pin.address, !address.isEmpty,
-           let encoded = address.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
-            dest = encoded
-        } else {
-            dest = "\(pin.lat),\(pin.lng)"
-        }
-        if let url = URL(string: "maps://?daddr=\(dest)") {
-            UIApplication.shared.open(url)
-        }
-    }
-
     private func loadProgram() async {
         let progs: [LoyaltyProgram] = (try? await supabase.database
             .from("loyalty_programs")
@@ -502,6 +531,94 @@ struct StoreDetailView: View {
             .execute()
             .value) ?? []
         program = progs.first
+    }
+}
+
+// Open Apple Maps directions to a store (by address when known, else coords).
+func openStoreDirections(_ pin: VendorPin) {
+    let dest: String
+    if let address = pin.address, !address.isEmpty,
+       let encoded = address.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+        dest = encoded
+    } else {
+        dest = "\(pin.lat),\(pin.lng)"
+    }
+    if let url = URL(string: "maps://?daddr=\(dest)") {
+        UIApplication.shared.open(url)
+    }
+}
+
+/// Compact "peek" card shown when a store is tapped — mirrors the Apple/Google
+/// Maps place preview. The info row taps through to full details; a quick
+/// Directions action and a close control sit below.
+struct StorePreviewCard: View {
+    let pin: VendorPin
+    var onExpand: () -> Void
+    var onClose: () -> Void
+
+    private var accent: Color { Color.vendorAccent(pin.brandColor) }
+    private var subtitle: String? {
+        if let c = pin.category, !c.isEmpty { return c }
+        if let a = pin.address, !a.isEmpty { return a }
+        return nil
+    }
+
+    var body: some View {
+        VStack(spacing: 14) {
+            RoundedRectangle(cornerRadius: 3)
+                .fill(Color.black.opacity(0.15))
+                .frame(width: 40, height: 5)
+                .padding(.top, 8)
+
+            HStack(spacing: 14) {
+                StoreAvatar(name: pin.name, logoUrl: pin.logoUrl, brandColor: pin.brandColor, size: 50)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(pin.name).font(.headline).foregroundColor(.primaryText).lineLimit(1)
+                    if let subtitle {
+                        Text(subtitle).font(.subheadline).foregroundColor(.secondaryText).lineLimit(1)
+                    }
+                }
+                Spacer()
+                Image(systemName: "chevron.up")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundColor(.secondaryText)
+            }
+            .contentShape(Rectangle())
+            .onTapGesture { onExpand() }
+
+            HStack(spacing: 10) {
+                Button(action: { openStoreDirections(pin) }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "location.fill")
+                        Text("Directions").font(.subheadline.weight(.semibold))
+                    }
+                    .frame(maxWidth: .infinity).padding(.vertical, 12)
+                    .background(accent).foregroundColor(Color.onColor(pin.brandColor)).cornerRadius(12)
+                }
+                Button(action: onExpand) {
+                    Text("Details").font(.subheadline.weight(.semibold))
+                        .frame(maxWidth: .infinity).padding(.vertical, 12)
+                        .background(Color.black.opacity(0.05)).foregroundColor(.primaryText).cornerRadius(12)
+                }
+                Button(action: onClose) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.secondaryText)
+                        .frame(width: 44, height: 44)
+                        .background(Color.black.opacity(0.05)).clipShape(Circle())
+                }
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 34)
+        .frame(maxWidth: .infinity)
+        .background(Color(hex: "#F5F5F7"))
+        .cornerRadius(20, corners: [.topLeft, .topRight])
+        .overlay(
+            RoundedCorner(radius: 20, corners: [.topLeft, .topRight])
+                .stroke(Color.black.opacity(0.06), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: -4)
     }
 }
 
