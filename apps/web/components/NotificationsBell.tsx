@@ -94,7 +94,7 @@ export default function NotificationsBell() {
   const count = items.length
 
   return (
-    <div className="fixed top-3 right-3 z-50">
+    <div className="fixed top-2 right-3 z-50">
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label="Notifications"
