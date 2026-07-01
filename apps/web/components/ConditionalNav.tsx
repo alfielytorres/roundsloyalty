@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 import MobileNav from './MobileNav'
 import Sidebar from './Sidebar'
+import NotificationsBell from './NotificationsBell'
 
 const PORTAL_ROUTES = [
   '/dashboard',
@@ -27,6 +28,7 @@ export default function ConditionalNav() {
     <>
       <Sidebar />
       <MobileNav />
+      <NotificationsBell />
     </>
   )
 }
