@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct ScanQRSheet: View {
+    var onCollectReward: () -> Void = {}
+
     @EnvironmentObject var sessionManager: SessionManager
     @State private var activeTab: SheetTab = .myQR
     @State private var awardResult: AwardResult?
@@ -45,12 +47,21 @@ struct ScanQRSheet: View {
 
             // Show result overlay inside the same sheet to avoid SwiftUI fullScreenCover-in-sheet bug
             if showNFC, let result = awardResult {
-                NFCReceiveView(result: result, vendor: awardVendor) {
-                    withAnimation { showNFC = false }
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                NFCReceiveView(
+                    result: result,
+                    vendor: awardVendor,
+                    onDismiss: {
+                        withAnimation { showNFC = false }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                            awardResult = nil
+                        }
+                    },
+                    onCollect: {
+                        withAnimation { showNFC = false }
                         awardResult = nil
+                        onCollectReward()
                     }
-                }
+                )
                 .transition(.opacity)
                 .zIndex(1)
             }

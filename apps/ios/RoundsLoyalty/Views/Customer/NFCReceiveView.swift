@@ -4,6 +4,7 @@ struct NFCReceiveView: View {
     let result: AwardResult
     let vendor: Vendor?
     var onDismiss: () -> Void
+    var onCollect: (() -> Void)? = nil
 
     @State private var visibleRounds: Int = 0
     @State private var showProgress = false
@@ -73,8 +74,9 @@ struct NFCReceiveView: View {
                 // Progress
                 if showProgress {
                     VStack(spacing: 6) {
-                        let required = result.vendor?.roundsRequired.map { String($0) } ?? "?"
-                        Text("\(result.balance.currentRounds) / \(required) ROUNDS")
+                        let req = result.vendor?.roundsRequired
+                        let cur = req.map { min(result.balance.currentRounds, $0) } ?? result.balance.currentRounds
+                        Text("\(cur) / \(req.map(String.init) ?? "?") ROUNDS")
                             .font(.system(size: 20, weight: .semibold, design: .rounded))
                             .foregroundColor(.primaryText)
                             .transition(.opacity.combined(with: .scale))
@@ -95,6 +97,18 @@ struct NFCReceiveView: View {
                                 .font(.subheadline)
                                 .foregroundColor(.secondaryText)
                                 .multilineTextAlignment(.center)
+                        }
+                        if let onCollect {
+                            Button(action: onCollect) {
+                                Text("Collect Reward")
+                                    .font(.headline)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 12)
+                                    .background(accent)
+                                    .foregroundColor(Color.onColor(vendor?.brandColor))
+                                    .cornerRadius(14)
+                            }
+                            .padding(.top, 4)
                         }
                     }
                     .padding(24)
@@ -126,9 +140,12 @@ struct NFCReceiveView: View {
                     showReward = true
                 }
             }
-            // Auto-dismiss after 4 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
-                onDismiss()
+            // Auto-dismiss after 4s — but when a reward unlocked, leave it up so
+            // the customer can choose to collect.
+            if !rewardUnlocked {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                    onDismiss()
+                }
             }
         }
     }

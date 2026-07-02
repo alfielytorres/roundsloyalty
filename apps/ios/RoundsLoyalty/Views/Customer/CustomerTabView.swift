@@ -26,7 +26,10 @@ struct CustomerTabView: View {
         }
         .ignoresSafeArea(edges: .bottom)
         .sheet(isPresented: $showScan, onDismiss: { homeRefreshID = UUID() }) {
-            ScanQRSheet()
+            ScanQRSheet(onCollectReward: {
+                showScan = false
+                tabSelection.tab = .rewards
+            })
         }
     }
 }

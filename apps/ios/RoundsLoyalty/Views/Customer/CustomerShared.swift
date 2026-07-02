@@ -174,7 +174,7 @@ struct LoyaltyCardView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 18))
                     RoundedRectangle(cornerRadius: 18).fill(Color.black.opacity(0.18))
                 }
-                StampGrid(icon: icon, filled: current, total: required,
+                StampGrid(icon: icon, filled: min(current, required), total: required,
                           emptyColor: emptyStampColor, maxDisplay: 20, slotSize: 34)
                     .padding(16)
             }
@@ -198,7 +198,7 @@ struct LoyaltyCardView: View {
                 }
             } else {
                 HStack {
-                    Text("\(current) / \(required)").font(.system(size: 14, weight: .bold)).foregroundColor(onCard)
+                    Text("\(min(current, required)) / \(required)").font(.system(size: 14, weight: .bold)).foregroundColor(onCard)
                     Spacer()
                     if let rewardName {
                         Text(remaining > 0 ? "\(remaining) more for \(rewardName)" : "Ready: \(rewardName)")
