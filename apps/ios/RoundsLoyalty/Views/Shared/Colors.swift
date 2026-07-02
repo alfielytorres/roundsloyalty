@@ -68,6 +68,37 @@ extension Color {
     static func onColor(_ hex: String?) -> Color {
         luminanceHex(hex) > 0.179 ? Color(hex: "#1D1D1F") : .white
     }
+
+    /// A brand colour kept legible as text/icons on the light app background.
+    /// Light brands are darkened — hue preserved by scaling channels together —
+    /// until they clear a contrast target; already-dark brands pass through.
+    /// Missing/invalid → primary ink.
+    static func readableAccent(_ hex: String?) -> Color {
+        guard let hex, !hex.isEmpty else { return .primaryText }
+        let s = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
+        guard s.count == 6 else { return .primaryText }
+        var int: UInt64 = 0
+        Scanner(string: s).scanHexInt64(&int)
+        var r = Double((int >> 16) & 0xFF) / 255.0
+        var g = Double((int >> 8) & 0xFF) / 255.0
+        var b = Double(int & 0xFF) / 255.0
+        func lin(_ c: Double) -> Double { c <= 0.03928 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4) }
+        func lum(_ r: Double, _ g: Double, _ b: Double) -> Double {
+            0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
+        }
+        // ~0.22 gives roughly a 3.5:1 contrast against the #F5F5F7 surface.
+        let target = 0.22
+        if lum(r, g, b) > target {
+            var lo = 0.0, hi = 1.0
+            for _ in 0..<14 {
+                let k = (lo + hi) / 2
+                if lum(r * k, g * k, b * k) > target { hi = k } else { lo = k }
+            }
+            let k = (lo + hi) / 2
+            r *= k; g *= k; b *= k
+        }
+        return Color(.sRGB, red: r, green: g, blue: b, opacity: 1)
+    }
 }
 
 // MARK: - Monochrome card gradient (shades of white/grey)

@@ -79,7 +79,6 @@ struct DiscoverMapView: View {
                         annotationItems: mappableVendors) { v in
                         MapAnnotation(coordinate: CLLocationCoordinate2D(latitude: v.lat, longitude: v.lng)) {
                             VendorMapPin(pin: v, isSelected: selectedVendor?.id == v.id)
-                                .onTapGesture(count: 2) { openFull(v) }
                                 .onTapGesture { selectStore(v) }
                         }
                     }
@@ -216,13 +215,6 @@ struct DiscoverMapView: View {
                 latitude: v.lat - region.span.latitudeDelta * 0.18,
                 longitude: v.lng)
         }
-    }
-
-    // Double tap / preview tap: centre, then open the full details sheet. The
-    // preview stays underneath so dismissing details returns to the peek card.
-    private func openFull(_ v: VendorPin) {
-        selectStore(v)
-        presentedStore = v
     }
 
     private func dismissPreview() {

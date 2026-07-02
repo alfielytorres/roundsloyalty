@@ -24,7 +24,7 @@ struct RewardsView: View {
                 Color.appBackground.ignoresSafeArea()
 
                 if isLoading {
-                    ProgressView().tint(.white)
+                    ProgressView().tint(.primaryText)
                 } else if rewards.isEmpty {
                     VStack(spacing: 16) {
                         Image(systemName: "gift")
@@ -112,6 +112,11 @@ struct RewardCard: View {
         Color.vendorAccent(reward.vendor?.brandColor)
     }
 
+    // Brand hue darkened as needed so it stays readable as text/icons on the card.
+    private var ink: Color {
+        Color.readableAccent(reward.vendor?.brandColor)
+    }
+
     private var statusLabel: String {
         switch reward.status {
         case "available": return "Tap to collect"
@@ -124,7 +129,7 @@ struct RewardCard: View {
 
     private var statusColor: Color {
         switch reward.status {
-        case "available": return accent
+        case "available": return ink
         case "ready": return .green
         case "collected": return .secondaryText
         default: return .secondaryText
@@ -139,7 +144,7 @@ struct RewardCard: View {
                     .frame(width: 48, height: 48)
                 Image(systemName: reward.status == "collected" ? "checkmark.seal.fill" : "gift.fill")
                     .font(.system(size: 20))
-                    .foregroundColor(accent)
+                    .foregroundColor(ink)
             }
 
             VStack(alignment: .leading, spacing: 4) {
@@ -152,7 +157,7 @@ struct RewardCard: View {
                 if let code = reward.collection?.collectionCode {
                     Text("Code: \(code)")
                         .font(.system(size: 12, design: .monospaced))
-                        .foregroundColor(accent)
+                        .foregroundColor(ink)
                 }
             }
 
@@ -176,6 +181,10 @@ struct RewardDetailSheet: View {
         Color.vendorAccent(reward.vendor?.brandColor)
     }
 
+    private var ink: Color {
+        Color.readableAccent(reward.vendor?.brandColor)
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -188,7 +197,7 @@ struct RewardDetailSheet: View {
                             .frame(width: 100, height: 100)
                         Image(systemName: "gift.fill")
                             .font(.system(size: 44))
-                            .foregroundColor(accent)
+                            .foregroundColor(ink)
                     }
                     .padding(.top, 20)
 
@@ -214,7 +223,7 @@ struct RewardDetailSheet: View {
                                 .foregroundColor(.secondaryText)
                             Text(collection.collectionCode)
                                 .font(.system(size: 32, weight: .bold, design: .monospaced))
-                                .foregroundColor(accent)
+                                .foregroundColor(ink)
                             Text("Show this code to the store")
                                 .font(.caption)
                                 .foregroundColor(.secondaryText)
@@ -232,7 +241,7 @@ struct RewardDetailSheet: View {
                                 .frame(maxWidth: .infinity)
                                 .padding()
                                 .background(accent)
-                                .foregroundColor(.white)
+                                .foregroundColor(Color.onColor(reward.vendor?.brandColor))
                                 .cornerRadius(14)
                         }
                         .padding(.horizontal, 20)
