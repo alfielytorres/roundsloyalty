@@ -43,9 +43,10 @@ struct DarkTabBar: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 28)
-                .fill(Color.white.opacity(0.85))
-                .overlay(RoundedRectangle(cornerRadius: 28).stroke(Color.white, lineWidth: 1))
-                .shadow(color: .black.opacity(0.08), radius: 20, x: 0, y: -4)
+                .fill(.ultraThinMaterial)
+                .overlay(RoundedRectangle(cornerRadius: 28).fill(Color.white.opacity(0.45)))
+                .overlay(RoundedRectangle(cornerRadius: 28).stroke(Color.white.opacity(0.9), lineWidth: 1))
+                .shadow(color: .black.opacity(0.10), radius: 24, x: 0, y: 8)
                 .frame(height: 80)
 
             HStack(spacing: 0) {
@@ -57,6 +58,7 @@ struct DarkTabBar: View {
                         Circle()
                             .fill(Color.accentDefault)
                             .frame(width: 56, height: 56)
+                            .shadow(color: .black.opacity(0.25), radius: 10, x: 0, y: 5)
                         Image(systemName: "qrcode.viewfinder")
                             .font(.system(size: 22, weight: .semibold))
                             .foregroundColor(.white)

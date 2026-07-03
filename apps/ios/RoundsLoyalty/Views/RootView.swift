@@ -35,25 +35,31 @@ struct RootView: View {
     }
 }
 
-/// Full-screen launch splash — the Rounds mark over the app background. Matches
-/// the native UILaunchScreen colour so the hand-off is seamless.
+/// Full-screen launch splash — the Rounds mark over the app background. The
+/// logo is pinned at the same size/position as the native UILaunchScreen image
+/// (128pt, centred) so the hand-off is invisible; only the wordmark animates in.
 struct SplashView: View {
     @State private var appeared = false
 
     var body: some View {
         ZStack {
             Color.appBackground.ignoresSafeArea()
-            VStack(spacing: 18) {
-                RoundsLogoMark(size: 96)
+
+            RoundsLogoMark(size: 128)
+                .shadow(color: .black.opacity(0.10), radius: 18, x: 0, y: 10)
+
+            VStack {
+                Spacer()
                 Text("Rounds")
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(.system(size: 26, weight: .bold, design: .rounded))
                     .foregroundColor(.primaryText)
+                    .opacity(appeared ? 1 : 0)
+                    .offset(y: appeared ? 0 : 8)
+                    .padding(.bottom, 80)
             }
-            .scaleEffect(appeared ? 1 : 0.94)
-            .opacity(appeared ? 1 : 0)
         }
         .onAppear {
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) { appeared = true }
+            withAnimation(.easeOut(duration: 0.45).delay(0.15)) { appeared = true }
         }
     }
 }

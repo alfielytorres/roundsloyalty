@@ -107,9 +107,12 @@ struct DiscoverMapView: View {
                     // Tapping a store peeks a compact preview + centres the map;
                     // tapping the preview (or double-tapping a pin) opens full details.
                     if let preview = previewStore {
+                        // Floats clear of the tab bar so its actions are never covered.
                         StorePreviewCard(pin: preview,
                                          onExpand: { presentedStore = preview },
                                          onClose: dismissPreview)
+                            .padding(.horizontal, 12)
+                            .padding(.bottom, 118)
                             .transition(.move(edge: .bottom).combined(with: .opacity))
                     } else {
                         bottomSheet
@@ -181,17 +184,20 @@ struct DiscoverMapView: View {
                             }
                         }
                     }
+                    // Keep the last rows reachable above the floating tab bar.
+                    .padding(.bottom, 108)
                 }
             }
         }
         .frame(maxWidth: .infinity)
-        .background(Color(hex: "#F5F5F7"))
-        .cornerRadius(20, corners: [.topLeft, .topRight])
+        .background(.ultraThinMaterial)
+        .background(Color.white.opacity(0.55))
+        .cornerRadius(24, corners: [.topLeft, .topRight])
         .overlay(
-            RoundedCorner(radius: 20, corners: [.topLeft, .topRight])
-                .stroke(Color.black.opacity(0.06), lineWidth: 1)
+            RoundedCorner(radius: 24, corners: [.topLeft, .topRight])
+                .stroke(Color.white.opacity(0.8), lineWidth: 1)
         )
-        .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: -4)
+        .shadow(color: .black.opacity(0.12), radius: 16, x: 0, y: -6)
         .gesture(
             DragGesture()
                 .onChanged { value in
@@ -203,7 +209,7 @@ struct DiscoverMapView: View {
 
     // Space between the recenter button and whatever occupies the bottom (peek
     // card while previewing, otherwise the resizable store list).
-    private var bottomInset: CGFloat { previewStore != nil ? 210 : sheetHeight }
+    private var bottomInset: CGFloat { previewStore != nil ? 300 : sheetHeight }
 
     // Single tap / list tap: centre the map on the store and peek a preview card.
     // A slight downward centre bias lifts the pin above the peeking card.
@@ -557,23 +563,24 @@ struct StorePreviewCard: View {
 
     var body: some View {
         VStack(spacing: 14) {
-            RoundedRectangle(cornerRadius: 3)
-                .fill(Color.black.opacity(0.15))
-                .frame(width: 40, height: 5)
-                .padding(.top, 8)
-
             HStack(spacing: 14) {
-                StoreAvatar(name: pin.name, logoUrl: pin.logoUrl, brandColor: pin.brandColor, size: 50)
+                StoreAvatar(name: pin.name, logoUrl: pin.logoUrl, brandColor: pin.brandColor, size: 52)
+                    .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                    .shadow(color: .black.opacity(0.10), radius: 4, x: 0, y: 2)
                 VStack(alignment: .leading, spacing: 3) {
                     Text(pin.name).font(.headline).foregroundColor(.primaryText).lineLimit(1)
                     if let subtitle {
                         Text(subtitle).font(.subheadline).foregroundColor(.secondaryText).lineLimit(1)
                     }
                 }
-                Spacer()
-                Image(systemName: "chevron.up")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundColor(.secondaryText)
+                Spacer(minLength: 8)
+                Button(action: onClose) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.secondaryText)
+                        .frame(width: 30, height: 30)
+                        .background(Color.black.opacity(0.05)).clipShape(Circle())
+                }
             }
             .contentShape(Rectangle())
             .onTapGesture { onExpand() }
@@ -584,33 +591,26 @@ struct StorePreviewCard: View {
                         Image(systemName: "location.fill")
                         Text("Directions").font(.subheadline.weight(.semibold))
                     }
-                    .frame(maxWidth: .infinity).padding(.vertical, 12)
-                    .background(accent).foregroundColor(Color.onColor(pin.brandColor)).cornerRadius(12)
+                    .frame(maxWidth: .infinity).padding(.vertical, 13)
+                    .background(accent).foregroundColor(Color.onColor(pin.brandColor)).cornerRadius(14)
                 }
                 Button(action: onExpand) {
-                    Text("Details").font(.subheadline.weight(.semibold))
-                        .frame(maxWidth: .infinity).padding(.vertical, 12)
-                        .background(Color.black.opacity(0.05)).foregroundColor(.primaryText).cornerRadius(12)
-                }
-                Button(action: onClose) {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 15, weight: .semibold))
-                        .foregroundColor(.secondaryText)
-                        .frame(width: 44, height: 44)
-                        .background(Color.black.opacity(0.05)).clipShape(Circle())
+                    HStack(spacing: 6) {
+                        Image(systemName: "info.circle")
+                        Text("Details").font(.subheadline.weight(.semibold))
+                    }
+                    .frame(maxWidth: .infinity).padding(.vertical, 13)
+                    .background(Color.black.opacity(0.05)).foregroundColor(.primaryText).cornerRadius(14)
                 }
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 34)
-        .frame(maxWidth: .infinity)
-        .background(Color(hex: "#F5F5F7"))
-        .cornerRadius(20, corners: [.topLeft, .topRight])
-        .overlay(
-            RoundedCorner(radius: 20, corners: [.topLeft, .topRight])
-                .stroke(Color.black.opacity(0.06), lineWidth: 1)
+        .padding(18)
+        .background(
+            RoundedRectangle(cornerRadius: 26)
+                .fill(Color.white.opacity(0.96))
+                .overlay(RoundedRectangle(cornerRadius: 26).stroke(Color.white, lineWidth: 1))
+                .shadow(color: .black.opacity(0.16), radius: 20, x: 0, y: 8)
         )
-        .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: -4)
     }
 }
 
