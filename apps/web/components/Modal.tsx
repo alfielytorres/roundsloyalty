@@ -28,7 +28,7 @@ export default function Modal({ isOpen, onClose, title, children }: Props) {
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div className="absolute inset-0 bg-black/25 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full sm:max-w-lg bg-white rounded-t-[28px] sm:rounded-[28px] shadow-2xl z-10 max-h-[92vh] flex flex-col">
+      <div className="relative w-full sm:max-w-lg bg-white/90 backdrop-blur-2xl backdrop-saturate-150 border border-white/70 rounded-t-[28px] sm:rounded-[28px] shadow-[0_24px_80px_rgba(0,0,0,0.25)] z-10 max-h-[92vh] flex flex-col">
         {/* Drag handle on mobile */}
         <div className="sm:hidden flex justify-center pt-3 pb-1">
           <div className="w-10 h-1 rounded-full bg-black/15" />

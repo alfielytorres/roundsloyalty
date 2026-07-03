@@ -24,7 +24,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`min-h-screen ${sans.variable} ${display.variable}`}>
-      <body className="min-h-screen bg-black/5 text-[#1D1D1F] antialiased font-sans">
+      <body className="min-h-screen text-[#1D1D1F] antialiased font-sans">
         <ToastProvider>
           <ConditionalNav />
           <LayoutShell>{children}</LayoutShell>

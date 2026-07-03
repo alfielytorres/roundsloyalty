@@ -18,6 +18,22 @@ body {
   color: #1D1D1F;
   letter-spacing: -0.025em;
   line-height: 1.35;
+  background-color: #F2F2F4;
+}
+
+/* Ambient light behind the glass — a faint lime (brand) glow and a cool wash
+   that translucent surfaces pick up. Fixed pseudo-element (iOS-safe) so it
+   never scrolls or intercepts clicks. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(48rem 34rem at 88% -12%, rgba(215, 251, 55, 0.20), transparent 62%),
+    radial-gradient(44rem 30rem at -12% 28%, rgba(125, 165, 255, 0.11), transparent 60%),
+    radial-gradient(40rem 34rem at 55% 115%, rgba(215, 251, 55, 0.10), transparent 60%);
 }
 
 html {
@@ -55,7 +71,8 @@ input[type="datetime-local"] {
   --accent: #1D1D1F;
   --accent-hover: #000000;
   --accent-soft: rgba(0,0,0,0.06);
-  --shadow-glass: 0 6px 24px rgba(0,0,0,0.06);
+  /* Liquid glass: ambient depth + a specular top edge. */
+  --shadow-glass: 0 12px 32px rgba(29,29,31,0.08), inset 0 1px 0 rgba(255,255,255,0.95), inset 0 -1px 0 rgba(255,255,255,0.35);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -67,8 +84,13 @@ h1, h2, h3, .font-display {
 
 @layer components {
   .glass {
-    @apply bg-white/70 backdrop-blur-xl rounded-3xl p-4 border border-white/90;
+    @apply rounded-3xl p-4;
+    background: linear-gradient(180deg, rgba(255,255,255,0.82), rgba(255,255,255,0.58));
+    -webkit-backdrop-filter: blur(24px) saturate(170%);
+    backdrop-filter: blur(24px) saturate(170%);
+    border: 1px solid rgba(255,255,255,0.75);
     box-shadow: var(--shadow-glass);
+    transition: box-shadow 0.3s var(--ease-out), background-color 0.3s var(--ease-out), transform 0.3s var(--ease-out);
   }
   .card-rose  { @apply glass; }
   .card-teal  { @apply glass; }
@@ -77,29 +99,53 @@ h1, h2, h3, .font-display {
   .card-gold  { @apply glass; }
   .card-dark  { @apply glass; }
   .glass-card { @apply glass; }
-  .glass-row  { @apply bg-white/70 backdrop-blur-xl rounded-2xl border border-white/90; }
+  .glass-row {
+    @apply rounded-2xl;
+    background: linear-gradient(180deg, rgba(255,255,255,0.80), rgba(255,255,255,0.60));
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+    backdrop-filter: blur(18px) saturate(160%);
+    border: 1px solid rgba(255,255,255,0.75);
+    box-shadow: 0 4px 16px rgba(29,29,31,0.05), inset 0 1px 0 rgba(255,255,255,0.9);
+  }
 
   .dark-input {
-    @apply bg-white/80 border border-black/10 rounded-2xl px-4 py-3 text-[#1D1D1F] placeholder:text-black/25 focus:outline-none transition-colors w-full;
+    @apply rounded-2xl px-4 py-3 text-[#1D1D1F] placeholder:text-black/25 focus:outline-none w-full;
+    background: rgba(255,255,255,0.65);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(0,0,0,0.08);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,0.7);
+    transition: border-color 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out), background 0.2s var(--ease-out);
   }
   .dark-input:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-soft);
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 0 0 3px var(--accent-soft), inset 0 1px 2px rgba(0,0,0,0.03);
   }
-  .skel      { @apply bg-black/5 rounded-lg animate-pulse; }
-  .skel-dark { @apply bg-black/5 rounded-lg animate-pulse; }
 
-  /* Primary action = the Rounds accent. Secondary = neutral dark. */
+  .skel, .skel-dark {
+    @apply rounded-lg;
+    background: linear-gradient(90deg, rgba(0,0,0,0.05) 25%, rgba(0,0,0,0.10) 50%, rgba(0,0,0,0.05) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+
+  /* Primary action = the Rounds accent, as polished dark glass: gradient body,
+     hairline light border, specular top edge. Secondary = neutral dark. */
   .btn-primary {
-    @apply text-white font-semibold rounded-2xl px-6 py-3 transition-all;
-    background: var(--accent);
+    @apply text-white font-semibold rounded-2xl px-6 py-3;
+    background: linear-gradient(180deg, #2C2C30, #131315);
+    border: 1px solid rgba(255,255,255,0.10);
+    box-shadow: 0 8px 20px rgba(19,19,21,0.22), inset 0 1px 0 rgba(255,255,255,0.18);
+    transition: filter 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out), transform 0.15s var(--ease-out);
   }
-  .btn-primary:hover  { background: var(--accent-hover); }
-  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:hover {
+    filter: brightness(1.25);
+    box-shadow: 0 10px 26px rgba(19,19,21,0.30), inset 0 1px 0 rgba(255,255,255,0.22);
+  }
+  .btn-primary:active { transform: scale(0.97); }
   .btn-green  { @apply btn-primary; }
-  .btn-secondary {
-    @apply bg-[#1D1D1F] hover:bg-black text-white font-semibold rounded-2xl px-6 py-3 transition-colors;
-  }
+  .btn-secondary { @apply btn-primary; }
   .btn-danger {
     @apply border border-black/15 text-black/50 hover:bg-black/5 font-semibold rounded-2xl px-5 py-2.5 transition-colors;
   }
@@ -112,6 +158,10 @@ h1, h2, h3, .font-display {
   .bg-accent:hover { background: var(--accent-hover); }
   .text-accent    { color: var(--accent); }
   .ring-accent    { box-shadow: 0 0 0 3px var(--accent-soft); }
+}
+
+@keyframes shimmer {
+  to { background-position: -200% 0; }
 }
 
 @keyframes stamp-pop {
