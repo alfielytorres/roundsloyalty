@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA000050000000000000000A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA000050000000000000001A /* Assets.xcassets */; };
 		AA000001000000000000000A /* RoundsLoyaltyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000001000000000000001A /* RoundsLoyaltyApp.swift */; };
 		AA000002000000000000000A /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000002000000000000001A /* Config.swift */; };
 		AA000003000000000000000A /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000003000000000000001A /* SupabaseService.swift */; };
@@ -85,6 +86,7 @@
 		AA000037000000000000001A /* NotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
 		AA000038000000000000001A /* CustomerNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomerNotification.swift; sourceTree = "<group>"; };
 		AA00001C000000000000001A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AA000050000000000000001A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA000040000000000000001A /* NFCStampReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCStampReader.swift; sourceTree = "<group>"; };
 		AA000041000000000000001A /* RoundsLoyalty.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RoundsLoyalty.entitlements; sourceTree = "<group>"; };
 		AAFPRODUCT00000000000001A /* RoundsLoyalty.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RoundsLoyalty.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -123,6 +125,7 @@
 			children = (
 				AA000001000000000000001A /* RoundsLoyaltyApp.swift */,
 				AA000002000000000000001A /* Config.swift */,
+				AA000050000000000000001A /* Assets.xcassets */,
 				AA00001C000000000000001A /* Info.plist */,
 				AA000041000000000000001A /* RoundsLoyalty.entitlements */,
 				AASERVICESGROUP00000000A /* Services */,
@@ -276,6 +279,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA000050000000000000000A /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
