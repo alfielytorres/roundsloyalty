@@ -70,14 +70,18 @@ struct HomeView: View {
                             .foregroundColor(.primaryText)
                         if availableRewards.count > 0 {
                             Text("\(availableRewards.count) reward\(availableRewards.count == 1 ? "" : "s") ready to collect")
-                                .font(.system(size: 13))
-                                .foregroundColor(.black.opacity(0.40))
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundColor(Color(hex: "#1D1D1F"))
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 5)
+                                .background(Capsule().fill(Color.roundsLime))
+                                .padding(.top, 2)
                         }
                     }
                     .padding(.horizontal, 20)
 
                     if isLoading {
-                        HStack { Spacer(); ProgressView().tint(.black.opacity(0.3)); Spacer() }
+                        HStack { Spacer(); RoundsLoadingView(size: 48); Spacer() }
                             .padding(.top, 40)
                     } else {
                         if !memberships.isEmpty {
@@ -106,9 +110,9 @@ struct HomeView: View {
 
                         if memberships.isEmpty {
                             VStack(spacing: 14) {
-                                Image(systemName: "cup.and.saucer")
-                                    .font(.system(size: 40))
-                                    .foregroundColor(.black.opacity(0.15))
+                                RoundsLogoMark(size: 64)
+                                    .clipShape(RoundedRectangle(cornerRadius: 14.5))
+                                    .shadow(color: Color.roundsLime.opacity(0.4), radius: 14, x: 0, y: 6)
                                 Text("No memberships yet")
                                     .font(.system(size: 16, weight: .semibold))
                                     .foregroundColor(.primaryText)

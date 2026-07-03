@@ -50,7 +50,7 @@ struct CollectionSheet: View {
     @ViewBuilder
     private var content: some View {
         if isLoading {
-            ProgressView().tint(.primaryText)
+            RoundsLoadingView(size: 48)
         } else if didSubmit {
             successState
         } else if membership == nil {

@@ -8,6 +8,9 @@ extension Color {
     static let roundsAccent      = Color(hex: "#9E1B32")
     static let roundsAccentHover = Color(hex: "#7E1428")
 
+    // Brand lime from the logo — always pair with black ink on top.
+    static let roundsLime = Color(hex: "#D7FB37")
+
     static let appBackground  = Color(hex: "#F5F5F7")
     static let glassCard      = Color.white.opacity(0.72)
     static let glassBorder    = Color.white.opacity(0.90)

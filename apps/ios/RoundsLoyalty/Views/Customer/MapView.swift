@@ -149,7 +149,7 @@ struct DiscoverMapView: View {
 
             if isLoading {
                 Spacer()
-                ProgressView().tint(.black.opacity(0.4))
+                RoundsLoadingView(size: 40)
                 Spacer()
             } else if vendors.isEmpty {
                 Spacer()

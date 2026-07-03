@@ -69,7 +69,7 @@ struct ScanQRSheet: View {
             if isAwarding {
                 Color.black.opacity(0.6).ignoresSafeArea()
                 VStack(spacing: 16) {
-                    ProgressView().tint(.white).scaleEffect(1.4)
+                    RoundsLoadingView(size: 56)
                     Text("Adding your stamp…").foregroundColor(.white).font(.headline)
                 }
                 .zIndex(2)
@@ -188,7 +188,7 @@ struct MVPScanView: View {
             case .processing:
                 Color.black.opacity(0.6).ignoresSafeArea()
                 VStack(spacing: 16) {
-                    ProgressView().tint(.white).scaleEffect(1.4)
+                    RoundsLoadingView(size: 56)
                     Text("Processing...").foregroundColor(.white).font(.headline)
                 }
             case .error(let msg):

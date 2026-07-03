@@ -24,7 +24,7 @@ struct RewardsView: View {
                 Color.appBackground.ignoresSafeArea()
 
                 if isLoading {
-                    ProgressView().tint(.primaryText)
+                    RoundsLoadingView(size: 52)
                 } else if rewards.isEmpty {
                     VStack(spacing: 16) {
                         Image(systemName: "gift")

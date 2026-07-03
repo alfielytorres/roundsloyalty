@@ -11,7 +11,7 @@ struct NotificationsView: View {
                 Color.appBackground.ignoresSafeArea()
 
                 if isLoading {
-                    ProgressView().tint(.black.opacity(0.3))
+                    RoundsLoadingView(size: 44)
                 } else if notifications.isEmpty {
                     VStack(spacing: 14) {
                         Image(systemName: "bell.slash")

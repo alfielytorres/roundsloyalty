@@ -54,14 +54,16 @@ struct DarkTabBar: View {
                 DarkTabItem(icon: "map.fill", label: "Discover", tab: .discover, tabSelection: tabSelection)
 
                 Button(action: onScanTap) {
+                    // Black-on-lime, mirroring the Rounds logo.
                     ZStack {
                         Circle()
-                            .fill(Color.accentDefault)
+                            .fill(Color.roundsLime)
                             .frame(width: 56, height: 56)
-                            .shadow(color: .black.opacity(0.25), radius: 10, x: 0, y: 5)
+                            .overlay(Circle().stroke(Color.white.opacity(0.7), lineWidth: 1))
+                            .shadow(color: Color.roundsLime.opacity(0.55), radius: 12, x: 0, y: 5)
                         Image(systemName: "qrcode.viewfinder")
                             .font(.system(size: 22, weight: .semibold))
-                            .foregroundColor(.white)
+                            .foregroundColor(Color(hex: "#1D1D1F"))
                     }
                 }
                 .offset(y: -16)
