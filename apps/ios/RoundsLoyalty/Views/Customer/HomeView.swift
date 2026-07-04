@@ -156,7 +156,9 @@ struct HomeView: View {
         async let membershipsTask: [Membership] = (try? await supabase.database
             .from("customer_vendor_memberships")
             .select("*, vendors(id, business_name, brand_color, logo_url, stamp_icon, card_background_url, stamp_bg_color), loyalty_programs(id, name, rounds_required, reward_name, default_round_value)")
-            .eq("customer_id", value: userId).eq("status", value: "active").execute().value) ?? []
+            .eq("customer_id", value: userId).eq("status", value: "active")
+            .order("updated_at", ascending: false)   // most recent activity first
+            .execute().value) ?? []
         async let rewardsTask: [RewardInstance] = (try? await supabase.database
             .from("reward_instances")
             .select("*, vendors(id, business_name)")
@@ -188,20 +190,12 @@ private struct VendorCardGrid: View {
     let onTap: (Membership) -> Void
 
     var body: some View {
-        VStack(spacing: 10) {
-            if let first = memberships.first {
-                VendorCard(membership: first, isFeatured: true)
+        // Every store gets the full designed loyalty card, newest activity on top.
+        VStack(spacing: 14) {
+            ForEach(memberships, id: \.id) { m in
+                VendorCard(membership: m)
                     .padding(.horizontal, 20)
-                    .onTapGesture { onTap(first) }
-            }
-            if memberships.count > 1 {
-                LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                    ForEach(Array(memberships.dropFirst()), id: \.id) { m in
-                        VendorCard(membership: m, isFeatured: false)
-                            .onTapGesture { onTap(m) }
-                    }
-                }
-                .padding(.horizontal, 20)
+                    .onTapGesture { onTap(m) }
             }
         }
     }
@@ -211,24 +205,12 @@ private struct VendorCardGrid: View {
 
 private struct VendorCard: View {
     let membership: Membership
-    let isFeatured: Bool
 
-    private var accent: Color { Color.vendorAccent(membership.vendor?.brandColor) }
     private var required: Int { membership.program?.roundsRequired ?? 10 }
-    private var current: Int { membership.currentRounds }
-    private var remaining: Int { max(0, required - current) }
-    private var progress: Double {
-        guard required > 0 else { return 0 }
-        return min(Double(current) / Double(required), 1.0)
-    }
     private var icon: String { membership.vendor?.stampIcon ?? "☕" }
 
     var body: some View {
-        if isFeatured { featured } else { compact }
-    }
-
-    // Designed stamp card — shared with the vendor-detail sheet and web preview.
-    private var featured: some View {
+        // Designed stamp card — shared with the vendor-detail sheet and web preview.
         LoyaltyCardView(
             businessName: membership.vendor?.businessName ?? "Store",
             logoUrl: membership.vendor?.logoUrl,
@@ -236,84 +218,10 @@ private struct VendorCard: View {
             stampBgColorHex: membership.vendor?.stampBgColor,
             backgroundUrl: membership.vendor?.cardBackgroundUrl,
             icon: icon,
-            current: current,
+            current: membership.currentRounds,
             required: required,
             rewardName: membership.program?.rewardName
         )
-    }
-
-    // Compact card for additional memberships.
-    private var compact: some View {
-        ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 24)
-                .fill(Color.white.opacity(0.80))
-                .overlay(RoundedRectangle(cornerRadius: 24).stroke(Color.white, lineWidth: 1))
-                .shadow(color: .black.opacity(0.05), radius: 12, x: 0, y: 4)
-
-            VStack(alignment: .leading, spacing: 0) {
-                HStack(spacing: 6) {
-                    if let logoUrl = membership.vendor?.logoUrl, let url = URL(string: logoUrl) {
-                        RoundedRectangle(cornerRadius: 5)
-                            .fill(Color.white)
-                            .frame(width: 22, height: 22)
-                            .overlay(
-                                AsyncImage(url: url) { img in img.resizable().scaledToFit() }
-                                    placeholder: { Color.clear }
-                                    .padding(2)
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 5))
-                    }
-                    Text(membership.vendor?.businessName ?? "Store")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.black.opacity(0.40))
-                        .lineLimit(1)
-                    Spacer()
-                    if remaining == 0 && required > 0 {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 14))
-                            .foregroundColor(accent)
-                    }
-                }
-
-                Spacer()
-
-                VStack(alignment: .leading, spacing: 1) {
-                    Text("\(current)")
-                        .font(.system(size: 56, weight: .heavy, design: .rounded))
-                        .foregroundColor(.primaryText)
-                        .minimumScaleFactor(0.7)
-                    Text("rounds")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundColor(.black.opacity(0.28))
-                }
-
-                Spacer()
-
-                VStack(alignment: .leading, spacing: 5) {
-                    GeometryReader { geo in
-                        ZStack(alignment: .leading) {
-                            RoundedRectangle(cornerRadius: 2).fill(Color.black.opacity(0.08)).frame(height: 3)
-                            RoundedRectangle(cornerRadius: 2).fill(accent).frame(width: geo.size.width * progress, height: 3)
-                        }
-                    }
-                    .frame(height: 3)
-                    if remaining > 0, let rewardName = membership.program?.rewardName {
-                        Text("\(remaining) more for \(rewardName)")
-                            .font(.system(size: 11))
-                            .foregroundColor(.black.opacity(0.35))
-                            .lineLimit(1)
-                    } else if let rewardName = membership.program?.rewardName {
-                        Text("Ready: \(rewardName)")
-                            .font(.system(size: 11, weight: .semibold))
-                            .foregroundColor(accent)
-                            .lineLimit(1)
-                    }
-                }
-            }
-            .padding(16)
-        }
-        .frame(maxWidth: .infinity)
-        .frame(height: 155)
     }
 }
 
