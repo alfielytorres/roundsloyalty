@@ -214,6 +214,23 @@ struct MVPScanView: View {
         }
     }
 
+    // Printed store signs encode a URL (https://…/j/<join_token>) so a native
+    // camera opens the landing page; in-app we convert it to the base64
+    // {join_token} payload that award_rounds(qr_payload) expects. Raw base64
+    // payloads (the portal's on-screen QR) pass through unchanged.
+    private func normalizePayload(_ raw: String) -> String {
+        let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmed.lowercased().hasPrefix("http"), let url = URL(string: trimmed) else { return trimmed }
+        let comps = url.pathComponents
+        if let i = comps.firstIndex(of: "j"), i + 1 < comps.count {
+            let token = comps[i + 1]
+            if !token.isEmpty, let data = try? JSONSerialization.data(withJSONObject: ["join_token": token]) {
+                return data.base64EncodedString()
+            }
+        }
+        return trimmed
+    }
+
     private func processPayload(_ payload: String) async {
         guard sessionManager.session != nil else { return }
         scanState = .processing
@@ -224,7 +241,7 @@ struct MVPScanView: View {
 
         do {
             let result: AwardResult = try await supabase.database
-                .rpc("award_rounds", params: QRParams(qr_payload: payload))
+                .rpc("award_rounds", params: QRParams(qr_payload: normalizePayload(payload)))
                 .execute()
                 .value
 
