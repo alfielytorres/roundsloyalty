@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import {
   LayoutDashboard, Award, Megaphone, Cpu, PackageCheck,
-  Users, UserCog, QrCode, Settings2, X, Stamp, Sparkles,
+  Users, UserCog, QrCode, Settings2, X, Stamp, Sparkles, Wrench,
 } from 'lucide-react'
 
 const groups = [
@@ -37,8 +37,13 @@ const groups = [
 
 export default function MobileNav() {
   const [open, setOpen] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
+
+  useEffect(() => {
+    fetch('/api/admin/status').then(r => r.json()).then(d => setIsAdmin(!!d.isAdmin)).catch(() => {})
+  }, [])
 
   function navigate(href: string) {
     setOpen(false)
@@ -133,6 +138,16 @@ export default function MobileNav() {
                 </div>
               ))}
             </nav>
+
+            {isAdmin && (
+              <div className="px-3 pb-2">
+                <button onClick={() => navigate('/ops')}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-black/50 hover:text-[#1D1D1F] hover:bg-black/5 border border-black/10 transition-all text-left">
+                  <Wrench size={16} strokeWidth={2} />
+                  Admin console
+                </button>
+              </div>
+            )}
 
             <div className="px-5 py-5 border-t border-black/5 pb-safe">
               <p className="text-xs text-black/25 font-medium">© {new Date().getFullYear()} Rounds</p>
