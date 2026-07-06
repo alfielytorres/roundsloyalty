@@ -1,16 +1,25 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
+import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
-import { getAdminUser } from '@/lib/is-admin'
+import { isAdminEmail } from '@/lib/is-admin'
 import OpsTable, { OpsVendor } from './OpsTable'
 
 // Admin-only ops console: every vendor with a ready-to-print sign link, the
-// moment they onboard. Gated to ADMIN_EMAILS — anyone else gets a 404, so the
-// page's existence isn't even revealed.
+// moment they onboard. Not signed in → sent to login; signed in but not an
+// admin → 404 (the page's existence isn't revealed).
 export const dynamic = 'force-dynamic'
 
 export default async function OpsPage() {
-  const admin = await getAdminUser()
-  if (!admin) notFound()
+  const cookieStore = await cookies()
+  const auth = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { getAll: () => cookieStore.getAll() } },
+  )
+  const { data: { user } } = await auth.auth.getUser()
+  if (!user) redirect('/')
+  if (!isAdminEmail(user.email)) notFound()
 
   // Admin verified — read across all vendors with the service role (RLS would
   // otherwise scope to a single vendor).
