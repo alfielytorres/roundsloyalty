@@ -182,13 +182,37 @@ export default function CardPreview(props: Props) {
   const frontRef = useRef<HTMLDivElement>(null)
   const backRef = useRef<HTMLDivElement>(null)
 
+  // Swap every <img> in the node to an inlined data URL up front. html-to-image
+  // otherwise races on larger remote images (the logo captures, the full-bleed
+  // art doesn't); once they're data URLs there's nothing left for it to fetch.
+  async function inlineImages(node: HTMLElement) {
+    const imgs = Array.from(node.querySelectorAll('img'))
+    await Promise.all(imgs.map(async (img) => {
+      if (img.src.startsWith('data:')) return
+      try {
+        const res = await fetch(img.src, { mode: 'cors', cache: 'no-cache' })
+        const blob = await res.blob()
+        const dataUrl: string = await new Promise((resolve, reject) => {
+          const fr = new FileReader()
+          fr.onload = () => resolve(fr.result as string)
+          fr.onerror = reject
+          fr.readAsDataURL(blob)
+        })
+        img.removeAttribute('crossorigin')
+        img.src = dataUrl
+        await img.decode().catch(() => {})
+      } catch { /* leave the original src; html-to-image will try its best */ }
+    }))
+  }
+
   async function shareSide(which: 'front' | 'back') {
     const node = (which === 'front' ? frontRef : backRef).current
     if (!node || busy) return
     setBusy(true)
     try {
+      await inlineImages(node)
       // PNG with a transparent background so the rounded corners stay clean.
-      const dataUrl = await toPng(node, { pixelRatio: 2, cacheBust: true })
+      const dataUrl = await toPng(node, { pixelRatio: 2 })
       const blob = await (await fetch(dataUrl)).blob()
       const file = new File([blob], `${(props.vendorName || 'card').replace(/\s+/g, '-').toLowerCase()}-${which}.png`, { type: 'image/png' })
       const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean }
