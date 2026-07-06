@@ -4,6 +4,7 @@ import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
 import { isAdminEmail } from '@/lib/is-admin'
 import OpsTable, { OpsVendor } from './OpsTable'
+import OpsNav from './OpsNav'
 
 // Admin-only ops console: every vendor with a ready-to-print sign link, the
 // moment they onboard. Not signed in → sent to login; signed in but not an
@@ -45,6 +46,7 @@ export default async function OpsPage() {
   return (
     <main className="px-5 py-10 min-h-screen">
       <div className="max-w-4xl mx-auto">
+        <OpsNav />
         <div className="mb-7">
           <p className="text-black/35 text-xs font-semibold tracking-widest uppercase mb-0.5">Rounds · Ops</p>
           <h1 className="text-2xl font-bold text-[#1D1D1F]">Store signs</h1>

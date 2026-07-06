@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
@@ -14,6 +15,7 @@ import {
   QrCode,
   Settings2,
   Sparkles,
+  Wrench,
 } from 'lucide-react'
 
 const groups = [
@@ -45,6 +47,11 @@ const groups = [
 
 export default function Sidebar() {
   const pathname = usePathname()
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  useEffect(() => {
+    fetch('/api/admin/status').then(r => r.json()).then(d => setIsAdmin(!!d.isAdmin)).catch(() => {})
+  }, [])
 
   function isActive(href: string) {
     return pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
@@ -100,6 +107,16 @@ export default function Sidebar() {
           </div>
         ))}
       </nav>
+
+      {isAdmin && (
+        <div className="px-3 pb-2">
+          <Link href="/ops"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-black/50 hover:text-[#1D1D1F] hover:bg-black/5 border border-black/10 transition-all">
+            <Wrench size={16} strokeWidth={2} />
+            Admin console
+          </Link>
+        </div>
+      )}
 
       <div className="px-4 py-4 border-t border-black/5">
         <p className="text-xs text-black/25 font-medium">© {new Date().getFullYear()} Rounds</p>
