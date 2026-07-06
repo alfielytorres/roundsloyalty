@@ -83,11 +83,16 @@ function CardFace({ side, p, bleed = false }: { side: 'front' | 'back'; p: Props
   }
 
   if (side === 'front') {
-    const bg = p.frontUrl ? `url(${p.frontUrl}) center/cover` : p.brandHex
     const overlayText = p.frontHeadline || p.frontSubtext || !p.frontUrl
     const ink = inkFor(p.frontTextColor, p.frontUrl ? '#fff' : onCard)
     return (
-      <div style={{ ...shell, background: bg }}>
+      <div style={{ ...shell, background: p.brandHex }}>
+        {/* Background art as a real <img> — a CSS background url() isn't reliably
+            inlined by html-to-image on export, but a crossOrigin <img> is. */}
+        {p.frontUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={p.frontUrl} alt="" crossOrigin="anonymous" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+        )}
         {p.frontUrl && overlayText && (
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.34), transparent 34%, transparent 62%, rgba(0,0,0,0.42))' }} />
         )}
@@ -127,7 +132,11 @@ function CardFace({ side, p, bleed = false }: { side: 'front' | 'back'; p: Props
         <p style={{ fontSize: '3.8cqw', fontWeight: 700, letterSpacing: '0.02em', textAlign: 'center', opacity: 0.92, color: backInk }}>
           {p.backMessage || `Collect ${total} for ${p.rewardName || 'a reward'}`}
         </p>
-        <div style={{ flex: 1, borderRadius: '4cqw', position: 'relative', overflow: 'hidden', background: p.cardBgUrl ? `url(${p.cardBgUrl}) center/cover` : panelHex, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ flex: 1, borderRadius: '4cqw', position: 'relative', overflow: 'hidden', background: panelHex, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {p.cardBgUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={p.cardBgUrl} alt="" crossOrigin="anonymous" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+          )}
           {(!hasPanel && !p.cardBgUrl) && <div style={{ position: 'absolute', inset: 0, background: lum(panelHex) > 0.4 ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.14)' }} />}
           {p.cardBgUrl && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.18)' }} />}
           {/* Ink-stamp impressions: a soft blob waits for a stamp; earned slots are a
