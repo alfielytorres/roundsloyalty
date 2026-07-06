@@ -12,6 +12,7 @@ type VendorShape = {
   card_front_url?: string | null; card_front_headline?: string | null
   card_front_subtext?: string | null; card_back_message?: string | null
   card_front_text_color?: string | null; card_back_text_color?: string | null
+  stamp_color?: string | null
   lat?: number | null; lng?: number | null
 }
 
@@ -34,7 +35,7 @@ export const getPortalData = cache(async () => {
   // Try staff record first (handles both owner and staff users)
   const { data: staffRecord } = await supabase
     .from('vendor_staff')
-    .select('vendor_id, role, vendors(id, business_name, description, category, status, brand_color, join_token, address, logo_url, stamp_icon, card_background_url, stamp_bg_color, card_front_url, card_front_headline, card_front_subtext, card_back_message, card_front_text_color, card_back_text_color)')
+    .select('vendor_id, role, vendors(id, business_name, description, category, status, brand_color, join_token, address, logo_url, stamp_icon, card_background_url, stamp_bg_color, card_front_url, card_front_headline, card_front_subtext, card_back_message, card_front_text_color, card_back_text_color, stamp_color)')
     .eq('user_id', user.id)
     .eq('status', 'active')
     .limit(1)

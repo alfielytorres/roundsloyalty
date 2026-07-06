@@ -155,7 +155,7 @@ struct HomeView: View {
         isLoading = true
         async let membershipsTask: [Membership] = (try? await supabase.database
             .from("customer_vendor_memberships")
-            .select("*, vendors(id, business_name, brand_color, logo_url, stamp_icon, card_background_url, stamp_bg_color, card_front_url, card_front_headline, card_front_subtext, card_back_message, card_front_text_color, card_back_text_color), loyalty_programs(id, name, rounds_required, reward_name, default_round_value)")
+            .select("*, vendors(id, business_name, brand_color, logo_url, stamp_icon, card_background_url, stamp_bg_color, card_front_url, card_front_headline, card_front_subtext, card_back_message, card_front_text_color, card_back_text_color, stamp_color), loyalty_programs(id, name, rounds_required, reward_name, default_round_value)")
             .eq("customer_id", value: userId).eq("status", value: "active")
             .order("updated_at", ascending: false)   // most recent activity first
             .execute().value) ?? []
@@ -226,7 +226,8 @@ private struct VendorCard: View {
             frontSubtext: membership.vendor?.cardFrontSubtext,
             backMessage: membership.vendor?.cardBackMessage,
             frontTextColor: membership.vendor?.cardFrontTextColor,
-            backTextColor: membership.vendor?.cardBackTextColor
+            backTextColor: membership.vendor?.cardBackTextColor,
+            stampColorHex: membership.vendor?.stampColor
         )
     }
 }

@@ -12,14 +12,14 @@ final class TabSelection: ObservableObject {
 
 /// A grid of rubber-stamp impressions that fill as the customer earns rounds.
 /// Empty slots are a soft blob waiting to be stamped; filled slots are a solid
-/// inked disc with the icon knocked out and a few speckle holes, tilted slightly
-/// so the card feels hand-stamped. `inkColor` is chosen for contrast against the
-/// panel — like a single-colour stamp pad.
+/// `discColor` disc speckled with holes, with the icon on top as an `iconColor`
+/// silhouette, tilted slightly so the card feels hand-stamped — a two-tone stamp.
 struct StampGrid: View {
     let icon: String
     let filled: Int
     let total: Int
-    var inkColor: Color = Color.white.opacity(0.9)
+    var discColor: Color = Color.white.opacity(0.9)
+    var iconColor: Color = .black
     var maxDisplay: Int = 20
     var slotSize: CGFloat = 34
 
@@ -33,13 +33,14 @@ struct StampGrid: View {
     }
 
     private var gridColumns: [GridItem] {
-        Array(repeating: GridItem(.flexible(), spacing: 8), count: balancedColumns(count))
+        Array(repeating: GridItem(.flexible(), spacing: 12), count: balancedColumns(count))
     }
 
     var body: some View {
-        LazyVGrid(columns: gridColumns, spacing: 10) {
+        LazyVGrid(columns: gridColumns, spacing: 12) {
             ForEach(0..<count, id: \.self) { i in
-                StampSlot(icon: icon.isEmpty ? "☕" : icon, filled: i < filled, size: slotSize, ink: inkColor, index: i)
+                StampSlot(icon: icon.isEmpty ? "☕" : icon, filled: i < filled, size: slotSize,
+                          ink: discColor, iconInk: iconColor, index: i)
             }
         }
     }
@@ -49,7 +50,8 @@ private struct StampSlot: View {
     let icon: String
     let filled: Bool
     let size: CGFloat
-    let ink: Color
+    let ink: Color        // disc colour
+    let iconInk: Color    // icon silhouette colour (contrasts the disc)
     var index: Int = 0
     @State private var popped = false
 
@@ -69,21 +71,23 @@ private struct StampSlot: View {
     var body: some View {
         Group {
             if filled {
-                // Solid inked disc with the icon (and a few speckles) knocked out —
-                // destinationOut erases those shapes so the panel shows through.
-                Circle().fill(ink.opacity(0.92))
-                    .overlay {
-                        ZStack {
-                            Text(icon).font(.system(size: size * 0.5))
-                            ForEach(0..<speckles.count, id: \.self) { k in
-                                Circle()
-                                    .frame(width: speckles[k].2, height: speckles[k].2)
-                                    .offset(x: speckles[k].0, y: speckles[k].1)
+                // Solid inked disc with a few speckles punched out, and the icon
+                // laid on top as a contrasting silhouette — like a two-tone stamp.
+                ZStack {
+                    Circle().fill(ink.opacity(0.92))
+                        .overlay {
+                            ZStack {
+                                ForEach(0..<speckles.count, id: \.self) { k in
+                                    Circle()
+                                        .frame(width: speckles[k].2, height: speckles[k].2)
+                                        .offset(x: speckles[k].0, y: speckles[k].1)
+                                }
                             }
+                            .blendMode(.destinationOut)
                         }
-                        .blendMode(.destinationOut)
-                    }
-                    .compositingGroup()
+                        .compositingGroup()
+                    iconInk.mask { Text(icon).font(.system(size: size * 0.5)) }
+                }
             } else {
                 // Empty slot: a soft blob waiting to be stamped.
                 Circle().fill(ink.opacity(0.2))
@@ -130,6 +134,7 @@ struct LoyaltyCardView: View {
     var backMessage: String? = nil
     var frontTextColor: String? = nil   // "dark" | "light" | nil (auto)
     var backTextColor: String? = nil
+    var stampColorHex: String? = nil    // hex for the inked stamp disc; nil = auto
 
     @State private var showBack = false
 
@@ -156,16 +161,20 @@ struct LoyaltyCardView: View {
         guard let s = frontUrl, !s.isEmpty else { return nil }
         return URL(string: s)
     }
-    private var emptyStampColor: Color {
-        if bgURL != nil { return Color.white.opacity(0.92) }
-        // Dark silhouette on light panels (incl. white), white silhouette on dark.
+    // The stamp disc colour: vendor's choice if set, else a readable auto ink
+    // (dark on light panels, white on dark). The icon silhouette contrasts it.
+    private var discHex: String {
+        if let s = stampColorHex, !s.isEmpty { return s }
+        if bgURL != nil { return "#1D1D1F" }
         let panelHex = hasPanelColor ? stampBgColorHex : brandColorHex
-        return Color.luminanceHex(panelHex) > 0.179 ? Color.black.opacity(0.8) : Color.white.opacity(0.92)
+        return Color.luminanceHex(panelHex) > 0.179 ? "#1D1D1F" : "#FFFFFF"
     }
+    private var stampDiscColor: Color { Color(hex: discHex) }
+    private var stampIconColor: Color { Color.onColor(discHex) }
     private var remaining: Int { max(0, required - current) }
     private var isReady: Bool { remaining == 0 && required > 0 }
     private var stampSlotSize: CGFloat {
-        min(required, 10) > 8 ? 30 : 34
+        min(required, 10) > 8 ? 26 : 30
     }
 
     var body: some View {
@@ -274,8 +283,8 @@ struct LoyaltyCardView: View {
                 RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.black.opacity(0.18))
             }
             StampGrid(icon: icon, filled: min(current, required), total: required,
-                      inkColor: emptyStampColor, maxDisplay: 10, slotSize: stampSlotSize)
-                .padding(12)
+                      discColor: stampDiscColor, iconColor: stampIconColor, maxDisplay: 10, slotSize: stampSlotSize)
+                .padding(20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))

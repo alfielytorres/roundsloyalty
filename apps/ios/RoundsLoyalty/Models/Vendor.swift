@@ -21,6 +21,7 @@ struct Vendor: Codable, Identifiable {
     var cardBackMessage: String? = nil
     var cardFrontTextColor: String? = nil
     var cardBackTextColor: String? = nil
+    var stampColor: String? = nil
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -43,5 +44,6 @@ struct Vendor: Codable, Identifiable {
         case cardBackMessage = "card_back_message"
         case cardFrontTextColor = "card_front_text_color"
         case cardBackTextColor = "card_back_text_color"
+        case stampColor = "stamp_color"
     }
 }

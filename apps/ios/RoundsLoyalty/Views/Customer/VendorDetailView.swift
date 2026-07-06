@@ -53,7 +53,8 @@ struct VendorDetailView: View {
                             frontSubtext: membership.vendor?.cardFrontSubtext,
                             backMessage: membership.vendor?.cardBackMessage,
                             frontTextColor: membership.vendor?.cardFrontTextColor,
-                            backTextColor: membership.vendor?.cardBackTextColor
+                            backTextColor: membership.vendor?.cardBackTextColor,
+                            stampColorHex: membership.vendor?.stampColor
                         )
 
                         // Category / address

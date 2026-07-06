@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react'
 import { toJpeg } from 'html-to-image'
 import { RefreshCw, Share2 } from 'lucide-react'
-import { lum } from './colorUtils'
+import { lum, HEX6 } from './colorUtils'
 
 interface Props {
   vendorName: string
@@ -20,6 +20,7 @@ interface Props {
   backMessage?: string
   frontTextColor?: string    // '', 'dark', 'light' — '' = auto contrast
   backTextColor?: string
+  stampColor?: string        // hex for the inked stamp disc; '' = auto
 }
 
 // Resolve a per-side text-colour choice to a hex, falling back to auto.
@@ -115,9 +116,10 @@ function CardFace({ side, p, bleed = false }: { side: 'front' | 'back'; p: Props
 
   // BACK
   const backInk = inkFor(p.backTextColor, onCard)
-  const stampInk = emptyIsWhite ? '#ffffff' : '#1D1D1F'   // disc ink
-  const knockout = emptyIsWhite ? 'brightness(0)' : 'brightness(0) invert(1)'   // icon reversed out of the ink
-  const seal = display > 8 ? 13 : 15   // cqw per stamp
+  // Disc ink: vendor's stamp colour if set, else a readable dark/light auto ink.
+  const stampInk = p.stampColor && HEX6.test(p.stampColor) ? p.stampColor : (emptyIsWhite ? '#ffffff' : '#1D1D1F')
+  const knockout = lum(stampInk) > 0.5 ? 'brightness(0)' : 'brightness(0) invert(1)'   // icon reversed out, contrasting the disc
+  const seal = display > 8 ? 11 : 13   // cqw per stamp
   return (
     <div style={{ ...shell, background: p.brandHex }}>
       <div style={{ position: 'absolute', inset: 0, padding: '5.5cqw', display: 'flex', flexDirection: 'column', gap: '3cqw' }}>
@@ -130,7 +132,7 @@ function CardFace({ side, p, bleed = false }: { side: 'front' | 'back'; p: Props
           {/* Ink-stamp impressions: a soft blob waits for a stamp; earned slots are a
               solid inked disc with the icon knocked out, speckled and wobbled so it
               reads like a real, slightly grungy rubber stamp. */}
-          <div style={{ position: 'relative', display: 'grid', gap: '2.8cqw', gridTemplateColumns: `repeat(${cols}, ${seal}cqw)`, padding: '2cqw', transform: 'rotate(-1.5deg)' }}>
+          <div style={{ position: 'relative', display: 'grid', gap: '3.6cqw', gridTemplateColumns: `repeat(${cols}, ${seal}cqw)`, padding: '3cqw', transform: 'rotate(-1.5deg)' }}>
             {Array.from({ length: display }).map((_, i) => {
               const isFilled = i < filled
               const rot = ((i * 37) % 13) - 6

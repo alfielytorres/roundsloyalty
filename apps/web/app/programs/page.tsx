@@ -19,6 +19,7 @@ interface VendorData {
   card_back_message?: string | null
   card_front_text_color?: string | null
   card_back_text_color?: string | null
+  stamp_color?: string | null
 }
 
 interface ProgramRow {
@@ -66,6 +67,7 @@ async function ProgramView({ vendorId, vendorData, role }: { vendorId: string; v
         cardBackMessage={vendorData.card_back_message ?? ''}
         cardFrontTextColor={vendorData.card_front_text_color ?? ''}
         cardBackTextColor={vendorData.card_back_text_color ?? ''}
+        stampColor={vendorData.stamp_color ?? ''}
       />
     )
   }

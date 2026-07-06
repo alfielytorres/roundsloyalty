@@ -32,6 +32,7 @@ interface Props {
   cardBackMessage?: string
   cardFrontTextColor?: string
   cardBackTextColor?: string
+  stampColor?: string
 }
 
 const PRESETS = [
@@ -62,7 +63,7 @@ const COLOR_SWATCHES = [
   '#1D1D1F', // ink
 ]
 
-export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: logo0, brandColor: brand0, stampIcon: icon0, cardBackgroundUrl: bg0, stampBgColor: panel0, cardFrontUrl: front0 = '', cardFrontHeadline: fhl0 = '', cardFrontSubtext: fsub0 = '', cardBackMessage: bmsg0 = '', cardFrontTextColor: ftc0 = '', cardBackTextColor: btc0 = '' }: Props) {
+export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: logo0, brandColor: brand0, stampIcon: icon0, cardBackgroundUrl: bg0, stampBgColor: panel0, cardFrontUrl: front0 = '', cardFrontHeadline: fhl0 = '', cardFrontSubtext: fsub0 = '', cardBackMessage: bmsg0 = '', cardFrontTextColor: ftc0 = '', cardBackTextColor: btc0 = '', stampColor: stampcol0 = '' }: Props) {
   // Program fields
   const [name, setName] = useState(program?.name ?? '')
   const [rounds, setRounds] = useState(program?.rounds_required ?? 10)
@@ -77,6 +78,7 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
   const [stampIcon, setStampIcon] = useState(icon0 || '☕')
   const [cardBgUrl, setCardBgUrl] = useState(bg0)
   const [stampBgColor, setStampBgColor] = useState(panel0)
+  const [stampColor, setStampColor] = useState(stampcol0)
   // Two-sided card
   const [cardFrontUrl, setCardFrontUrl] = useState(front0)
   const [frontHeadline, setFrontHeadline] = useState(fhl0)
@@ -88,8 +90,10 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
   const frontRef = useRef<HTMLInputElement>(null)
   const [brandHex, setBrandHex] = useState(HEX6.test(brand0 || '') ? brand0.toUpperCase() : '#1D1D1F')
   const [stampBgHex, setStampBgHex] = useState(HEX6.test(panel0 || '') ? panel0.toUpperCase() : '')
+  const [stampColorHex, setStampColorHex] = useState(HEX6.test(stampcol0 || '') ? stampcol0.toUpperCase() : '')
   useEffect(() => { setBrandHex(resolveHex(brandColor) || '#1D1D1F') }, [brandColor])
   useEffect(() => { setStampBgHex(resolveHex(stampBgColor)) }, [stampBgColor])
+  useEffect(() => { setStampColorHex(resolveHex(stampColor)) }, [stampColor])
 
   const [logoUploading, setLogoUploading] = useState(false)
   const [bgUploading, setBgUploading] = useState(false)
@@ -133,6 +137,7 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
       <input type="hidden" name="card_back_message" value={backMessage} />
       <input type="hidden" name="card_front_text_color" value={frontTextColor} />
       <input type="hidden" name="card_back_text_color" value={backTextColor} />
+      <input type="hidden" name="stamp_color" value={stampColorHex} />
       {/* Stepper values */}
       <input type="hidden" name="rounds_required" value={rounds} />
       <input type="hidden" name="default_round_value" value={roundValue} />
@@ -228,6 +233,11 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
               </div>
             </Field>
 
+            {/* Stamp colour */}
+            <Field label="Stamp colour" hint="The colour of the stamp itself. Blank = auto (readable ink).">
+              <ColorPicker value={stampColor} hex={stampColorHex || '#1D1D1F'} onChange={setStampColor} placeholder="Auto" onReset={() => setStampColor('')} />
+            </Field>
+
             {/* Behind the stamps */}
             <Field label="Behind the stamps" hint="A colour or image to make stamps pop — image wins">
               <ColorPicker value={stampBgColor} hex={stampBgHex || brandHex} onChange={setStampBgColor} placeholder="Match card colour" onReset={() => setStampBgColor('')} />
@@ -302,6 +312,7 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
             backMessage={backMessage}
             frontTextColor={frontTextColor}
             backTextColor={backTextColor}
+            stampColor={stampColorHex}
           />
         </div>
       </div>
@@ -334,14 +345,25 @@ function Field({ label, hint, children }: { label: string; hint?: string; childr
 function ColorPicker({ value, hex, onChange, placeholder, onReset }: {
   value: string; hex: string; onChange: (v: string) => void; placeholder?: string; onReset?: () => void
 }) {
+  const nativeRef = useRef<HTMLInputElement>(null)
+  // iOS Safari doesn't reliably fire React's synthetic onChange for a colour
+  // input (the native sheet opens but the value never propagates), so bind the
+  // DOM input/change events directly.
+  useEffect(() => {
+    const el = nativeRef.current
+    if (!el) return
+    const push = () => onChange(el.value)
+    el.addEventListener('input', push)
+    el.addEventListener('change', push)
+    return () => { el.removeEventListener('input', push); el.removeEventListener('change', push) }
+  }, [onChange])
   return (
     <div>
       <div className="flex items-center gap-2">
         {/* A real, visible native colour input — mobile Safari won't commit a
             change on a hidden colour input, so it must stay on-screen. */}
-        <input type="color" aria-label="Pick a colour" value={hex}
-          onChange={e => onChange(e.target.value)} onInput={e => onChange((e.target as HTMLInputElement).value)}
-          className="color-swatch" />
+        <input ref={nativeRef} type="color" aria-label="Pick a colour" value={hex}
+          onChange={e => onChange(e.target.value)} className="color-swatch" />
         <input value={value} onChange={e => onChange(e.target.value)} inputMode="text" autoCapitalize="characters"
           placeholder={placeholder ?? '#1D1D1F'} className="flex-1 dark-input font-mono" />
         {onReset && value && <button type="button" onClick={onReset} className="text-sm text-black/40 hover:text-black/70">Reset</button>}
