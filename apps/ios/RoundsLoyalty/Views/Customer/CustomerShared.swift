@@ -115,7 +115,7 @@ private struct StampSlot: View {
 ///     headline + subtext). Lazy vendors get a clean gradient with their name.
 ///   • back  — the functional stamp side (message, stamp grid, progress/member).
 /// Tap the flip button (top-right) to reveal the back. Mirrored by the vendor
-/// portal's CardPreview, which exports each face as a JPEG for socials.
+/// portal's CardPreview, which exports each face as a PNG for socials.
 struct LoyaltyCardView: View {
     let businessName: String
     let logoUrl: String?

@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { toJpeg } from 'html-to-image'
+import { toPng } from 'html-to-image'
 import { RefreshCw, Share2 } from 'lucide-react'
 import { lum, HEX6 } from './colorUtils'
 
@@ -70,11 +70,12 @@ function CardFace({ side, p, bleed = false }: { side: 'front' | 'back'; p: Props
   const panelHex = p.stampBgHex || p.brandHex
   const emptyIsWhite = p.cardBgUrl ? true : lum(panelHex) <= 0.179
 
-  // In export ("bleed") mode the card fills the frame edge-to-edge with no
-  // rounded corners or shadow, so the JPEG is all card and no white margin.
+  // In export ("bleed") mode the card keeps its rounded corners but drops the
+  // shadow; the PNG is exported on a transparent background so the corners are
+  // clean (no white box) around the rounded card.
   const shell: React.CSSProperties = {
     aspectRatio: '1.586 / 1',
-    borderRadius: bleed ? 0 : '6cqw',
+    borderRadius: '6cqw',
     overflow: 'hidden',
     position: 'relative',
     boxShadow: bleed ? 'none' : '0 3cqw 6cqw rgba(0,0,0,0.22)',
@@ -177,9 +178,10 @@ export default function CardPreview(props: Props) {
     if (!node || busy) return
     setBusy(true)
     try {
-      const dataUrl = await toJpeg(node, { quality: 0.95, pixelRatio: 2, cacheBust: true, backgroundColor: props.brandHex || '#ffffff' })
+      // PNG with a transparent background so the rounded corners stay clean.
+      const dataUrl = await toPng(node, { pixelRatio: 2, cacheBust: true })
       const blob = await (await fetch(dataUrl)).blob()
-      const file = new File([blob], `${(props.vendorName || 'card').replace(/\s+/g, '-').toLowerCase()}-${which}.jpg`, { type: 'image/jpeg' })
+      const file = new File([blob], `${(props.vendorName || 'card').replace(/\s+/g, '-').toLowerCase()}-${which}.png`, { type: 'image/png' })
       const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean }
       if (nav.canShare?.({ files: [file] })) {
         await nav.share({ files: [file], title: `${props.vendorName} loyalty card` }).catch(() => {})
@@ -219,7 +221,7 @@ export default function CardPreview(props: Props) {
           <Share2 size={13} /> {busy ? 'Exporting…' : `Share ${side}`}
         </button>
       </div>
-      <p className="text-[11px] text-black/35 text-center">Tap the card to flip · share exports a JPEG for socials</p>
+      <p className="text-[11px] text-black/35 text-center">Tap the card to flip · share exports a PNG for socials</p>
 
       {/* Off-screen full-size faces used for export */}
       <div style={{ position: 'fixed', left: -99999, top: 0, pointerEvents: 'none' }} aria-hidden>
