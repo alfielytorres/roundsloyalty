@@ -40,7 +40,25 @@ const PRESETS = [
   { label: 'Sports', icon: '🎾', rounds: 10, reward: 'Free session' },
 ]
 
-const COLOR_SWATCHES = ['#E53935', '#8E24AA', '#1E88E5', '#00ACC1', '#43A047', '#F4511E', '#F9A825', '#3949AB', '#1D1D1F']
+// Pastel-forward, trendy palette. Light tones get black ink, dark tones white —
+// handled downstream by onColor(), so every swatch stays legible.
+const COLOR_SWATCHES = [
+  '#FF8FAB', // bubblegum pink
+  '#FF6B6B', // coral
+  '#FF9F68', // peach
+  '#FFC44D', // marigold
+  '#FFE066', // butter yellow
+  '#C4E17F', // lime
+  '#8CE0B0', // mint
+  '#4ECDC4', // teal
+  '#5BC0EB', // sky blue
+  '#6C8DFF', // cornflower
+  '#9D8DF1', // periwinkle
+  '#C08CF0', // lilac
+  '#EA80C8', // orchid
+  '#A67B5B', // mocha
+  '#1D1D1F', // ink
+]
 
 export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: logo0, brandColor: brand0, stampIcon: icon0, cardBackgroundUrl: bg0, stampBgColor: panel0, cardFrontUrl: front0 = '', cardFrontHeadline: fhl0 = '', cardFrontSubtext: fsub0 = '', cardBackMessage: bmsg0 = '' }: Props) {
   // Program fields
@@ -305,17 +323,23 @@ function ColorPicker({ value, hex, onChange, placeholder, onReset }: {
   return (
     <div>
       <div className="flex items-center gap-2">
-        <label className="cursor-pointer shrink-0">
-          <input type="color" value={hex} onChange={e => onChange(e.target.value)} className="sr-only" />
-          <div className="w-10 h-10 rounded-xl border border-black/10 shadow-sm" style={{ backgroundColor: hex }} />
-        </label>
-        <input value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder ?? '#1D1D1F'} className="flex-1 dark-input font-mono" />
+        {/* Native picker sits on top of the swatch at full size with opacity 0 so
+            the tap lands on a real, interactive input — mobile browsers won't open
+            a color input that's been visually clipped (e.g. sr-only). */}
+        <div className="relative w-10 h-10 shrink-0">
+          <div className="w-10 h-10 rounded-xl border border-black/10 shadow-sm pointer-events-none" style={{ backgroundColor: hex }} />
+          <input type="color" aria-label="Pick a colour" value={hex}
+            onChange={e => onChange(e.target.value)}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+        </div>
+        <input value={value} onChange={e => onChange(e.target.value)} inputMode="text" autoCapitalize="characters"
+          placeholder={placeholder ?? '#1D1D1F'} className="flex-1 dark-input font-mono" />
         {onReset && value && <button type="button" onClick={onReset} className="text-sm text-black/40 hover:text-black/70">Reset</button>}
       </div>
       <div className="flex gap-2 mt-2 flex-wrap">
         {COLOR_SWATCHES.map(c => (
-          <button key={c} type="button" onClick={() => onChange(c)}
-            className={`w-7 h-7 rounded-lg border-2 transition-transform hover:scale-110 ${hex.toUpperCase() === c ? 'border-black/50 scale-110' : 'border-transparent'}`}
+          <button key={c} type="button" onClick={() => onChange(c)} aria-label={`Use ${c}`}
+            className={`w-7 h-7 rounded-lg border-2 transition-transform hover:scale-110 active:scale-95 ${hex.toUpperCase() === c ? 'border-black/60 scale-110' : 'border-black/10'}`}
             style={{ backgroundColor: c }} />
         ))}
       </div>
