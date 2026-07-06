@@ -26,6 +26,10 @@ interface Props {
   stampIcon: string
   cardBackgroundUrl: string
   stampBgColor: string
+  cardFrontUrl?: string
+  cardFrontHeadline?: string
+  cardFrontSubtext?: string
+  cardBackMessage?: string
 }
 
 const PRESETS = [
@@ -38,7 +42,7 @@ const PRESETS = [
 
 const COLOR_SWATCHES = ['#E53935', '#8E24AA', '#1E88E5', '#00ACC1', '#43A047', '#F4511E', '#F9A825', '#3949AB', '#1D1D1F']
 
-export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: logo0, brandColor: brand0, stampIcon: icon0, cardBackgroundUrl: bg0, stampBgColor: panel0 }: Props) {
+export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: logo0, brandColor: brand0, stampIcon: icon0, cardBackgroundUrl: bg0, stampBgColor: panel0, cardFrontUrl: front0 = '', cardFrontHeadline: fhl0 = '', cardFrontSubtext: fsub0 = '', cardBackMessage: bmsg0 = '' }: Props) {
   // Program fields
   const [name, setName] = useState(program?.name ?? '')
   const [rounds, setRounds] = useState(program?.rounds_required ?? 10)
@@ -53,6 +57,13 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
   const [stampIcon, setStampIcon] = useState(icon0 || '☕')
   const [cardBgUrl, setCardBgUrl] = useState(bg0)
   const [stampBgColor, setStampBgColor] = useState(panel0)
+  // Two-sided card
+  const [cardFrontUrl, setCardFrontUrl] = useState(front0)
+  const [frontHeadline, setFrontHeadline] = useState(fhl0)
+  const [frontSubtext, setFrontSubtext] = useState(fsub0)
+  const [backMessage, setBackMessage] = useState(bmsg0)
+  const [frontUploading, setFrontUploading] = useState(false)
+  const frontRef = useRef<HTMLInputElement>(null)
   const [brandHex, setBrandHex] = useState(HEX6.test(brand0 || '') ? brand0.toUpperCase() : '#1D1D1F')
   const [stampBgHex, setStampBgHex] = useState(HEX6.test(panel0 || '') ? panel0.toUpperCase() : '')
   useEffect(() => { setBrandHex(resolveHex(brandColor) || '#1D1D1F') }, [brandColor])
@@ -75,6 +86,7 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
   }
   async function onLogo(e: ChangeEvent<HTMLInputElement>) { const f = e.target.files?.[0]; if (!f) return; setLogoUploading(true); setError(null); const u = await upload(f, 'logo'); if (u) setLogoUrl(u); setLogoUploading(false) }
   async function onBg(e: ChangeEvent<HTMLInputElement>) { const f = e.target.files?.[0]; if (!f) return; setBgUploading(true); setError(null); const u = await upload(f, 'card-bg'); if (u) setCardBgUrl(u); setBgUploading(false) }
+  async function onFront(e: ChangeEvent<HTMLInputElement>) { const f = e.target.files?.[0]; if (!f) return; setFrontUploading(true); setError(null); const u = await upload(f, 'card-front'); if (u) setCardFrontUrl(u); setFrontUploading(false) }
 
   function applyPreset(p: typeof PRESETS[number]) {
     setStampIcon(p.icon)
@@ -93,6 +105,10 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
       <input type="hidden" name="stamp_icon" value={stampIcon} />
       <input type="hidden" name="card_background_url" value={cardBgUrl} />
       <input type="hidden" name="stamp_bg_color" value={stampBgHex} />
+      <input type="hidden" name="card_front_url" value={cardFrontUrl} />
+      <input type="hidden" name="card_front_headline" value={frontHeadline} />
+      <input type="hidden" name="card_front_subtext" value={frontSubtext} />
+      <input type="hidden" name="card_back_message" value={backMessage} />
       {/* Stepper values */}
       <input type="hidden" name="rounds_required" value={rounds} />
       <input type="hidden" name="default_round_value" value={roundValue} />
@@ -202,6 +218,34 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
             </Field>
           </Section>
 
+          {/* Card front — the identity side */}
+          <Section title="Card front" subtitle="The face customers see first. Leave blank for a clean branded card.">
+            <Field label="Front background" hint="Full-bleed art (a designed image). Optional.">
+              <div className="flex items-center gap-3">
+                <div className="w-20 h-12 rounded-xl shrink-0 overflow-hidden border border-black/10 bg-black/5"
+                  style={{ background: cardFrontUrl ? `url(${cardFrontUrl}) center/cover` : (brandHex) }} />
+                <button type="button" onClick={() => frontRef.current?.click()} className="text-sm font-semibold text-black/60 border border-black/10 rounded-xl px-3 py-2 hover:bg-black/5 transition-colors">
+                  {frontUploading ? 'Uploading…' : cardFrontUrl ? 'Replace' : 'Upload art'}
+                </button>
+                {cardFrontUrl && <button type="button" onClick={() => setCardFrontUrl('')} className="text-sm text-black/40 hover:text-black/70">Remove</button>}
+              </div>
+              <input ref={frontRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={onFront} />
+            </Field>
+            <Field label="Headline" hint="Top of the front. Defaults to your store name.">
+              <input value={frontHeadline} onChange={e => setFrontHeadline(e.target.value)} maxLength={40} placeholder={vendorName || 'Your Store'} className="w-full dark-input" />
+            </Field>
+            <Field label="Subtext" hint="Bottom of the front. Optional.">
+              <input value={frontSubtext} onChange={e => setFrontSubtext(e.target.value)} maxLength={60} placeholder="e.g. Sip. Stamp. Repeat." className="w-full dark-input" />
+            </Field>
+          </Section>
+
+          {/* Card back — the functional side */}
+          <Section title="Card back" subtitle="The stamp side">
+            <Field label="Message" hint="Shown above the stamps. Defaults from your reward.">
+              <input value={backMessage} onChange={e => setBackMessage(e.target.value)} maxLength={60} placeholder="e.g. We're so lucky to have you!" className="w-full dark-input" />
+            </Field>
+          </Section>
+
           {error && <p className="text-sm text-red-600">{error}</p>}
 
           <SubmitButton className="btn-primary w-full inline-flex items-center justify-center gap-2"
@@ -222,6 +266,10 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
             icon={stampIcon}
             rounds={rounds}
             rewardName={rewardName}
+            frontUrl={cardFrontUrl}
+            frontHeadline={frontHeadline}
+            frontSubtext={frontSubtext}
+            backMessage={backMessage}
           />
         </div>
       </div>

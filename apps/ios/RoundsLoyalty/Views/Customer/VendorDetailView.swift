@@ -47,7 +47,11 @@ struct VendorDetailView: View {
                             required: required,
                             rewardName: membership.program?.rewardName,
                             memberName: memberName,
-                            rewardsCount: availableReward != nil ? 1 : 0
+                            rewardsCount: availableReward != nil ? 1 : 0,
+                            frontUrl: membership.vendor?.cardFrontUrl,
+                            frontHeadline: membership.vendor?.cardFrontHeadline,
+                            frontSubtext: membership.vendor?.cardFrontSubtext,
+                            backMessage: membership.vendor?.cardBackMessage
                         )
 
                         // Category / address

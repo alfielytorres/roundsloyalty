@@ -98,9 +98,12 @@ private struct StampSlot: View {
 // MARK: - Loyalty card
 
 /// The designed loyalty card shown to customers — used on the home screen and
-/// in the vendor-detail sheet. The whole card takes the vendor's brand colour;
-/// the stamp panel can use a separate colour or a background image. Mirrored by
-/// the vendor portal's BrandingEditor preview.
+/// in the vendor-detail sheet. It has two faces, like a real card:
+///   • front — the brand identity side (custom art or brand gradient, logo,
+///     headline + subtext). Lazy vendors get a clean gradient with their name.
+///   • back  — the functional stamp side (message, stamp grid, progress/member).
+/// Tap the flip button (top-right) to reveal the back. Mirrored by the vendor
+/// portal's CardPreview, which exports each face as a JPEG for socials.
 struct LoyaltyCardView: View {
     let businessName: String
     let logoUrl: String?
@@ -113,6 +116,12 @@ struct LoyaltyCardView: View {
     let rewardName: String?
     var memberName: String? = nil
     var rewardsCount: Int = 0
+    var frontUrl: String? = nil
+    var frontHeadline: String? = nil
+    var frontSubtext: String? = nil
+    var backMessage: String? = nil
+
+    @State private var showBack = false
 
     private var cardColor: Color { Color.vendorAccent(brandColorHex) }
     private var cardIsLight: Bool { Color.luminanceHex(brandColorHex) > 0.4 }
@@ -122,6 +131,10 @@ struct LoyaltyCardView: View {
         guard let s = backgroundUrl, !s.isEmpty else { return nil }
         return URL(string: s)
     }
+    private var frontURL: URL? {
+        guard let s = frontUrl, !s.isEmpty else { return nil }
+        return URL(string: s)
+    }
     private var emptyStampColor: Color {
         if bgURL != nil { return Color.white.opacity(0.92) }
         // Dark silhouette on light panels (incl. white), white silhouette on dark.
@@ -129,91 +142,211 @@ struct LoyaltyCardView: View {
         return Color.luminanceHex(panelHex) > 0.179 ? Color.black.opacity(0.8) : Color.white.opacity(0.92)
     }
     private var remaining: Int { max(0, required - current) }
+    private var isReady: Bool { remaining == 0 && required > 0 }
+    private var stampSlotSize: CGFloat {
+        let n = min(required, 20)
+        if n > 15 { return 20 }
+        if n > 10 { return 24 }
+        return 28
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            // Header — logo top-left + name
-            HStack(spacing: 8) {
-                if let logoUrl, let url = URL(string: logoUrl) {
-                    // White chip + aspect-fit so non-square logos fit without distortion.
-                    RoundedRectangle(cornerRadius: 8)
-                        .fill(Color.white)
-                        .frame(width: 32, height: 32)
-                        .overlay(
-                            AsyncImage(url: url) { img in img.resizable().scaledToFit() }
-                                placeholder: { Color.clear }
-                                .padding(3)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+        ZStack {
+            frontFace
+                .opacity(showBack ? 0 : 1)
+                .rotation3DEffect(.degrees(showBack ? 180 : 0), axis: (x: 0, y: 1, z: 0), perspective: 0.6)
+            backFace
+                .opacity(showBack ? 1 : 0)
+                .rotation3DEffect(.degrees(showBack ? 0 : -180), axis: (x: 0, y: 1, z: 0), perspective: 0.6)
+        }
+        .aspectRatio(1.586, contentMode: .fit)
+        .overlay(alignment: .topTrailing) { flipButton }
+        .shadow(color: .black.opacity(0.14), radius: 16, x: 0, y: 8)
+    }
+
+    // MARK: Front (identity)
+
+    private var frontFace: some View {
+        let ink: Color = frontURL != nil ? .white : onCard
+        return ZStack {
+            if let frontURL {
+                AsyncImage(url: frontURL) { img in
+                    img.resizable().scaledToFill()
+                } placeholder: {
+                    brandGradient
                 }
-                Text(businessName)
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(onCard)
-                    .lineLimit(1)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .clipped()
+                // Scrim keeps text legible over any photo.
+                LinearGradient(colors: [.black.opacity(0.38), .clear, .clear, .black.opacity(0.45)],
+                               startPoint: .top, endPoint: .bottom)
+            } else {
+                brandGradient
+            }
+            sheen
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(spacing: 10) {
+                    logoChip
+                    Text((frontHeadline?.isEmpty == false ? frontHeadline! : businessName))
+                        .font(.system(size: 20, weight: .heavy, design: .rounded))
+                        .foregroundColor(ink)
+                        .lineLimit(2)
+                        .shadow(color: frontURL != nil ? .black.opacity(0.45) : .clear, radius: 4, x: 0, y: 1)
+                    Spacer(minLength: 0)
+                }
+                Spacer(minLength: 0)
+                if let sub = frontSubtext, !sub.isEmpty {
+                    Text(sub)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(ink.opacity(0.95))
+                        .lineLimit(2)
+                        .shadow(color: frontURL != nil ? .black.opacity(0.5) : .clear, radius: 4, x: 0, y: 1)
+                } else if frontURL == nil {
+                    Text("Loyalty card")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(ink.opacity(0.7))
+                }
+            }
+            .padding(20)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+
+    // MARK: Back (stamps)
+
+    private var backFace: some View {
+        ZStack {
+            brandGradient
+            sheen
+            VStack(spacing: 10) {
+                Text((backMessage?.isEmpty == false ? backMessage! : defaultBackMessage))
+                    .font(.system(size: 13, weight: .semibold))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(onCard.opacity(0.92))
+                    .lineLimit(2)
+                    .padding(.horizontal, 28)   // clear the flip button
+                stampPanel
+                backFooter
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+    }
+
+    private var defaultBackMessage: String {
+        if let rewardName, !rewardName.isEmpty { return "Collect \(required) for \(rewardName)" }
+        return "Collect \(required) stamps for a reward"
+    }
+
+    private var stampPanel: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(hasPanelColor ? Color(hex: stampBgColorHex!) : cardColor)
+            if !hasPanelColor && bgURL == nil {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(cardIsLight ? Color.black.opacity(0.14) : Color.white.opacity(0.14))
+            }
+            if let bgURL {
+                AsyncImage(url: bgURL) { img in img.resizable().scaledToFill() }
+                    placeholder: { Color.clear }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+                RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.black.opacity(0.18))
+            }
+            StampGrid(icon: icon, filled: min(current, required), total: required,
+                      emptyColor: emptyStampColor, maxDisplay: 20, slotSize: stampSlotSize)
+                .padding(12)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+    }
+
+    @ViewBuilder private var backFooter: some View {
+        if let memberName {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("MEMBER").font(.system(size: 9, weight: .bold)).foregroundColor(onCard.opacity(0.6))
+                    Text(memberName).font(.system(size: 14, weight: .semibold)).foregroundColor(onCard).lineLimit(1)
+                }
                 Spacer()
-                if remaining == 0 && required > 0 {
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text("REWARDS").font(.system(size: 9, weight: .bold)).foregroundColor(onCard.opacity(0.6))
+                    HStack(spacing: 4) {
+                        Text("\(rewardsCount)").font(.system(size: 14, weight: .semibold)).foregroundColor(onCard)
+                        Text("×").font(.system(size: 11)).foregroundColor(onCard.opacity(0.6))
+                        Text(icon.isEmpty ? "☕" : icon).font(.system(size: 14))
+                    }
+                }
+            }
+        } else {
+            HStack(spacing: 8) {
+                Text("\(min(current, required)) / \(required)").font(.system(size: 14, weight: .bold)).foregroundColor(onCard)
+                if isReady {
                     Text("READY")
-                        .font(.system(size: 10, weight: .bold))
+                        .font(.system(size: 9, weight: .bold))
                         .foregroundColor(cardColor)
-                        .padding(.horizontal, 8).padding(.vertical, 4)
+                        .padding(.horizontal, 7).padding(.vertical, 3)
                         .background(Capsule().fill(onCard))
                 }
-            }
-
-            // Stamp panel
-            ZStack {
-                RoundedRectangle(cornerRadius: 18)
-                    .fill(hasPanelColor ? Color(hex: stampBgColorHex!) : cardColor)
-                if !hasPanelColor && bgURL == nil {
-                    RoundedRectangle(cornerRadius: 18)
-                        .fill(cardIsLight ? Color.black.opacity(0.16) : Color.white.opacity(0.16))
-                }
-                if let bgURL {
-                    AsyncImage(url: bgURL) { img in img.resizable().scaledToFill() }
-                        placeholder: { Color.clear }
-                        .clipShape(RoundedRectangle(cornerRadius: 18))
-                    RoundedRectangle(cornerRadius: 18).fill(Color.black.opacity(0.18))
-                }
-                StampGrid(icon: icon, filled: min(current, required), total: required,
-                          emptyColor: emptyStampColor, maxDisplay: 20, slotSize: 34)
-                    .padding(16)
-            }
-
-            // Footer
-            if let memberName {
-                HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("MEMBER").font(.system(size: 10, weight: .bold)).foregroundColor(onCard.opacity(0.6))
-                        Text(memberName).font(.system(size: 15, weight: .semibold)).foregroundColor(onCard).lineLimit(1)
-                    }
-                    Spacer()
-                    VStack(alignment: .trailing, spacing: 2) {
-                        Text("REWARDS").font(.system(size: 10, weight: .bold)).foregroundColor(onCard.opacity(0.6))
-                        HStack(spacing: 4) {
-                            Text("\(rewardsCount)").font(.system(size: 15, weight: .semibold)).foregroundColor(onCard)
-                            Text("×").font(.system(size: 12)).foregroundColor(onCard.opacity(0.6))
-                            Text(icon.isEmpty ? "☕" : icon).font(.system(size: 15))
-                        }
-                    }
-                }
-            } else {
-                HStack {
-                    Text("\(min(current, required)) / \(required)").font(.system(size: 14, weight: .bold)).foregroundColor(onCard)
-                    Spacer()
-                    if let rewardName {
-                        Text(remaining > 0 ? "\(remaining) more for \(rewardName)" : "Ready: \(rewardName)")
-                            .font(.system(size: 11))
-                            .foregroundColor(onCard.opacity(0.75))
-                            .lineLimit(1)
-                    }
+                Spacer()
+                if let rewardName {
+                    Text(remaining > 0 ? "\(remaining) more for \(rewardName)" : "Ready: \(rewardName)")
+                        .font(.system(size: 11))
+                        .foregroundColor(onCard.opacity(0.75))
+                        .lineLimit(1)
                 }
             }
         }
-        .padding(18)
-        .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(cardColor)
-                .shadow(color: .black.opacity(0.12), radius: 14, x: 0, y: 6)
-        )
+    }
+
+    // MARK: Shared pieces
+
+    @ViewBuilder private var logoChip: some View {
+        if let logoUrl, let url = URL(string: logoUrl) {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(Color.white)
+                .frame(width: 34, height: 34)
+                .overlay(
+                    AsyncImage(url: url) { img in img.resizable().scaledToFit() }
+                        placeholder: { Color.clear }
+                        .padding(3)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .shadow(color: .black.opacity(0.15), radius: 3, x: 0, y: 1)
+        }
+    }
+
+    private var brandGradient: some View {
+        ZStack {
+            cardColor
+            LinearGradient(colors: [Color.white.opacity(0.12), Color.clear, Color.black.opacity(0.22)],
+                           startPoint: .topLeading, endPoint: .bottomTrailing)
+        }
+    }
+
+    private var sheen: some View {
+        LinearGradient(colors: [Color.white.opacity(0.22), Color.clear],
+                       startPoint: .topLeading, endPoint: .center)
+            .allowsHitTesting(false)
+    }
+
+    private var flipButton: some View {
+        Button {
+            withAnimation(.spring(response: 0.5, dampingFraction: 0.78)) { showBack.toggle() }
+        } label: {
+            Image(systemName: "arrow.left.arrow.right")
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(.white)
+                .frame(width: 28, height: 28)
+                .background(Color.black.opacity(0.32))
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Color.white.opacity(0.4), lineWidth: 0.5))
+        }
+        .buttonStyle(.plain)
+        .padding(10)
     }
 }

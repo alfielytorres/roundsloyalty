@@ -13,6 +13,10 @@ interface VendorData {
   stamp_icon: string | null
   card_background_url: string | null
   stamp_bg_color: string | null
+  card_front_url?: string | null
+  card_front_headline?: string | null
+  card_front_subtext?: string | null
+  card_back_message?: string | null
 }
 
 interface ProgramRow {
@@ -54,6 +58,10 @@ async function ProgramView({ vendorId, vendorData, role }: { vendorId: string; v
         stampIcon={vendorData.stamp_icon ?? '☕'}
         cardBackgroundUrl={vendorData.card_background_url ?? ''}
         stampBgColor={vendorData.stamp_bg_color ?? ''}
+        cardFrontUrl={vendorData.card_front_url ?? ''}
+        cardFrontHeadline={vendorData.card_front_headline ?? ''}
+        cardFrontSubtext={vendorData.card_front_subtext ?? ''}
+        cardBackMessage={vendorData.card_back_message ?? ''}
       />
     )
   }
