@@ -190,7 +190,11 @@ export default function CardPreview(props: Props) {
     await Promise.all(imgs.map(async (img) => {
       if (img.src.startsWith('data:')) return
       try {
-        const res = await fetch(img.src, { mode: 'cors', cache: 'no-cache' })
+        // Cache-bust so we never reuse a non-CORS cache entry (e.g. one poisoned
+        // by a plain CSS background-image load of the same freshly-uploaded URL),
+        // which is why export used to only work after a save/reload.
+        const bust = img.src + (img.src.includes('?') ? '&' : '?') + 'cb=' + Date.now()
+        const res = await fetch(bust, { mode: 'cors', cache: 'reload' })
         const blob = await res.blob()
         const dataUrl: string = await new Promise((resolve, reject) => {
           const fr = new FileReader()

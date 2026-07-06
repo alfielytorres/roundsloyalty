@@ -63,6 +63,33 @@ const COLOR_SWATCHES = [
   '#1D1D1F', // ink
 ]
 
+// Shrink big photos in the browser before upload — the serverless upload route
+// caps the request body (~4.5 MB), so a large art image would otherwise fail.
+// SVGs/GIFs and already-small files pass through untouched.
+async function downscaleImage(file: File, maxDim = 1600, quality = 0.85): Promise<File> {
+  if (!file.type.startsWith('image/') || file.type === 'image/svg+xml' || file.type === 'image/gif') return file
+  if (file.size < 1_200_000) return file
+  try {
+    const bmp = await createImageBitmap(file)
+    const scale = Math.min(1, maxDim / Math.max(bmp.width, bmp.height))
+    const w = Math.max(1, Math.round(bmp.width * scale))
+    const h = Math.max(1, Math.round(bmp.height * scale))
+    const canvas = document.createElement('canvas')
+    canvas.width = w; canvas.height = h
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return file
+    ctx.drawImage(bmp, 0, 0, w, h)
+    bmp.close?.()
+    // WebP keeps transparency and compresses well; fall back to JPEG if unsupported.
+    let type = 'image/webp'
+    let blob: Blob | null = await new Promise(r => canvas.toBlob(r, type, quality))
+    if (!blob) { type = 'image/jpeg'; blob = await new Promise(r => canvas.toBlob(r, type, quality)) }
+    if (!blob || blob.size >= file.size) return file
+    const ext = type === 'image/webp' ? 'webp' : 'jpg'
+    return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.' + ext, { type })
+  } catch { return file }
+}
+
 export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: logo0, brandColor: brand0, stampIcon: icon0, cardBackgroundUrl: bg0, stampBgColor: panel0, cardFrontUrl: front0 = '', cardFrontHeadline: fhl0 = '', cardFrontSubtext: fsub0 = '', cardBackMessage: bmsg0 = '', cardFrontTextColor: ftc0 = '', cardBackTextColor: btc0 = '', stampColor: stampcol0 = '' }: Props) {
   // Program fields
   const [name, setName] = useState(program?.name ?? '')
@@ -104,15 +131,19 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
   async function upload(file: File, prefix: string): Promise<string | null> {
     const fd = new FormData()
     fd.append('file', file); fd.append('prefix', prefix)
-    const res = await fetch('/api/settings/logo', { method: 'POST', body: fd })
-    const json = await res.json()
-    if (json.url) return json.url
-    setError(json.error ?? 'Upload failed')
+    let res: Response
+    try {
+      res = await fetch('/api/settings/logo', { method: 'POST', body: fd })
+    } catch { setError('Upload failed — check your connection'); return null }
+    let json: { url?: string; error?: string } | null = null
+    try { json = await res.json() } catch { /* non-JSON (e.g. 413 too large) */ }
+    if (res.ok && json?.url) return json.url
+    setError(json?.error ?? (res.status === 413 ? 'Image is too large' : `Upload failed (${res.status})`))
     return null
   }
-  async function onLogo(e: ChangeEvent<HTMLInputElement>) { const f = e.target.files?.[0]; if (!f) return; setLogoUploading(true); setError(null); const u = await upload(f, 'logo'); if (u) setLogoUrl(u); setLogoUploading(false) }
-  async function onBg(e: ChangeEvent<HTMLInputElement>) { const f = e.target.files?.[0]; if (!f) return; setBgUploading(true); setError(null); const u = await upload(f, 'card-bg'); if (u) setCardBgUrl(u); setBgUploading(false) }
-  async function onFront(e: ChangeEvent<HTMLInputElement>) { const f = e.target.files?.[0]; if (!f) return; setFrontUploading(true); setError(null); const u = await upload(f, 'card-front'); if (u) setCardFrontUrl(u); setFrontUploading(false) }
+  async function onLogo(e: ChangeEvent<HTMLInputElement>) { const f = e.target.files?.[0]; if (!f) return; setLogoUploading(true); setError(null); try { const u = await upload(await downscaleImage(f), 'logo'); if (u) setLogoUrl(u) } finally { setLogoUploading(false) } }
+  async function onBg(e: ChangeEvent<HTMLInputElement>) { const f = e.target.files?.[0]; if (!f) return; setBgUploading(true); setError(null); try { const u = await upload(await downscaleImage(f), 'card-bg'); if (u) setCardBgUrl(u) } finally { setBgUploading(false) } }
+  async function onFront(e: ChangeEvent<HTMLInputElement>) { const f = e.target.files?.[0]; if (!f) return; setFrontUploading(true); setError(null); try { const u = await upload(await downscaleImage(f), 'card-front'); if (u) setCardFrontUrl(u) } finally { setFrontUploading(false) } }
 
   function applyPreset(p: typeof PRESETS[number]) {
     setStampIcon(p.icon)
@@ -242,7 +273,11 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
             <Field label="Behind the stamps" hint="A colour or image to make stamps pop — image wins">
               <ColorPicker value={stampBgColor} hex={stampBgHex || brandHex} onChange={setStampBgColor} placeholder="Match card colour" onReset={() => setStampBgColor('')} />
               <div className="flex items-center gap-3 mt-3">
-                <div className="w-16 h-10 rounded-xl shrink-0 overflow-hidden border border-black/10" style={{ background: cardBgUrl ? `url(${cardBgUrl}) center/cover` : (stampBgHex || brandHex) }} />
+                <div className="w-16 h-10 rounded-xl shrink-0 overflow-hidden border border-black/10" style={{ background: stampBgHex || brandHex }}>
+                  {/* crossOrigin so this preview load doesn't poison the cache for the CORS export fetch */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {cardBgUrl && <img src={cardBgUrl} alt="" crossOrigin="anonymous" className="w-full h-full object-cover" />}
+                </div>
                 <button type="button" onClick={() => bgRef.current?.click()} className="text-sm font-semibold text-black/60 border border-black/10 rounded-xl px-3 py-2 hover:bg-black/5 transition-colors">
                   {bgUploading ? 'Uploading…' : cardBgUrl ? 'Replace image' : 'Upload image'}
                 </button>
@@ -256,8 +291,11 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
           <Section title="Card front" subtitle="The face customers see first. Leave blank for a clean branded card.">
             <Field label="Front background" hint="Full-bleed art (a designed image). Optional.">
               <div className="flex items-center gap-3">
-                <div className="w-20 h-12 rounded-xl shrink-0 overflow-hidden border border-black/10 bg-black/5"
-                  style={{ background: cardFrontUrl ? `url(${cardFrontUrl}) center/cover` : (brandHex) }} />
+                <div className="w-20 h-12 rounded-xl shrink-0 overflow-hidden border border-black/10" style={{ background: brandHex }}>
+                  {/* crossOrigin so this preview load doesn't poison the cache for the CORS export fetch */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  {cardFrontUrl && <img src={cardFrontUrl} alt="" crossOrigin="anonymous" className="w-full h-full object-cover" />}
+                </div>
                 <button type="button" onClick={() => frontRef.current?.click()} className="text-sm font-semibold text-black/60 border border-black/10 rounded-xl px-3 py-2 hover:bg-black/5 transition-colors">
                   {frontUploading ? 'Uploading…' : cardFrontUrl ? 'Replace' : 'Upload art'}
                 </button>
