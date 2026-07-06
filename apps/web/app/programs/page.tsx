@@ -17,6 +17,8 @@ interface VendorData {
   card_front_headline?: string | null
   card_front_subtext?: string | null
   card_back_message?: string | null
+  card_front_text_color?: string | null
+  card_back_text_color?: string | null
 }
 
 interface ProgramRow {
@@ -62,6 +64,8 @@ async function ProgramView({ vendorId, vendorData, role }: { vendorId: string; v
         cardFrontHeadline={vendorData.card_front_headline ?? ''}
         cardFrontSubtext={vendorData.card_front_subtext ?? ''}
         cardBackMessage={vendorData.card_back_message ?? ''}
+        cardFrontTextColor={vendorData.card_front_text_color ?? ''}
+        cardBackTextColor={vendorData.card_back_text_color ?? ''}
       />
     )
   }

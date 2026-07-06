@@ -18,6 +18,13 @@ interface Props {
   frontHeadline?: string
   frontSubtext?: string
   backMessage?: string
+  frontTextColor?: string    // '', 'dark', 'light' — '' = auto contrast
+  backTextColor?: string
+}
+
+// Resolve a per-side text-colour choice to a hex, falling back to auto.
+function inkFor(choice: string | undefined, auto: string): string {
+  return choice === 'dark' ? '#1D1D1F' : choice === 'light' ? '#ffffff' : auto
 }
 
 // Most balanced grid width for n stamps (columns >= rows).
@@ -50,8 +57,7 @@ function CardFace({ side, p }: { side: 'front' | 'back'; p: Props }) {
   const hasPanel = !!p.stampBgHex
   const panelHex = p.stampBgHex || p.brandHex
   const emptyIsWhite = p.cardBgUrl ? true : lum(panelHex) <= 0.179
-  const emptyFilter = emptyIsWhite ? 'brightness(0) invert(1)' : 'brightness(0)'
-  const sticker = 'drop-shadow(0 0 0.4cqw #fff) drop-shadow(0 0 0.4cqw #fff) drop-shadow(0 0.4cqw 0.3cqw rgba(0,0,0,0.28))'
+  const inkFilter = emptyIsWhite ? 'brightness(0) invert(1)' : 'brightness(0)'   // tint emoji to one ink
 
   const shell: React.CSSProperties = {
     aspectRatio: '1.586 / 1',
@@ -66,7 +72,7 @@ function CardFace({ side, p }: { side: 'front' | 'back'; p: Props }) {
   if (side === 'front') {
     const bg = p.frontUrl ? `url(${p.frontUrl}) center/cover` : `linear-gradient(150deg, ${p.brandHex}, ${shade(p.brandHex, -22)})`
     const overlayText = p.frontHeadline || p.frontSubtext || !p.frontUrl
-    const ink = p.frontUrl ? '#fff' : onCard
+    const ink = inkFor(p.frontTextColor, p.frontUrl ? '#fff' : onCard)
     return (
       <div style={{ ...shell, background: bg }}>
         {p.frontUrl && overlayText && (
@@ -98,29 +104,42 @@ function CardFace({ side, p }: { side: 'front' | 'back'; p: Props }) {
   }
 
   // BACK
+  const backInk = inkFor(p.backTextColor, onCard)
+  const stampInk = emptyIsWhite ? '#ffffff' : '#1D1D1F'
+  const seal = display > 15 ? 9 : display > 10 ? 10.5 : 12   // cqw per stamp
   return (
     <div style={{ ...shell, background: `linear-gradient(150deg, ${p.brandHex}, ${shade(p.brandHex, -22)})` }}>
       {sheen}
       <div style={{ position: 'absolute', inset: 0, padding: '5.5cqw', display: 'flex', flexDirection: 'column', gap: '3cqw' }}>
-        <p style={{ fontSize: '3.8cqw', fontWeight: 700, letterSpacing: '0.02em', textAlign: 'center', opacity: 0.92 }}>
+        <p style={{ fontSize: '3.8cqw', fontWeight: 700, letterSpacing: '0.02em', textAlign: 'center', opacity: 0.92, color: backInk }}>
           {p.backMessage || `Collect ${total} for ${p.rewardName || 'a reward'}`}
         </p>
         <div style={{ flex: 1, borderRadius: '4cqw', position: 'relative', overflow: 'hidden', background: p.cardBgUrl ? `url(${p.cardBgUrl}) center/cover` : panelHex, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {(!hasPanel && !p.cardBgUrl) && <div style={{ position: 'absolute', inset: 0, background: lum(panelHex) > 0.4 ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.14)' }} />}
           {p.cardBgUrl && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.18)' }} />}
-          <div style={{ position: 'relative', display: 'grid', gap: '2.4cqw', gridTemplateColumns: `repeat(${cols}, minmax(0, auto))`, padding: '3cqw', transform: 'rotate(-1.5deg)' }}>
-            {Array.from({ length: display }).map((_, i) => (
-              <span key={i} style={{
-                fontSize: '5.6cqw', lineHeight: 1, textAlign: 'center',
-                transform: `rotate(${((i * 37) % 13) - 6}deg)`,
-                ...(i < filled
-                  ? { filter: sticker }
-                  : { filter: `${emptyFilter} drop-shadow(0 0 0.2cqw rgba(255,255,255,0.85))`, opacity: 0.45 }),
-              }}>{p.icon}</span>
-            ))}
+          {/* Rubber-stamp seals: a dashed ring waits for a stamp, a solid ring holds
+              the inked icon. Slight per-slot rotation makes it feel hand-stamped. */}
+          <div style={{ position: 'relative', display: 'grid', gap: '2.6cqw', gridTemplateColumns: `repeat(${cols}, ${seal}cqw)`, padding: '2cqw', transform: 'rotate(-1.5deg)' }}>
+            {Array.from({ length: display }).map((_, i) => {
+              const isFilled = i < filled
+              const rot = ((i * 37) % 13) - 6
+              return (
+                <div key={i} style={{
+                  width: `${seal}cqw`, height: `${seal}cqw`, borderRadius: '50%', boxSizing: 'border-box',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  border: isFilled ? `0.7cqw solid ${stampInk}` : `0.4cqw dashed ${stampInk}`,
+                  opacity: isFilled ? 0.95 : 0.4,
+                  transform: `rotate(${rot}deg)`,
+                }}>
+                  {isFilled && (
+                    <span style={{ fontSize: `${seal * 0.56}cqw`, lineHeight: 1, filter: inkFilter, opacity: 0.92 }}>{p.icon}</span>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
-        <p style={{ fontSize: '3.2cqw', fontWeight: 600, textAlign: 'center', opacity: 0.85 }}>
+        <p style={{ fontSize: '3.2cqw', fontWeight: 600, textAlign: 'center', opacity: 0.85, color: backInk }}>
           {p.rewardName ? `${sample}/${total} · ${p.rewardName} on us` : 'Collect stamps for a free reward'}
         </p>
       </div>
@@ -153,10 +172,22 @@ export default function CardPreview(props: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Interactive card — click to flip */}
-      <div style={{ containerType: 'inline-size' }} className="w-full max-w-[360px] mx-auto cursor-pointer select-none"
+      {/* Interactive card — click for a 3D left-to-right flip */}
+      <div style={{ containerType: 'inline-size', perspective: '1400px' }} className="w-full max-w-[360px] mx-auto cursor-pointer select-none"
         onClick={() => setSide(s => (s === 'front' ? 'back' : 'front'))}>
-        <CardFace side={side} p={props} />
+        <div style={{
+          position: 'relative', aspectRatio: '1.586 / 1',
+          transformStyle: 'preserve-3d',
+          transition: 'transform 0.6s cubic-bezier(0.4, 0.15, 0.2, 1)',
+          transform: side === 'back' ? 'rotateY(180deg)' : 'rotateY(0deg)',
+        }}>
+          <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+            <CardFace side="front" p={props} />
+          </div>
+          <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+            <CardFace side="back" p={props} />
+          </div>
+        </div>
       </div>
 
       <div className="flex items-center justify-center gap-2">

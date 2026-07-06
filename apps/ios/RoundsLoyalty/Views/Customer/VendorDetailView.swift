@@ -51,7 +51,9 @@ struct VendorDetailView: View {
                             frontUrl: membership.vendor?.cardFrontUrl,
                             frontHeadline: membership.vendor?.cardFrontHeadline,
                             frontSubtext: membership.vendor?.cardFrontSubtext,
-                            backMessage: membership.vendor?.cardBackMessage
+                            backMessage: membership.vendor?.cardBackMessage,
+                            frontTextColor: membership.vendor?.cardFrontTextColor,
+                            backTextColor: membership.vendor?.cardBackTextColor
                         )
 
                         // Category / address

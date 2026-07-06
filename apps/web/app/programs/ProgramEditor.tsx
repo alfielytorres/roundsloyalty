@@ -30,6 +30,8 @@ interface Props {
   cardFrontHeadline?: string
   cardFrontSubtext?: string
   cardBackMessage?: string
+  cardFrontTextColor?: string
+  cardBackTextColor?: string
 }
 
 const PRESETS = [
@@ -60,7 +62,7 @@ const COLOR_SWATCHES = [
   '#1D1D1F', // ink
 ]
 
-export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: logo0, brandColor: brand0, stampIcon: icon0, cardBackgroundUrl: bg0, stampBgColor: panel0, cardFrontUrl: front0 = '', cardFrontHeadline: fhl0 = '', cardFrontSubtext: fsub0 = '', cardBackMessage: bmsg0 = '' }: Props) {
+export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: logo0, brandColor: brand0, stampIcon: icon0, cardBackgroundUrl: bg0, stampBgColor: panel0, cardFrontUrl: front0 = '', cardFrontHeadline: fhl0 = '', cardFrontSubtext: fsub0 = '', cardBackMessage: bmsg0 = '', cardFrontTextColor: ftc0 = '', cardBackTextColor: btc0 = '' }: Props) {
   // Program fields
   const [name, setName] = useState(program?.name ?? '')
   const [rounds, setRounds] = useState(program?.rounds_required ?? 10)
@@ -80,6 +82,8 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
   const [frontHeadline, setFrontHeadline] = useState(fhl0)
   const [frontSubtext, setFrontSubtext] = useState(fsub0)
   const [backMessage, setBackMessage] = useState(bmsg0)
+  const [frontTextColor, setFrontTextColor] = useState(ftc0)
+  const [backTextColor, setBackTextColor] = useState(btc0)
   const [frontUploading, setFrontUploading] = useState(false)
   const frontRef = useRef<HTMLInputElement>(null)
   const [brandHex, setBrandHex] = useState(HEX6.test(brand0 || '') ? brand0.toUpperCase() : '#1D1D1F')
@@ -127,6 +131,8 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
       <input type="hidden" name="card_front_headline" value={frontHeadline} />
       <input type="hidden" name="card_front_subtext" value={frontSubtext} />
       <input type="hidden" name="card_back_message" value={backMessage} />
+      <input type="hidden" name="card_front_text_color" value={frontTextColor} />
+      <input type="hidden" name="card_back_text_color" value={backTextColor} />
       {/* Stepper values */}
       <input type="hidden" name="rounds_required" value={rounds} />
       <input type="hidden" name="default_round_value" value={roundValue} />
@@ -255,12 +261,18 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
             <Field label="Subtext" hint="Bottom of the front. Optional.">
               <input value={frontSubtext} onChange={e => setFrontSubtext(e.target.value)} maxLength={60} placeholder="e.g. Sip. Stamp. Repeat." className="w-full dark-input" />
             </Field>
+            <Field label="Text colour" hint="Auto picks the most readable shade.">
+              <TextColorToggle value={frontTextColor} onChange={setFrontTextColor} />
+            </Field>
           </Section>
 
           {/* Card back — the functional side */}
           <Section title="Card back" subtitle="The stamp side">
             <Field label="Message" hint="Shown above the stamps. Defaults from your reward.">
               <input value={backMessage} onChange={e => setBackMessage(e.target.value)} maxLength={60} placeholder="e.g. We're so lucky to have you!" className="w-full dark-input" />
+            </Field>
+            <Field label="Text colour" hint="Auto picks the most readable shade.">
+              <TextColorToggle value={backTextColor} onChange={setBackTextColor} />
             </Field>
           </Section>
 
@@ -288,6 +300,8 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
             frontHeadline={frontHeadline}
             frontSubtext={frontSubtext}
             backMessage={backMessage}
+            frontTextColor={frontTextColor}
+            backTextColor={backTextColor}
           />
         </div>
       </div>
@@ -343,6 +357,25 @@ function ColorPicker({ value, hex, onChange, placeholder, onReset }: {
             style={{ backgroundColor: c }} />
         ))}
       </div>
+    </div>
+  )
+}
+
+function TextColorToggle({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const opts: { v: string; label: string; sw?: string }[] = [
+    { v: '', label: 'Auto' },
+    { v: 'dark', label: 'Black', sw: '#1D1D1F' },
+    { v: 'light', label: 'White', sw: '#ffffff' },
+  ]
+  return (
+    <div className="inline-flex rounded-xl border border-black/10 bg-white/50 p-0.5">
+      {opts.map(o => (
+        <button key={o.v} type="button" onClick={() => onChange(o.v)}
+          className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-[10px] transition-colors ${value === o.v ? 'bg-[#1D1D1F] text-white' : 'text-black/55 hover:bg-black/5'}`}>
+          {o.sw && <span className="w-3 h-3 rounded-full border border-black/15" style={{ backgroundColor: o.sw }} />}
+          {o.label}
+        </button>
+      ))}
     </div>
   )
 }

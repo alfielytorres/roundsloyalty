@@ -19,6 +19,8 @@ struct Vendor: Codable, Identifiable {
     var cardFrontHeadline: String? = nil
     var cardFrontSubtext: String? = nil
     var cardBackMessage: String? = nil
+    var cardFrontTextColor: String? = nil
+    var cardBackTextColor: String? = nil
 
     enum CodingKeys: String, CodingKey {
         case id
@@ -39,5 +41,7 @@ struct Vendor: Codable, Identifiable {
         case cardFrontHeadline = "card_front_headline"
         case cardFrontSubtext = "card_front_subtext"
         case cardBackMessage = "card_back_message"
+        case cardFrontTextColor = "card_front_text_color"
+        case cardBackTextColor = "card_back_text_color"
     }
 }

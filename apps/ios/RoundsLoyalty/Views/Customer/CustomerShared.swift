@@ -10,14 +10,16 @@ final class TabSelection: ObservableObject {
 
 // MARK: - Stamp grid
 
-/// A grid of stamp slots that fill up as the customer earns rounds. The icon is
-/// a vendor-chosen emoji. Filled slots show the full-colour emoji; empty slots
-/// are a flat silhouette ("mask") of the emoji in `emptyColor`.
+/// A grid of rubber-stamp "seals" that fill as the customer earns rounds. Empty
+/// slots are a dashed ring waiting to be stamped; filled slots are a solid ring
+/// holding an inked silhouette of the vendor's icon, tilted slightly so the card
+/// feels hand-stamped. `inkColor` is chosen for contrast against the panel and is
+/// used for both the ring and the silhouette — like a single-colour stamp pad.
 struct StampGrid: View {
     let icon: String
     let filled: Int
     let total: Int
-    var emptyColor: Color = Color.white.opacity(0.9)
+    var inkColor: Color = Color.white.opacity(0.9)
     var maxDisplay: Int = 20
     var slotSize: CGFloat = 34
 
@@ -51,7 +53,7 @@ struct StampGrid: View {
     var body: some View {
         LazyVGrid(columns: gridColumns, spacing: 10) {
             ForEach(0..<count, id: \.self) { i in
-                StampSlot(icon: icon.isEmpty ? "☕" : icon, filled: i < filled, size: slotSize, emptyColor: emptyColor, index: i)
+                StampSlot(icon: icon.isEmpty ? "☕" : icon, filled: i < filled, size: slotSize, ink: inkColor, index: i)
             }
         }
     }
@@ -61,31 +63,31 @@ private struct StampSlot: View {
     let icon: String
     let filled: Bool
     let size: CGFloat
-    let emptyColor: Color
+    let ink: Color
     var index: Int = 0
     @State private var popped = false
 
+    private var jitter: Double { Double((index * 37) % 13 - 6) }
+
     var body: some View {
         ZStack {
-            Text(icon).font(.system(size: size)).opacity(0)   // reserve consistent size
             if filled {
-                // Die-cut "sticker": stacked white outlines + a soft drop shadow,
-                // with a staggered pop as it lands.
-                Text(icon).font(.system(size: size))
-                    .shadow(color: .white, radius: 1)
-                    .shadow(color: .white, radius: 1)
-                    .shadow(color: .white, radius: 0.5)
-                    .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 1)
-                    .scaleEffect(popped ? 1 : 0.5)
-                    .opacity(popped ? 1 : 0)
+                // A stamped seal: a solid ring around an inked silhouette of the icon.
+                Circle().strokeBorder(ink.opacity(0.9), lineWidth: size * 0.09)
+                ink.opacity(0.92)
+                    .mask { Text(icon).font(.system(size: size * 0.52)) }
             } else {
-                // Faint sticker-ring placeholder.
-                emptyColor.opacity(0.55)
-                    .mask { Text(icon).font(.system(size: size)) }
-                    .shadow(color: .white.opacity(0.6), radius: 0.6)
+                // An empty slot: a dashed ring waiting to be stamped.
+                Circle().strokeBorder(ink.opacity(0.4),
+                                      style: StrokeStyle(lineWidth: size * 0.05,
+                                                         dash: [size * 0.16, size * 0.12]))
             }
         }
-        .frame(maxWidth: .infinity)
+        .frame(width: size, height: size)
+        .rotationEffect(.degrees(jitter))
+        .scaleEffect(filled ? (popped ? 1 : 0.5) : 1)
+        .opacity(filled ? (popped ? 1 : 0) : 1)
+        .frame(maxWidth: .infinity)   // centre the seal in its grid cell
         .onAppear {
             guard filled, !popped else { return }
             withAnimation(.spring(response: 0.42, dampingFraction: 0.6).delay(Double(index) * 0.05)) {
@@ -120,12 +122,25 @@ struct LoyaltyCardView: View {
     var frontHeadline: String? = nil
     var frontSubtext: String? = nil
     var backMessage: String? = nil
+    var frontTextColor: String? = nil   // "dark" | "light" | nil (auto)
+    var backTextColor: String? = nil
 
     @State private var showBack = false
 
     private var cardColor: Color { Color.vendorAccent(brandColorHex) }
     private var cardIsLight: Bool { Color.luminanceHex(brandColorHex) > 0.4 }
     private var onCard: Color { Color.onColor(brandColorHex) }
+
+    // Resolve a per-side text-colour choice to an ink, falling back to `auto`.
+    private func ink(_ choice: String?, auto: Color) -> Color {
+        switch choice {
+        case "dark": return Color(hex: "#1D1D1F")
+        case "light": return .white
+        default: return auto
+        }
+    }
+    private var frontInk: Color { ink(frontTextColor, auto: frontURL != nil ? .white : onCard) }
+    private var backInk: Color { ink(backTextColor, auto: onCard) }
     private var hasPanelColor: Bool { (stampBgColorHex?.isEmpty == false) }
     private var bgURL: URL? {
         guard let s = backgroundUrl, !s.isEmpty else { return nil }
@@ -167,7 +182,7 @@ struct LoyaltyCardView: View {
     // MARK: Front (identity)
 
     private var frontFace: some View {
-        let ink: Color = frontURL != nil ? .white : onCard
+        let ink = frontInk
         return ZStack {
             if let frontURL {
                 AsyncImage(url: frontURL) { img in
@@ -224,7 +239,7 @@ struct LoyaltyCardView: View {
                 Text((backMessage?.isEmpty == false ? backMessage! : defaultBackMessage))
                     .font(.system(size: 13, weight: .semibold))
                     .multilineTextAlignment(.center)
-                    .foregroundColor(onCard.opacity(0.92))
+                    .foregroundColor(backInk.opacity(0.92))
                     .lineLimit(2)
                     .padding(.horizontal, 28)   // clear the flip button
                 stampPanel
@@ -258,7 +273,7 @@ struct LoyaltyCardView: View {
                 RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.black.opacity(0.18))
             }
             StampGrid(icon: icon, filled: min(current, required), total: required,
-                      emptyColor: emptyStampColor, maxDisplay: 20, slotSize: stampSlotSize)
+                      inkColor: emptyStampColor, maxDisplay: 20, slotSize: stampSlotSize)
                 .padding(12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -269,22 +284,22 @@ struct LoyaltyCardView: View {
         if let memberName {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("MEMBER").font(.system(size: 9, weight: .bold)).foregroundColor(onCard.opacity(0.6))
-                    Text(memberName).font(.system(size: 14, weight: .semibold)).foregroundColor(onCard).lineLimit(1)
+                    Text("MEMBER").font(.system(size: 9, weight: .bold)).foregroundColor(backInk.opacity(0.6))
+                    Text(memberName).font(.system(size: 14, weight: .semibold)).foregroundColor(backInk).lineLimit(1)
                 }
                 Spacer()
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text("REWARDS").font(.system(size: 9, weight: .bold)).foregroundColor(onCard.opacity(0.6))
+                    Text("REWARDS").font(.system(size: 9, weight: .bold)).foregroundColor(backInk.opacity(0.6))
                     HStack(spacing: 4) {
-                        Text("\(rewardsCount)").font(.system(size: 14, weight: .semibold)).foregroundColor(onCard)
-                        Text("×").font(.system(size: 11)).foregroundColor(onCard.opacity(0.6))
+                        Text("\(rewardsCount)").font(.system(size: 14, weight: .semibold)).foregroundColor(backInk)
+                        Text("×").font(.system(size: 11)).foregroundColor(backInk.opacity(0.6))
                         Text(icon.isEmpty ? "☕" : icon).font(.system(size: 14))
                     }
                 }
             }
         } else {
             HStack(spacing: 8) {
-                Text("\(min(current, required)) / \(required)").font(.system(size: 14, weight: .bold)).foregroundColor(onCard)
+                Text("\(min(current, required)) / \(required)").font(.system(size: 14, weight: .bold)).foregroundColor(backInk)
                 if isReady {
                     Text("READY")
                         .font(.system(size: 9, weight: .bold))
@@ -296,7 +311,7 @@ struct LoyaltyCardView: View {
                 if let rewardName {
                     Text(remaining > 0 ? "\(remaining) more for \(rewardName)" : "Ready: \(rewardName)")
                         .font(.system(size: 11))
-                        .foregroundColor(onCard.opacity(0.75))
+                        .foregroundColor(backInk.opacity(0.75))
                         .lineLimit(1)
                 }
             }

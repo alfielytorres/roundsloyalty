@@ -41,6 +41,9 @@ export async function POST(req: NextRequest) {
   const card_front_headline = (formData.get('card_front_headline') as string)?.trim() || null
   const card_front_subtext = (formData.get('card_front_subtext') as string)?.trim() || null
   const card_back_message = (formData.get('card_back_message') as string)?.trim() || null
+  // Text-colour override per side: '' → null (auto), else 'dark' | 'light'.
+  const card_front_text_color = (formData.get('card_front_text_color') as string)?.trim() || null
+  const card_back_text_color = (formData.get('card_back_text_color') as string)?.trim() || null
 
   if (!name || !reward_name || !rounds_required) {
     return NextResponse.redirect(new URL('/programs?error=' + encodeURIComponent('Name, reward name, and rounds required are all required.'), req.url))
@@ -74,6 +77,7 @@ export async function POST(req: NextRequest) {
     .update({
       logo_url, brand_color, stamp_icon, card_background_url, stamp_bg_color,
       card_front_url, card_front_headline, card_front_subtext, card_back_message,
+      card_front_text_color, card_back_text_color,
     })
     .eq('id', vendor_id)
 
