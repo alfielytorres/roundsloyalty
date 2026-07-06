@@ -38,7 +38,7 @@ const PRESETS = [
   { label: 'Coffee', icon: '☕', rounds: 9, reward: 'Free coffee' },
   { label: 'Bubble tea', icon: '🧋', rounds: 10, reward: 'Free drink' },
   { label: 'Bakery', icon: '🥐', rounds: 8, reward: 'Free pastry' },
-  { label: 'Gym', icon: '🏋️', rounds: 12, reward: 'Free class' },
+  { label: 'Gym', icon: '🏋️', rounds: 10, reward: 'Free class' },
   { label: 'Sports', icon: '🎾', rounds: 10, reward: 'Free session' },
 ]
 
@@ -171,10 +171,10 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
               <input name="name" value={name} onChange={e => setName(e.target.value)} required placeholder="e.g. Coffee Club" className="w-full dark-input" />
             </Field>
             <div className="grid sm:grid-cols-2 gap-3">
-              <Field label="Rounds for a reward">
-                <Stepper value={rounds} set={v => setRounds(v)} min={1} max={50} />
+              <Field label="Rounds for a reward" hint="Up to 10 stamps">
+                <Stepper value={rounds} set={v => setRounds(v)} min={1} max={10} />
                 <div className="flex gap-1.5 mt-2">
-                  {[6, 8, 10, 12].map(n => (
+                  {[6, 8, 10].map(n => (
                     <button key={n} type="button" onClick={() => setRounds(n)}
                       className={`flex-1 text-xs font-bold py-1.5 rounded-lg border transition-colors ${rounds === n ? 'bg-rounds text-white border-rounds' : 'border-black/10 text-black/50 hover:bg-black/5'}`}>{n}</button>
                   ))}
@@ -337,15 +337,11 @@ function ColorPicker({ value, hex, onChange, placeholder, onReset }: {
   return (
     <div>
       <div className="flex items-center gap-2">
-        {/* Native picker sits on top of the swatch at full size with opacity 0 so
-            the tap lands on a real, interactive input — mobile browsers won't open
-            a color input that's been visually clipped (e.g. sr-only). */}
-        <div className="relative w-10 h-10 shrink-0">
-          <div className="w-10 h-10 rounded-xl border border-black/10 shadow-sm pointer-events-none" style={{ backgroundColor: hex }} />
-          <input type="color" aria-label="Pick a colour" value={hex}
-            onChange={e => onChange(e.target.value)}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-        </div>
+        {/* A real, visible native colour input — mobile Safari won't commit a
+            change on a hidden colour input, so it must stay on-screen. */}
+        <input type="color" aria-label="Pick a colour" value={hex}
+          onChange={e => onChange(e.target.value)} onInput={e => onChange((e.target as HTMLInputElement).value)}
+          className="color-swatch" />
         <input value={value} onChange={e => onChange(e.target.value)} inputMode="text" autoCapitalize="characters"
           placeholder={placeholder ?? '#1D1D1F'} className="flex-1 dark-input font-mono" />
         {onReset && value && <button type="button" onClick={onReset} className="text-sm text-black/40 hover:text-black/70">Reset</button>}

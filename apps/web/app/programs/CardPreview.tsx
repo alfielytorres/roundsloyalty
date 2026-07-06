@@ -27,50 +27,61 @@ function inkFor(choice: string | undefined, auto: string): string {
   return choice === 'dark' ? '#1D1D1F' : choice === 'light' ? '#ffffff' : auto
 }
 
-// Most balanced grid width for n stamps (columns >= rows).
+// Grid width for n stamps. Keep it to at most two rows (the card caps at 10);
+// a single row up to 5, otherwise split across two rows. Rows needn't be equal.
 export function gridColumns(n: number): number {
-  if (n <= 1) return 1
-  let cols = n
-  let bestDiff = Infinity
-  for (let r = 1; r * r <= n; r++) {
-    if (n % r === 0) {
-      const c = n / r
-      if (c - r < bestDiff) { bestDiff = c - r; cols = c }
-    }
-  }
-  if (cols === n && n >= 7) {
-    const rows = Math.floor(Math.sqrt(n))
-    cols = Math.ceil(n / rows)
-  }
-  return cols
+  if (n <= 5) return Math.max(1, n)
+  return Math.ceil(n / 2)
+}
+
+// A wobbly, organic border-radius so a stamp reads as a hand-pressed circle
+// rather than a perfect die-cut. Deterministic per index.
+function organicRadius(i: number): string {
+  const a = 44 + ((i * 13) % 22)
+  const c = 44 + ((i * 29) % 22)
+  const e = 45 + ((i * 17) % 18)
+  const g = 45 + ((i * 23) % 18)
+  return `${a}% ${100 - a}% ${c}% ${100 - c}% / ${e}% ${100 - e}% ${g}% ${100 - g}%`
+}
+
+// Speckle a solid ink disc with little holes of the panel colour to fake the
+// patchy, ink-starved look of a real rubber stamp. Deterministic per index.
+function grungeDisc(i: number, ink: string, panel: string): string {
+  const holes = [0, 1, 2, 3, 4].map(k => {
+    const hx = 14 + (((i + 1) * (k * 29 + 13)) % 72)
+    const hy = 14 + (((i + 1) * (k * 37 + 17)) % 72)
+    const r = 2 + ((i + k) % 3)
+    return `radial-gradient(circle at ${hx}% ${hy}%, ${panel} 0 ${r}%, transparent ${r + 1.2}%)`
+  })
+  return `${holes.join(', ')}, ${ink}`
 }
 
 // One face of the card. All sizes are in cqw so the same markup renders small in
 // the responsive preview and crisp in the fixed-width off-screen export.
-function CardFace({ side, p }: { side: 'front' | 'back'; p: Props }) {
+function CardFace({ side, p, bleed = false }: { side: 'front' | 'back'; p: Props; bleed?: boolean }) {
   const onCard = lum(p.brandHex) > 0.179 ? '#1D1D1F' : '#ffffff'
   const total = Math.max(1, p.rounds || 1)
-  const display = Math.min(total, 20)
+  const display = Math.min(total, 10)   // card shows at most 10 stamps
   const sample = Math.min(Math.floor(total * 0.6), total - 1) || Math.min(3, display)
   const filled = Math.min(sample, display)
   const cols = gridColumns(display)
   const hasPanel = !!p.stampBgHex
   const panelHex = p.stampBgHex || p.brandHex
   const emptyIsWhite = p.cardBgUrl ? true : lum(panelHex) <= 0.179
-  const inkFilter = emptyIsWhite ? 'brightness(0) invert(1)' : 'brightness(0)'   // tint emoji to one ink
 
+  // In export ("bleed") mode the card fills the frame edge-to-edge with no
+  // rounded corners or shadow, so the JPEG is all card and no white margin.
   const shell: React.CSSProperties = {
     aspectRatio: '1.586 / 1',
-    borderRadius: '6cqw',
+    borderRadius: bleed ? 0 : '6cqw',
     overflow: 'hidden',
     position: 'relative',
-    boxShadow: '0 3cqw 6cqw rgba(0,0,0,0.22)',
+    boxShadow: bleed ? 'none' : '0 3cqw 6cqw rgba(0,0,0,0.22)',
     color: onCard,
   }
-  const sheen = <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(150deg, rgba(255,255,255,0.22), transparent 42%)', pointerEvents: 'none' }} />
 
   if (side === 'front') {
-    const bg = p.frontUrl ? `url(${p.frontUrl}) center/cover` : `linear-gradient(150deg, ${p.brandHex}, ${shade(p.brandHex, -22)})`
+    const bg = p.frontUrl ? `url(${p.frontUrl}) center/cover` : p.brandHex
     const overlayText = p.frontHeadline || p.frontSubtext || !p.frontUrl
     const ink = inkFor(p.frontTextColor, p.frontUrl ? '#fff' : onCard)
     return (
@@ -78,7 +89,6 @@ function CardFace({ side, p }: { side: 'front' | 'back'; p: Props }) {
         {p.frontUrl && overlayText && (
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(0,0,0,0.34), transparent 34%, transparent 62%, rgba(0,0,0,0.42))' }} />
         )}
-        {sheen}
         <div style={{ position: 'absolute', inset: 0, padding: '6cqw', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '2.4cqw' }}>
             {p.logoUrl && (
@@ -105,11 +115,11 @@ function CardFace({ side, p }: { side: 'front' | 'back'; p: Props }) {
 
   // BACK
   const backInk = inkFor(p.backTextColor, onCard)
-  const stampInk = emptyIsWhite ? '#ffffff' : '#1D1D1F'
-  const seal = display > 15 ? 9 : display > 10 ? 10.5 : 12   // cqw per stamp
+  const stampInk = emptyIsWhite ? '#ffffff' : '#1D1D1F'   // disc ink
+  const knockout = emptyIsWhite ? 'brightness(0)' : 'brightness(0) invert(1)'   // icon reversed out of the ink
+  const seal = display > 8 ? 13 : 15   // cqw per stamp
   return (
-    <div style={{ ...shell, background: `linear-gradient(150deg, ${p.brandHex}, ${shade(p.brandHex, -22)})` }}>
-      {sheen}
+    <div style={{ ...shell, background: p.brandHex }}>
       <div style={{ position: 'absolute', inset: 0, padding: '5.5cqw', display: 'flex', flexDirection: 'column', gap: '3cqw' }}>
         <p style={{ fontSize: '3.8cqw', fontWeight: 700, letterSpacing: '0.02em', textAlign: 'center', opacity: 0.92, color: backInk }}>
           {p.backMessage || `Collect ${total} for ${p.rewardName || 'a reward'}`}
@@ -117,23 +127,30 @@ function CardFace({ side, p }: { side: 'front' | 'back'; p: Props }) {
         <div style={{ flex: 1, borderRadius: '4cqw', position: 'relative', overflow: 'hidden', background: p.cardBgUrl ? `url(${p.cardBgUrl}) center/cover` : panelHex, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {(!hasPanel && !p.cardBgUrl) && <div style={{ position: 'absolute', inset: 0, background: lum(panelHex) > 0.4 ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.14)' }} />}
           {p.cardBgUrl && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.18)' }} />}
-          {/* Rubber-stamp seals: a dashed ring waits for a stamp, a solid ring holds
-              the inked icon. Slight per-slot rotation makes it feel hand-stamped. */}
-          <div style={{ position: 'relative', display: 'grid', gap: '2.6cqw', gridTemplateColumns: `repeat(${cols}, ${seal}cqw)`, padding: '2cqw', transform: 'rotate(-1.5deg)' }}>
+          {/* Ink-stamp impressions: a soft blob waits for a stamp; earned slots are a
+              solid inked disc with the icon knocked out, speckled and wobbled so it
+              reads like a real, slightly grungy rubber stamp. */}
+          <div style={{ position: 'relative', display: 'grid', gap: '2.8cqw', gridTemplateColumns: `repeat(${cols}, ${seal}cqw)`, padding: '2cqw', transform: 'rotate(-1.5deg)' }}>
             {Array.from({ length: display }).map((_, i) => {
               const isFilled = i < filled
               const rot = ((i * 37) % 13) - 6
+              if (!isFilled) {
+                return (
+                  <div key={i} style={{
+                    width: `${seal}cqw`, height: `${seal}cqw`, borderRadius: organicRadius(i),
+                    background: stampInk, opacity: 0.2, transform: `rotate(${rot}deg)`,
+                  }} />
+                )
+              }
               return (
                 <div key={i} style={{
-                  width: `${seal}cqw`, height: `${seal}cqw`, borderRadius: '50%', boxSizing: 'border-box',
+                  width: `${seal}cqw`, height: `${seal}cqw`, borderRadius: organicRadius(i), boxSizing: 'border-box',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  border: isFilled ? `0.7cqw solid ${stampInk}` : `0.4cqw dashed ${stampInk}`,
-                  opacity: isFilled ? 0.95 : 0.4,
+                  background: grungeDisc(i, stampInk, panelHex),
+                  opacity: 0.92,
                   transform: `rotate(${rot}deg)`,
                 }}>
-                  {isFilled && (
-                    <span style={{ fontSize: `${seal * 0.56}cqw`, lineHeight: 1, filter: inkFilter, opacity: 0.92 }}>{p.icon}</span>
-                  )}
+                  <span style={{ fontSize: `${seal * 0.5}cqw`, lineHeight: 1, filter: knockout }}>{p.icon}</span>
                 </div>
               )
             })}
@@ -158,7 +175,7 @@ export default function CardPreview(props: Props) {
     if (!node || busy) return
     setBusy(true)
     try {
-      const dataUrl = await toJpeg(node, { quality: 0.95, pixelRatio: 2, cacheBust: true, backgroundColor: '#ffffff' })
+      const dataUrl = await toJpeg(node, { quality: 0.95, pixelRatio: 2, cacheBust: true, backgroundColor: props.brandHex || '#ffffff' })
       const blob = await (await fetch(dataUrl)).blob()
       const file = new File([blob], `${(props.vendorName || 'card').replace(/\s+/g, '-').toLowerCase()}-${which}.jpg`, { type: 'image/jpeg' })
       const nav = navigator as Navigator & { canShare?: (d: ShareData) => boolean }
@@ -204,19 +221,9 @@ export default function CardPreview(props: Props) {
 
       {/* Off-screen full-size faces used for export */}
       <div style={{ position: 'fixed', left: -99999, top: 0, pointerEvents: 'none' }} aria-hidden>
-        <div style={{ containerType: 'inline-size', width: 1080 }}><div ref={frontRef}><CardFace side="front" p={props} /></div></div>
-        <div style={{ containerType: 'inline-size', width: 1080 }}><div ref={backRef}><CardFace side="back" p={props} /></div></div>
+        <div style={{ containerType: 'inline-size', width: 1080 }}><div ref={frontRef}><CardFace side="front" p={props} bleed /></div></div>
+        <div style={{ containerType: 'inline-size', width: 1080 }}><div ref={backRef}><CardFace side="back" p={props} bleed /></div></div>
       </div>
     </div>
   )
-}
-
-// Darken/lighten a hex by pct (negative darkens) for the card gradient.
-function shade(hex: string, pct: number): string {
-  const s = hex.replace('#', '')
-  if (s.length !== 6) return hex
-  const n = parseInt(s, 16)
-  const adj = (c: number) => Math.max(0, Math.min(255, Math.round(c + (c * pct) / 100)))
-  const r = adj((n >> 16) & 0xff), g = adj((n >> 8) & 0xff), b = adj(n & 0xff)
-  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`
 }

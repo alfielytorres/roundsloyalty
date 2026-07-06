@@ -10,11 +10,11 @@ final class TabSelection: ObservableObject {
 
 // MARK: - Stamp grid
 
-/// A grid of rubber-stamp "seals" that fill as the customer earns rounds. Empty
-/// slots are a dashed ring waiting to be stamped; filled slots are a solid ring
-/// holding an inked silhouette of the vendor's icon, tilted slightly so the card
-/// feels hand-stamped. `inkColor` is chosen for contrast against the panel and is
-/// used for both the ring and the silhouette — like a single-colour stamp pad.
+/// A grid of rubber-stamp impressions that fill as the customer earns rounds.
+/// Empty slots are a soft blob waiting to be stamped; filled slots are a solid
+/// inked disc with the icon knocked out and a few speckle holes, tilted slightly
+/// so the card feels hand-stamped. `inkColor` is chosen for contrast against the
+/// panel — like a single-colour stamp pad.
 struct StampGrid: View {
     let icon: String
     let filled: Int
@@ -25,25 +25,11 @@ struct StampGrid: View {
 
     private var count: Int { max(1, min(total, maxDisplay)) }
 
-    // Most balanced grid width (columns >= rows): 8 -> 4, 9 -> 3, 10 -> 5.
-    // Mirrors gridColumns() in the web CardPreview so both platforms match.
+    // Keep the grid to at most two rows (the card caps at 10): a single row up
+    // to 5, otherwise split across two rows. Mirrors gridColumns() on the web.
     private func balancedColumns(_ n: Int) -> Int {
-        if n <= 1 { return 1 }
-        var cols = n
-        var bestDiff = Int.max
-        var r = 1
-        while r * r <= n {
-            if n % r == 0 {
-                let c = n / r
-                if c - r < bestDiff { bestDiff = c - r; cols = c }
-            }
-            r += 1
-        }
-        if cols == n && n >= 7 {
-            let rows = Int(Double(n).squareRoot())
-            cols = Int(ceil(Double(n) / Double(rows)))
-        }
-        return cols
+        if n <= 5 { return max(1, n) }
+        return Int(ceil(Double(n) / 2))
     }
 
     private var gridColumns: [GridItem] {
@@ -69,25 +55,45 @@ private struct StampSlot: View {
 
     private var jitter: Double { Double((index * 37) % 13 - 6) }
 
+    // Deterministic speckle holes (dx, dy, radius) punched out of the disc so it
+    // reads like a real, ink-starved rubber stamp.
+    private var speckles: [(CGFloat, CGFloat, CGFloat)] {
+        (0..<5).map { k in
+            let ang = Double(((index + 1) * (k * 47 + 13)) % 360) * .pi / 180
+            let dist = size * (0.12 + CGFloat((index + k) % 4) * 0.08)
+            let r = size * (0.045 + CGFloat((index + k) % 3) * 0.02)
+            return (CGFloat(cos(ang)) * dist, CGFloat(sin(ang)) * dist, r)
+        }
+    }
+
     var body: some View {
-        ZStack {
+        Group {
             if filled {
-                // A stamped seal: a solid ring around an inked silhouette of the icon.
-                Circle().strokeBorder(ink.opacity(0.9), lineWidth: size * 0.09)
-                ink.opacity(0.92)
-                    .mask { Text(icon).font(.system(size: size * 0.52)) }
+                // Solid inked disc with the icon (and a few speckles) knocked out —
+                // destinationOut erases those shapes so the panel shows through.
+                Circle().fill(ink.opacity(0.92))
+                    .overlay {
+                        ZStack {
+                            Text(icon).font(.system(size: size * 0.5))
+                            ForEach(0..<speckles.count, id: \.self) { k in
+                                Circle()
+                                    .frame(width: speckles[k].2, height: speckles[k].2)
+                                    .offset(x: speckles[k].0, y: speckles[k].1)
+                            }
+                        }
+                        .blendMode(.destinationOut)
+                    }
+                    .compositingGroup()
             } else {
-                // An empty slot: a dashed ring waiting to be stamped.
-                Circle().strokeBorder(ink.opacity(0.4),
-                                      style: StrokeStyle(lineWidth: size * 0.05,
-                                                         dash: [size * 0.16, size * 0.12]))
+                // Empty slot: a soft blob waiting to be stamped.
+                Circle().fill(ink.opacity(0.2))
             }
         }
         .frame(width: size, height: size)
         .rotationEffect(.degrees(jitter))
         .scaleEffect(filled ? (popped ? 1 : 0.5) : 1)
         .opacity(filled ? (popped ? 1 : 0) : 1)
-        .frame(maxWidth: .infinity)   // centre the seal in its grid cell
+        .frame(maxWidth: .infinity)   // centre the stamp in its grid cell
         .onAppear {
             guard filled, !popped else { return }
             withAnimation(.spring(response: 0.42, dampingFraction: 0.6).delay(Double(index) * 0.05)) {
@@ -159,10 +165,7 @@ struct LoyaltyCardView: View {
     private var remaining: Int { max(0, required - current) }
     private var isReady: Bool { remaining == 0 && required > 0 }
     private var stampSlotSize: CGFloat {
-        let n = min(required, 20)
-        if n > 15 { return 20 }
-        if n > 10 { return 24 }
-        return 28
+        min(required, 10) > 8 ? 30 : 34
     }
 
     var body: some View {
@@ -188,7 +191,7 @@ struct LoyaltyCardView: View {
                 AsyncImage(url: frontURL) { img in
                     img.resizable().scaledToFill()
                 } placeholder: {
-                    brandGradient
+                    brandFill
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .clipped()
@@ -196,9 +199,8 @@ struct LoyaltyCardView: View {
                 LinearGradient(colors: [.black.opacity(0.38), .clear, .clear, .black.opacity(0.45)],
                                startPoint: .top, endPoint: .bottom)
             } else {
-                brandGradient
+                brandFill
             }
-            sheen
             VStack(alignment: .leading, spacing: 0) {
                 HStack(spacing: 10) {
                     logoChip
@@ -233,8 +235,7 @@ struct LoyaltyCardView: View {
 
     private var backFace: some View {
         ZStack {
-            brandGradient
-            sheen
+            brandFill
             VStack(spacing: 10) {
                 Text((backMessage?.isEmpty == false ? backMessage! : defaultBackMessage))
                     .font(.system(size: 13, weight: .semibold))
@@ -273,7 +274,7 @@ struct LoyaltyCardView: View {
                 RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.black.opacity(0.18))
             }
             StampGrid(icon: icon, filled: min(current, required), total: required,
-                      inkColor: emptyStampColor, maxDisplay: 20, slotSize: stampSlotSize)
+                      inkColor: emptyStampColor, maxDisplay: 10, slotSize: stampSlotSize)
                 .padding(12)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -335,19 +336,8 @@ struct LoyaltyCardView: View {
         }
     }
 
-    private var brandGradient: some View {
-        ZStack {
-            cardColor
-            LinearGradient(colors: [Color.white.opacity(0.12), Color.clear, Color.black.opacity(0.22)],
-                           startPoint: .topLeading, endPoint: .bottomTrailing)
-        }
-    }
-
-    private var sheen: some View {
-        LinearGradient(colors: [Color.white.opacity(0.22), Color.clear],
-                       startPoint: .topLeading, endPoint: .center)
-            .allowsHitTesting(false)
-    }
+    // Flat brand fill — no gradient, no sheen.
+    private var brandFill: some View { cardColor }
 
     private var flipButton: some View {
         Button {
