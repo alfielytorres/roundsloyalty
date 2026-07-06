@@ -1,12 +1,13 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest } from 'next/server'
+import { getAdminUser } from '@/lib/is-admin'
 
-// Ops feed: every vendor with a ready-to-print sign link, as CSV. Point a
-// Google Sheet at it with
-//   =IMPORTDATA("https://<domain>/api/ops/vendors.csv?key=<OPS_EXPORT_KEY>")
-// and the sheet stays current on its own (Sheets refetches periodically), so
-// the moment a vendor onboards their sign link appears — open, print, ship.
-// Guarded by the OPS_EXPORT_KEY env secret; 404s when unset or wrong.
+// Ops feed: every vendor with a ready-to-print sign link, as CSV. Two ways in,
+// both admin-only:
+//   * signed in as an ADMIN_EMAILS user (browser) — no secret needed, and
+//   * ?key=<OPS_EXPORT_KEY> for a self-refreshing Google Sheet:
+//     =IMPORTDATA("https://<domain>/api/ops/vendors.csv?key=<OPS_EXPORT_KEY>")
+// Anything else 404s so the endpoint isn't public.
 export const dynamic = 'force-dynamic'
 
 const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
@@ -14,7 +15,9 @@ const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
 export async function GET(req: NextRequest) {
   const expected = process.env.OPS_EXPORT_KEY
   const key = req.nextUrl.searchParams.get('key')
-  if (!expected || !key || key !== expected) {
+  const keyOk = !!expected && !!key && key === expected
+  const sessionOk = !keyOk && !!(await getAdminUser())
+  if (!keyOk && !sessionOk) {
     return new Response('Not found', { status: 404 })
   }
 
