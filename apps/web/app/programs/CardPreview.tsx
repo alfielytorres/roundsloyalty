@@ -59,12 +59,11 @@ function grungeDisc(i: number, ink: string, panel: string): string {
 
 // One face of the card. All sizes are in cqw so the same markup renders small in
 // the responsive preview and crisp in the fixed-width off-screen export.
-function CardFace({ side, p, bleed = false }: { side: 'front' | 'back'; p: Props; bleed?: boolean }) {
+function CardFace({ side, p, bleed = false, fill }: { side: 'front' | 'back'; p: Props; bleed?: boolean; fill: number }) {
   const onCard = lum(p.brandHex) > 0.179 ? '#1D1D1F' : '#ffffff'
   const total = Math.max(1, p.rounds || 1)
   const display = Math.min(total, 10)   // card shows at most 10 stamps
-  const sample = Math.min(Math.floor(total * 0.6), total - 1) || Math.min(3, display)
-  const filled = Math.min(sample, display)
+  const filled = Math.min(Math.max(0, fill), display)   // mockup fill count
   const cols = gridColumns(display)
   const hasPanel = !!p.stampBgHex
   const panelHex = p.stampBgHex || p.brandHex
@@ -104,13 +103,13 @@ function CardFace({ side, p, bleed = false }: { side: 'front' | 'back'; p: Props
                 <img src={p.logoUrl} alt="" crossOrigin="anonymous" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', padding: '1cqw' }} />
               </span>
             )}
-            <span style={{ fontSize: '5cqw', fontWeight: 800, color: ink, letterSpacing: '-0.02em', textShadow: p.frontUrl ? '0 0.3cqw 1cqw rgba(0,0,0,0.4)' : 'none' }}>
+            <span style={{ fontSize: '5cqw', fontWeight: 800, color: ink, letterSpacing: '-0.02em' }}>
               {p.frontHeadline || p.vendorName || 'Your Store'}
             </span>
           </div>
           <div>
             {p.frontSubtext ? (
-              <p style={{ fontSize: '4cqw', fontWeight: 600, color: ink, opacity: 0.92, textShadow: p.frontUrl ? '0 0.3cqw 1cqw rgba(0,0,0,0.5)' : 'none' }}>{p.frontSubtext}</p>
+              <p style={{ fontSize: '4cqw', fontWeight: 600, color: ink, opacity: 0.92 }}>{p.frontSubtext}</p>
             ) : !p.frontUrl ? (
               <p style={{ fontSize: '3.4cqw', fontWeight: 600, color: ink, opacity: 0.7 }}>Loyalty card</p>
             ) : null}
@@ -168,9 +167,18 @@ function CardFace({ side, p, bleed = false }: { side: 'front' | 'back'; p: Props
             })}
           </div>
         </div>
-        <p style={{ fontSize: '3.2cqw', fontWeight: 600, textAlign: 'center', opacity: 0.85, color: backInk }}>
-          {p.rewardName ? `${sample}/${total} · ${p.rewardName} on us` : 'Collect stamps for a free reward'}
-        </p>
+        {filled >= display && total > 0 ? (
+          // Ready-to-collect state: the card is full, reward is unlocked.
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <span style={{ fontSize: '3.4cqw', fontWeight: 800, letterSpacing: '0.02em', color: p.brandHex, background: backInk, padding: '1.6cqw 4cqw', borderRadius: '20cqw', whiteSpace: 'nowrap' }}>
+              🎉 {p.rewardName || 'Reward'} ready — collect it!
+            </span>
+          </div>
+        ) : (
+          <p style={{ fontSize: '3.2cqw', fontWeight: 600, textAlign: 'center', opacity: 0.85, color: backInk }}>
+            {p.rewardName ? `${filled}/${total} · ${p.rewardName} on us` : 'Collect stamps for a free reward'}
+          </p>
+        )}
       </div>
     </div>
   )
@@ -181,6 +189,11 @@ export default function CardPreview(props: Props) {
   const [busy, setBusy] = useState(false)
   const frontRef = useRef<HTMLDivElement>(null)
   const backRef = useRef<HTMLDivElement>(null)
+
+  // Mockup fill: how many stamps to show as earned, up to the max spots (10 cap).
+  const maxSpots = Math.min(Math.max(1, props.rounds || 1), 10)
+  const [fill, setFill] = useState(Math.min(Math.round(maxSpots * 0.6), maxSpots))
+  const shownFill = Math.min(fill, maxSpots)
 
   // Swap every <img> in the node to an inlined data URL up front. html-to-image
   // otherwise races on larger remote images (the logo captures, the full-bleed
@@ -240,10 +253,10 @@ export default function CardPreview(props: Props) {
           transform: side === 'back' ? 'rotateY(180deg)' : 'rotateY(0deg)',
         }}>
           <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
-            <CardFace side="front" p={props} />
+            <CardFace side="front" p={props} fill={shownFill} />
           </div>
           <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
-            <CardFace side="back" p={props} />
+            <CardFace side="back" p={props} fill={shownFill} />
           </div>
         </div>
       </div>
@@ -258,12 +271,27 @@ export default function CardPreview(props: Props) {
           <Share2 size={13} /> {busy ? 'Exporting…' : `Share ${side}`}
         </button>
       </div>
+
+      {/* Mockup fill — how many stamps to show as earned, up to the max spots */}
+      <div className="flex items-center justify-center gap-2">
+        <span className="text-[11px] font-semibold uppercase tracking-widest text-black/35">Mockup fill</span>
+        <div className="inline-flex items-center gap-1">
+          <button type="button" onClick={() => setFill(f => Math.max(0, Math.min(maxSpots, f) - 1))} disabled={shownFill <= 0}
+            className="w-7 h-7 flex items-center justify-center rounded-lg border border-black/10 text-black/60 hover:bg-black/5 disabled:opacity-30 transition-colors">−</button>
+          <span className="w-10 text-center text-sm font-bold text-[#1D1D1F] tabular-nums">{shownFill}/{maxSpots}</span>
+          <button type="button" onClick={() => setFill(f => Math.min(maxSpots, f + 1))} disabled={shownFill >= maxSpots}
+            className="w-7 h-7 flex items-center justify-center rounded-lg border border-black/10 text-black/60 hover:bg-black/5 disabled:opacity-30 transition-colors">+</button>
+        </div>
+        <button type="button" onClick={() => setFill(maxSpots)}
+          className="text-[11px] font-semibold text-black/50 hover:text-black/80 rounded-lg px-2 py-1 border border-black/10 hover:bg-black/5 transition-colors">Full</button>
+      </div>
+
       <p className="text-[11px] text-black/35 text-center">Tap the card to flip · share exports a PNG for socials</p>
 
       {/* Off-screen full-size faces used for export */}
       <div style={{ position: 'fixed', left: -99999, top: 0, pointerEvents: 'none' }} aria-hidden>
-        <div style={{ containerType: 'inline-size', width: 1080 }}><div ref={frontRef}><CardFace side="front" p={props} bleed /></div></div>
-        <div style={{ containerType: 'inline-size', width: 1080 }}><div ref={backRef}><CardFace side="back" p={props} bleed /></div></div>
+        <div style={{ containerType: 'inline-size', width: 1080 }}><div ref={frontRef}><CardFace side="front" p={props} fill={shownFill} bleed /></div></div>
+        <div style={{ containerType: 'inline-size', width: 1080 }}><div ref={backRef}><CardFace side="back" p={props} fill={shownFill} bleed /></div></div>
       </div>
     </div>
   )

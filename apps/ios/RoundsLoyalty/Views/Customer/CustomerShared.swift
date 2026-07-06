@@ -217,7 +217,6 @@ struct LoyaltyCardView: View {
                         .font(.system(size: 20, weight: .heavy, design: .rounded))
                         .foregroundColor(ink)
                         .lineLimit(2)
-                        .shadow(color: frontURL != nil ? .black.opacity(0.45) : .clear, radius: 4, x: 0, y: 1)
                     Spacer(minLength: 0)
                 }
                 Spacer(minLength: 0)
@@ -226,7 +225,6 @@ struct LoyaltyCardView: View {
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(ink.opacity(0.95))
                         .lineLimit(2)
-                        .shadow(color: frontURL != nil ? .black.opacity(0.5) : .clear, radius: 4, x: 0, y: 1)
                 } else if frontURL == nil {
                     Text("Loyalty card")
                         .font(.system(size: 13, weight: .semibold))
