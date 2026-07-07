@@ -25,9 +25,14 @@ export async function POST(req: NextRequest) {
   const { data: staffRecord } = await supabase
     .from('vendor_staff').select('vendor_id, role').eq('user_id', user.id).eq('status', 'active').limit(1).maybeSingle()
   let vendorId = (staffRecord?.role === 'owner' || staffRecord?.role === 'manager') ? staffRecord.vendor_id : null
-  if (!vendorId) {
-    const { data: owned } = await supabase.from('vendors').select('id').eq('owner_id', user.id).limit(1).maybeSingle()
+  let businessName = ''
+  if (vendorId) {
+    const { data: v } = await supabase.from('vendors').select('business_name').eq('id', vendorId).maybeSingle()
+    businessName = v?.business_name ?? ''
+  } else {
+    const { data: owned } = await supabase.from('vendors').select('id, business_name').eq('owner_id', user.id).limit(1).maybeSingle()
     vendorId = owned?.id ?? null
+    businessName = owned?.business_name ?? ''
   }
   if (!vendorId) return NextResponse.json({ error: 'Permission denied.' }, { status: 403 })
 
@@ -46,6 +51,23 @@ export async function POST(req: NextRequest) {
     .update({ phone, address, ...(lat != null && lng != null ? { lat, lng } : {}) })
     .eq('id', vendorId)
   if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+
+  // Seed the store's first map location from the address so it appears on the
+  // Discover map — the map plots vendor_locations, not the business address.
+  // Only when they have none yet and we resolved coordinates.
+  if (lat != null && lng != null) {
+    const { count } = await supabase
+      .from('vendor_locations').select('id', { count: 'exact', head: true }).eq('vendor_id', vendorId)
+    if ((count ?? 0) === 0) {
+      await supabase.from('vendor_locations').insert({
+        vendor_id: vendorId,
+        name: businessName || 'Main location',
+        address,
+        lat,
+        lng,
+      })
+    }
+  }
 
   return NextResponse.json({ ok: true })
 }
