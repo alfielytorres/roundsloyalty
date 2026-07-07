@@ -195,13 +195,24 @@ export default function CardPreview(props: Props) {
   const [fill, setFill] = useState(Math.min(Math.round(maxSpots * 0.6), maxSpots))
   const shownFill = Math.min(fill, maxSpots)
 
-  // Swap every <img> in the node to an inlined data URL up front. html-to-image
-  // otherwise races on larger remote images (the logo captures, the full-bleed
-  // art doesn't); once they're data URLs there's nothing left for it to fetch.
+  // Resolve once an <img> has actually finished loading (or errored), so we never
+  // capture it before its pixels are ready.
+  function waitForLoad(img: HTMLImageElement): Promise<void> {
+    return new Promise((resolve) => {
+      if (img.complete && img.naturalWidth > 0) { resolve(); return }
+      const done = () => { img.removeEventListener('load', done); img.removeEventListener('error', done); resolve() }
+      img.addEventListener('load', done)
+      img.addEventListener('error', done)
+    })
+  }
+
+  // Swap every <img> in the node to an inlined data URL up front, then wait for
+  // each to load + decode. html-to-image otherwise races on remote images — which
+  // is why the first export used to drop the art and only the second worked.
   async function inlineImages(node: HTMLElement) {
     const imgs = Array.from(node.querySelectorAll('img'))
     await Promise.all(imgs.map(async (img) => {
-      if (img.src.startsWith('data:')) return
+      if (img.src.startsWith('data:')) { await waitForLoad(img); return }
       try {
         // Cache-bust so we never reuse a non-CORS cache entry (e.g. one poisoned
         // by a plain CSS background-image load of the same freshly-uploaded URL),
@@ -217,6 +228,7 @@ export default function CardPreview(props: Props) {
         })
         img.removeAttribute('crossorigin')
         img.src = dataUrl
+        await waitForLoad(img)
         await img.decode().catch(() => {})
       } catch { /* leave the original src; html-to-image will try its best */ }
     }))
@@ -228,6 +240,8 @@ export default function CardPreview(props: Props) {
     setBusy(true)
     try {
       await inlineImages(node)
+      // One more paint so the freshly-inlined images are committed before capture.
+      await new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())))
       // PNG with a transparent background so the rounded corners stay clean.
       const dataUrl = await toPng(node, { pixelRatio: 2 })
       const blob = await (await fetch(dataUrl)).blob()
