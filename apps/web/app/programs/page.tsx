@@ -105,7 +105,8 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 export default async function ProgramsPage() {
-  const { vendor, role } = await getPortalData()
+  // Reachable during onboarding — it's where the required program is created.
+  const { vendor, role } = await getPortalData({ allowIncomplete: true })
 
   return (
     <main className="px-6 pt-10 pb-32">

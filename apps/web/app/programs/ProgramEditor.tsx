@@ -89,22 +89,32 @@ async function downscaleImage(file: File, maxDim = 1600, quality = 0.82): Promis
   if (file.size < 400_000) return file
   const img = await decodeImage(file)
   if (!img) return file
-  const scale = Math.min(1, maxDim / Math.max(img.width, img.height))
-  const w = Math.max(1, Math.round(img.width * scale))
-  const h = Math.max(1, Math.round(img.height * scale))
-  const canvas = document.createElement('canvas')
-  canvas.width = w; canvas.height = h
-  const ctx = canvas.getContext('2d')
-  if (!ctx) { img.done(); return file }
-  ctx.drawImage(img.source, 0, 0, w, h)
+  const TARGET = 3_500_000   // stay well under the ~4.5 MB serverless cap
+  try {
+    let dim = maxDim
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const scale = Math.min(1, dim / Math.max(img.width, img.height))
+      const w = Math.max(1, Math.round(img.width * scale))
+      const h = Math.max(1, Math.round(img.height * scale))
+      const canvas = document.createElement('canvas')
+      canvas.width = w; canvas.height = h
+      const ctx = canvas.getContext('2d')
+      if (!ctx) break
+      ctx.drawImage(img.source, 0, 0, w, h)
+      // WebP keeps transparency and compresses well; fall back to JPEG if unsupported.
+      let type = 'image/webp'
+      let blob: Blob | null = await new Promise(r => canvas.toBlob(r, type, quality))
+      if (!blob) { type = 'image/jpeg'; blob = await new Promise(r => canvas.toBlob(r, type, quality)) }
+      if (blob && (blob.size <= TARGET || dim <= 700)) {
+        img.done()
+        const ext = type === 'image/webp' ? 'webp' : 'jpg'
+        return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.' + ext, { type })
+      }
+      dim = Math.round(dim * 0.75)   // still too big — shrink further and retry
+    }
+  } catch { /* fall through to original */ }
   img.done()
-  // WebP keeps transparency and compresses well; fall back to JPEG if unsupported.
-  let type = 'image/webp'
-  let blob: Blob | null = await new Promise(r => canvas.toBlob(r, type, quality))
-  if (!blob) { type = 'image/jpeg'; blob = await new Promise(r => canvas.toBlob(r, type, quality)) }
-  if (!blob) return file
-  const ext = type === 'image/webp' ? 'webp' : 'jpg'
-  return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.' + ext, { type })
+  return file
 }
 
 export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: logo0, brandColor: brand0, stampIcon: icon0, cardBackgroundUrl: bg0, stampBgColor: panel0, cardFrontUrl: front0 = '', cardFrontHeadline: fhl0 = '', cardFrontSubtext: fsub0 = '', cardBackMessage: bmsg0 = '', cardFrontTextColor: ftc0 = '', cardBackTextColor: btc0 = '', stampColor: stampcol0 = '' }: Props) {

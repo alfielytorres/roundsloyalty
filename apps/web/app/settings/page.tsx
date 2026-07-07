@@ -6,7 +6,8 @@ import SubmitButton from '@/components/SubmitButton'
 import LocationsManager from './LocationsManager'
 
 export default async function SettingsPage() {
-  const { user, vendor } = await getPortalData()
+  // Reachable during onboarding — address + phone (+ locations) live here.
+  const { user, vendor } = await getPortalData({ allowIncomplete: true })
 
   return (
     <main className="px-5 pt-8 pb-32">
