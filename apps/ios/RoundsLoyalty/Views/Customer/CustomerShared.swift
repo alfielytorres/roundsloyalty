@@ -197,13 +197,17 @@ struct LoyaltyCardView: View {
         let ink = frontInk
         return ZStack {
             if let frontURL {
-                AsyncImage(url: frontURL) { img in
-                    img.resizable().scaledToFill()
-                } placeholder: {
-                    brandFill
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
+                // Color.clear drives the size; the image is an overlay so its
+                // intrinsic size can't inflate the card. Cropped to fill.
+                Color.clear
+                    .overlay(
+                        AsyncImage(url: frontURL) { img in
+                            img.resizable().scaledToFill()
+                        } placeholder: {
+                            brandFill
+                        }
+                    )
+                    .clipped()
                 // Scrim keeps text legible over any photo.
                 LinearGradient(colors: [.black.opacity(0.38), .clear, .clear, .black.opacity(0.45)],
                                startPoint: .top, endPoint: .bottom)
@@ -274,9 +278,13 @@ struct LoyaltyCardView: View {
                     .fill(cardIsLight ? Color.black.opacity(0.14) : Color.white.opacity(0.14))
             }
             if let bgURL {
-                AsyncImage(url: bgURL) { img in img.resizable().scaledToFill() }
-                    placeholder: { Color.clear }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                // Color.clear drives the size (fills the panel); the image is an
+                // overlay so its intrinsic size can't inflate the card. Cropped to fill.
+                Color.clear
+                    .overlay(
+                        AsyncImage(url: bgURL) { img in img.resizable().scaledToFill() }
+                            placeholder: { Color.clear }
+                    )
                     .clipped()
                 RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.black.opacity(0.18))
             }
