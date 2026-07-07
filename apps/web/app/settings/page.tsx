@@ -6,8 +6,9 @@ import SubmitButton from '@/components/SubmitButton'
 import LocationsManager from './LocationsManager'
 
 export default async function SettingsPage() {
-  // Reachable during onboarding — address + phone (+ locations) live here.
-  const { user, vendor } = await getPortalData({ allowIncomplete: true })
+  // Gated: onboarding collects contact details on its own /setup/contact step,
+  // so an unfinished store is redirected to /setup rather than landing here.
+  const { user, vendor } = await getPortalData()
 
   return (
     <main className="px-5 pt-8 pb-32">

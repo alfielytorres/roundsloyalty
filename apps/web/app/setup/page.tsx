@@ -120,6 +120,13 @@ export default async function SetupPage() {
             </p>
           )}
         </div>
+
+        {/* Quiet escape hatch — the only sign-out during onboarding. */}
+        <div className="mt-10 text-center">
+          <form action="/api/auth/sign-out" method="POST">
+            <button type="submit" className="text-xs font-medium text-black/30 hover:text-black/60 transition-colors">Not you? Sign out</button>
+          </form>
+        </div>
       </div>
     </main>
   )
