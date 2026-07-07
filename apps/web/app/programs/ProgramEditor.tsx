@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect, ChangeEvent } from 'react'
 import Image from 'next/image'
+import { createBrowserClient } from '@supabase/ssr'
 import { Minus, Plus, Check } from 'lucide-react'
 import CardPreview from './CardPreview'
 import SubmitButton from '@/components/SubmitButton'
@@ -154,19 +155,27 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
   const [error, setError] = useState<string | null>(null)
   const logoRef = useRef<HTMLInputElement>(null)
   const bgRef = useRef<HTMLInputElement>(null)
+  const [supabase] = useState(() => createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  ))
 
+  // Upload straight to Supabase Storage via a signed URL from the server, so the
+  // file never passes through the serverless function's ~4.5 MB body cap.
   async function upload(file: File, prefix: string): Promise<string | null> {
-    const fd = new FormData()
-    fd.append('file', file); fd.append('prefix', prefix)
+    const ext = (file.name.split('.').pop() || file.type.split('/')[1] || 'jpg').toLowerCase()
     let res: Response
     try {
-      res = await fetch('/api/settings/logo', { method: 'POST', body: fd })
+      res = await fetch('/api/settings/upload-url', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prefix, ext }),
+      })
     } catch { setError('Upload failed — check your connection'); return null }
-    let json: { url?: string; error?: string } | null = null
-    try { json = await res.json() } catch { /* non-JSON (e.g. 413 too large) */ }
-    if (res.ok && json?.url) return json.url
-    setError(json?.error ?? (res.status === 413 ? 'Image is too large' : `Upload failed (${res.status})`))
-    return null
+    const json = await res.json().catch(() => null) as { path?: string; token?: string; publicUrl?: string; error?: string } | null
+    if (!res.ok || !json?.path || !json?.token) { setError(json?.error ?? `Upload failed (${res.status})`); return null }
+    const { error: upErr } = await supabase.storage.from('vendor-logos').uploadToSignedUrl(json.path, json.token, file, { contentType: file.type || undefined })
+    if (upErr) { setError(upErr.message); return null }
+    return json.publicUrl ?? null
   }
   async function onLogo(e: ChangeEvent<HTMLInputElement>) { const f = e.target.files?.[0]; if (!f) return; setLogoUploading(true); setError(null); try { const u = await upload(await downscaleImage(f), 'logo'); if (u) setLogoUrl(u) } finally { setLogoUploading(false) } }
   async function onBg(e: ChangeEvent<HTMLInputElement>) { const f = e.target.files?.[0]; if (!f) return; setBgUploading(true); setError(null); try { const u = await upload(await downscaleImage(f), 'card-bg'); if (u) setCardBgUrl(u) } finally { setBgUploading(false) } }
