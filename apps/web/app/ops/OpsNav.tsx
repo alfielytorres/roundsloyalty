@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { FileText, QrCode, CreditCard, ArrowLeft } from 'lucide-react'
+import { FileText, QrCode, CreditCard, MapPin, ArrowLeft } from 'lucide-react'
 
 const tabs = [
   { href: '/ops', label: 'Store signs', icon: FileText },
   { href: '/ops/stands', label: 'QR stands', icon: QrCode },
   { href: '/ops/cards', label: 'Cards', icon: CreditCard },
+  { href: '/ops/locations', label: 'Locations', icon: MapPin },
 ]
 
 export default function OpsNav() {

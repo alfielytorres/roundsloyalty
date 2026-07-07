@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getPortalData, fetchProgram } from '@/lib/portal-data'
-import { Store, Award, Palette, MapPin, Cpu, Users, Check, ArrowRight, Sparkles, type LucideIcon } from 'lucide-react'
+import { Award, Palette, MapPin, Phone, Cpu, Users, Check, ArrowRight, Sparkles, Lock, type LucideIcon } from 'lucide-react'
 
 interface Step {
   key: string
@@ -9,6 +9,7 @@ interface Step {
   icon: LucideIcon
   href: string
   done: boolean
+  required?: boolean
   optional?: boolean
 }
 
@@ -16,32 +17,31 @@ export default async function SetupPage() {
   const { vendor, supabase } = await getPortalData()
   const program = await fetchProgram(vendor.id, supabase)
 
-  const [{ count: locations }, { count: devices }, { count: staff }] = await Promise.all([
-    supabase.from('vendor_locations').select('id', { count: 'exact', head: true }).eq('vendor_id', vendor.id),
+  const [{ count: devices }, { count: staff }] = await Promise.all([
     supabase.from('nfc_stamp_devices').select('id', { count: 'exact', head: true }).eq('vendor_id', vendor.id),
     supabase.from('vendor_staff').select('id', { count: 'exact', head: true }).eq('vendor_id', vendor.id).eq('status', 'active'),
   ])
 
   const steps: Step[] = [
     {
-      key: 'business', title: 'Business details', icon: Store, href: '/settings',
-      desc: 'Name, category and address so customers can find you.',
-      done: !!vendor.business_name && !!vendor.address,
-    },
-    {
-      key: 'program', title: 'Create your loyalty program', icon: Award, href: '/programs',
+      key: 'program', title: 'Create your loyalty program', icon: Award, href: '/programs', required: true,
       desc: 'Set how many rounds earn a reward, and what the reward is.',
       done: !!program,
     },
     {
-      key: 'brand', title: 'Brand your loyalty card', icon: Palette, href: '/programs',
-      desc: 'Add your logo, colours and stamp icon — see it live.',
-      done: !!(vendor.logo_url || vendor.brand_color || vendor.stamp_icon),
+      key: 'address', title: 'Add your address', icon: MapPin, href: '/settings', required: true,
+      desc: 'Where your store is — so customers can find you.',
+      done: !!vendor.address,
     },
     {
-      key: 'location', title: 'Add your location', icon: MapPin, href: '/settings',
-      desc: 'Put your store on the map so customers can discover it.',
-      done: (locations ?? 0) > 0,
+      key: 'phone', title: 'Add a phone number', icon: Phone, href: '/settings', required: true,
+      desc: 'A contact number for your store.',
+      done: !!vendor.phone,
+    },
+    {
+      key: 'brand', title: 'Brand your loyalty card', icon: Palette, href: '/programs', optional: true,
+      desc: 'Add your logo, colours and stamp icon — see it live.',
+      done: !!(vendor.logo_url || vendor.brand_color || vendor.stamp_icon),
     },
     {
       key: 'device', title: 'Set up tap-to-stamp', icon: Cpu, href: '/devices', optional: true,
@@ -55,10 +55,10 @@ export default async function SetupPage() {
     },
   ]
 
-  const doneCount = steps.filter(s => s.done).length
-  const total = steps.length
-  const pct = Math.round((doneCount / total) * 100)
-  const allDone = doneCount === total
+  const requiredSteps = steps.filter(s => s.required)
+  const requiredDone = requiredSteps.every(s => s.done)
+  const requiredDoneCount = requiredSteps.filter(s => s.done).length
+  const pct = Math.round((requiredDoneCount / requiredSteps.length) * 100)
 
   return (
     <main className="px-5 pt-10 pb-32">
@@ -67,16 +67,18 @@ export default async function SetupPage() {
           <p className="text-xs tracking-widest uppercase text-black/30 font-semibold mb-1 flex items-center gap-1.5">
             <Sparkles size={13} /> Setup guide
           </p>
-          <h1 className="text-2xl font-bold text-[#1D1D1F]">{allDone ? "You're all set 🎉" : 'Finish setting up'}</h1>
+          <h1 className="text-2xl font-bold text-[#1D1D1F]">{requiredDone ? "You're all set 🎉" : 'Finish setting up'}</h1>
           <p className="text-black/40 text-sm mt-0.5">
-            {allDone ? 'Everything’s configured — you can revisit any step any time.' : 'A few quick steps to get your loyalty program live.'}
+            {requiredDone
+              ? 'Everything required is done — you can revisit any step any time.'
+              : 'Complete the required steps below to unlock your dashboard.'}
           </p>
         </div>
 
-        {/* Progress */}
+        {/* Progress (required steps) */}
         <div className="glass mb-5">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-semibold text-[#1D1D1F]">{doneCount} of {total} done</span>
+            <span className="text-sm font-semibold text-[#1D1D1F]">{requiredDoneCount} of {requiredSteps.length} required done</span>
             <span className="text-sm font-bold text-rounds">{pct}%</span>
           </div>
           <div className="h-2.5 rounded-full bg-black/5 overflow-hidden">
@@ -95,6 +97,7 @@ export default async function SetupPage() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <p className="font-semibold text-[#1D1D1F] text-sm">{i + 1}. {s.title}</p>
+                  {s.required && !s.done && <span className="text-[10px] font-bold uppercase tracking-wide text-rounds bg-rounds-soft px-1.5 py-0.5 rounded-full">Required</span>}
                   {s.optional && <span className="text-[10px] font-bold uppercase tracking-wide text-black/30 bg-black/5 px-1.5 py-0.5 rounded-full">Optional</span>}
                 </div>
                 <p className="text-black/40 text-xs mt-0.5">{s.desc}</p>
@@ -107,9 +110,15 @@ export default async function SetupPage() {
         </div>
 
         <div className="mt-6 text-center">
-          <Link href="/dashboard" className="text-sm font-semibold text-black/45 hover:text-black/70 transition-colors">
-            {allDone ? 'Go to dashboard' : 'Skip for now'}
-          </Link>
+          {requiredDone ? (
+            <Link href="/dashboard" className="btn-primary inline-flex items-center gap-2">
+              Go to dashboard <ArrowRight size={16} />
+            </Link>
+          ) : (
+            <p className="text-sm font-medium text-black/40 inline-flex items-center gap-1.5">
+              <Lock size={14} /> Finish the required steps to unlock your dashboard
+            </p>
+          )}
         </div>
       </div>
     </main>

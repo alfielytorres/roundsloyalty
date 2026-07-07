@@ -32,13 +32,17 @@ export default async function SettingsPage() {
               <input name="category" defaultValue={vendor.category ?? ''} placeholder="e.g. Cafe, Restaurant, Retail" className="w-full dark-input" />
             </div>
             <div>
+              <label className="block text-[11px] font-semibold text-black/35 tracking-widest uppercase mb-1.5">Phone</label>
+              <input name="phone" type="tel" required defaultValue={vendor.phone ?? ''} placeholder="e.g. +61 400 000 000" className="w-full dark-input" />
+            </div>
+            <div>
               <label className="block text-[11px] font-semibold text-black/35 tracking-widest uppercase mb-1.5">Address</label>
               <AddressAutocomplete
                 defaultValue={vendor.address ?? ''}
                 defaultLat={vendor.lat ?? undefined}
                 defaultLng={vendor.lng ?? undefined}
               />
-              <p className="text-black/30 text-xs mt-1">Your main contact address. Stores shown on the customer map are managed under Locations below.</p>
+              <p className="text-black/30 text-xs mt-1">Type your address — pick a suggestion to place it on the map. If yours doesn’t appear, just type it manually and save; our team can pin the map location for you.</p>
             </div>
 
             <SubmitButton pendingText="Saving…" className="btn-primary self-start text-sm py-2.5 px-5 mt-1 disabled:opacity-60">Save changes</SubmitButton>

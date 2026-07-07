@@ -1,8 +1,9 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { getPortalData } from '@/lib/portal-data'
+import { getPortalData, fetchProgram } from '@/lib/portal-data'
 import { Users, Award, PackageCheck, Megaphone, Clock, Zap, Gift, MapPin, RotateCcw, Sparkles, ChevronRight, type LucideIcon } from 'lucide-react'
 
 function StatCard({ value, label, sublabel, icon: Icon }: { value: string | number; label: string; sublabel: string; icon: LucideIcon }) {
@@ -237,7 +238,14 @@ async function LocationBreakdown({ vendorId }: { vendorId: string }) {
 }
 
 export default async function DashboardPage() {
-  const { vendor } = await getPortalData()
+  const { vendor, role, supabase } = await getPortalData()
+
+  // Onboarding gate: owners/managers must set up a loyalty program, an address,
+  // and a contact phone before the dashboard unlocks. Staff aren't gated.
+  if (role === 'owner' || role === 'manager') {
+    const program = await fetchProgram(vendor.id, supabase)
+    if (!program || !vendor.address || !vendor.phone) redirect('/setup')
+  }
 
   return (
     <main className="min-h-screen px-6 pt-10 pb-32">

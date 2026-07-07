@@ -43,6 +43,13 @@ export async function POST(req: NextRequest) {
   const description = (formData.get('description') as string)?.trim()
   const category = (formData.get('category') as string)?.trim() || null
   const address = (formData.get('address') as string)?.trim() || null
+  const phone = (formData.get('phone') as string)?.trim() || null
+  // Coords come from the address autocomplete; blank when the address was typed
+  // manually (ops can pin the map location later).
+  const latRaw = parseFloat((formData.get('lat') as string) ?? '')
+  const lngRaw = parseFloat((formData.get('lng') as string) ?? '')
+  const lat = Number.isFinite(latRaw) ? latRaw : null
+  const lng = Number.isFinite(lngRaw) ? lngRaw : null
 
   if (!business_name) {
     return NextResponse.redirect(new URL('/settings?error=' + encodeURIComponent('Business name is required.'), req.url))
@@ -50,6 +57,8 @@ export async function POST(req: NextRequest) {
 
   // Branding (logo/colour/stamp/background) is edited on the Programs page, so
   // this form only updates business details — it must not clobber branding.
+  // lat/lng only overwrite when the autocomplete resolved them, so a manual
+  // address edit doesn't wipe coordinates ops may have set.
   const { error } = await supabase
     .from('vendors')
     .update({
@@ -57,6 +66,8 @@ export async function POST(req: NextRequest) {
       description: description || null,
       category,
       address,
+      phone,
+      ...(lat != null && lng != null ? { lat, lng } : {}),
     })
     .eq('id', vendorId)
 
