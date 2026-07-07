@@ -4,10 +4,11 @@ import { createServerClient } from '@supabase/ssr'
 import { createClient } from '@supabase/supabase-js'
 import { isAdminEmail } from '@/lib/is-admin'
 import OpsNav from '../OpsNav'
-import LocationsEditor, { VendorLoc } from './LocationsEditor'
+import LocationsEditor, { VendorGroup } from './LocationsEditor'
 
-// Admin-only: fix vendor contact + map location (address, phone, lat, lng) when
-// the address autocomplete couldn't resolve one. Same gating as the rest of /ops.
+// Admin-only: manage the individual map locations (vendor_locations) — fix an
+// address or drop lat/lng by hand for locations the autocomplete couldn't
+// resolve. Same gating as the rest of /ops.
 export const dynamic = 'force-dynamic'
 
 export default async function OpsLocationsPage() {
@@ -22,21 +23,26 @@ export default async function OpsLocationsPage() {
   if (!isAdminEmail(user.email)) notFound()
 
   const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
-  const { data } = await db
-    .from('vendors')
-    .select('id, business_name, address, phone, lat, lng, created_at')
-    .order('created_at', { ascending: false })
+  const [{ data: vendorRows }, { data: locRows }] = await Promise.all([
+    db.from('vendors').select('id, business_name, created_at').order('created_at', { ascending: false }),
+    db.from('vendor_locations').select('id, vendor_id, name, address, lat, lng').order('created_at', { ascending: true }),
+  ])
 
-  const vendors: VendorLoc[] = (data ?? []).map((v) => ({
+  const locsByVendor = new Map<string, VendorGroup['locations']>()
+  for (const l of locRows ?? []) {
+    const arr = locsByVendor.get(l.vendor_id) ?? []
+    arr.push({ id: l.id, name: l.name ?? '', address: l.address ?? '', lat: l.lat != null ? String(l.lat) : '', lng: l.lng != null ? String(l.lng) : '' })
+    locsByVendor.set(l.vendor_id, arr)
+  }
+
+  const vendors: VendorGroup[] = (vendorRows ?? []).map((v) => ({
     id: v.id,
     name: v.business_name ?? 'Store',
-    address: v.address ?? '',
-    phone: v.phone ?? '',
-    lat: v.lat != null ? String(v.lat) : '',
-    lng: v.lng != null ? String(v.lng) : '',
+    locations: locsByVendor.get(v.id) ?? [],
   }))
 
-  const pinned = vendors.filter((v) => v.lat && v.lng).length
+  const totalLocations = locRows?.length ?? 0
+  const unpinned = (locRows ?? []).filter((l) => l.lat == null || l.lng == null).length
 
   return (
     <main className="px-5 py-10 min-h-screen">
@@ -46,7 +52,7 @@ export default async function OpsLocationsPage() {
           <p className="text-black/35 text-xs font-semibold tracking-widest uppercase mb-0.5">Rounds · Ops</p>
           <h1 className="text-2xl font-bold text-[#1D1D1F]">Locations</h1>
           <p className="text-black/40 text-sm mt-0.5">
-            {vendors.length} store{vendors.length === 1 ? '' : 's'} · {pinned} pinned — fix an address or drop map coordinates manually.
+            {totalLocations} map location{totalLocations === 1 ? '' : 's'}{unpinned > 0 ? ` · ${unpinned} missing coordinates` : ''} — fix an address or drop lat/lng by hand.
           </p>
         </div>
         <LocationsEditor vendors={vendors} />
