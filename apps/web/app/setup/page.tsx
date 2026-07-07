@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { getPortalData, fetchProgram } from '@/lib/portal-data'
-import { Award, MapPin, Phone, Pin, Cpu, Users, Check, ArrowRight, Sparkles, Lock, type LucideIcon } from 'lucide-react'
+import { Award, Phone, Pin, Cpu, Users, Check, ArrowRight, Sparkles, Lock, type LucideIcon } from 'lucide-react'
 
 interface Step {
   key: string
@@ -32,14 +32,9 @@ export default async function SetupPage() {
       done: !!program,
     },
     {
-      key: 'address', title: 'Add your address', icon: MapPin, href: '/settings', required: true,
-      desc: 'Your store’s contact address.',
-      done: !!vendor.address,
-    },
-    {
-      key: 'phone', title: 'Add a phone number', icon: Phone, href: '/settings', required: true,
-      desc: 'A contact number for your store.',
-      done: !!vendor.phone,
+      key: 'contact', title: 'Add your contact details', icon: Phone, href: '/setup/contact', required: true,
+      desc: 'A phone number and store address so customers can reach and find you.',
+      done: !!vendor.address && !!vendor.phone,
     },
     {
       key: 'locations', title: 'Put your store on the map', icon: Pin, href: '/settings', optional: true,

@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Sparkles, ArrowRight } from 'lucide-react'
 import MobileNav from './MobileNav'
 import Sidebar from './Sidebar'
@@ -45,8 +46,8 @@ export default function ConditionalNav() {
   if (gated) {
     return (
       <div className="fixed top-0 inset-x-0 z-40 flex items-center justify-between gap-3 px-5 h-14 bg-white/80 backdrop-blur-xl border-b border-black/5">
-        <span className="inline-flex items-center gap-1.5 font-bold text-[#1D1D1F]">
-          <span className="w-6 h-6 rounded-lg flex items-center justify-center text-black text-xs" style={{ background: '#D7FB37' }}>◎</span> Rounds
+        <span className="inline-flex items-center gap-2 font-black tracking-tight text-[#1D1D1F]">
+          <Image src="/logo.svg" alt="Rounds" width={26} height={26} unoptimized className="rounded-md" /> Rounds
         </span>
         <Link href="/setup" className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-[#1D1D1F] rounded-xl px-3 py-2">
           <Sparkles size={13} /> Finish setup <ArrowRight size={13} />
