@@ -63,31 +63,48 @@ const COLOR_SWATCHES = [
   '#1D1D1F', // ink
 ]
 
-// Shrink big photos in the browser before upload — the serverless upload route
-// caps the request body (~4.5 MB), so a large art image would otherwise fail.
-// SVGs/GIFs and already-small files pass through untouched.
-async function downscaleImage(file: File, maxDim = 1600, quality = 0.85): Promise<File> {
-  if (!file.type.startsWith('image/') || file.type === 'image/svg+xml' || file.type === 'image/gif') return file
-  if (file.size < 1_200_000) return file
+// Decode an image file to something drawable, trying createImageBitmap first
+// (fast) and falling back to an <img> (handles files/formats createImageBitmap
+// chokes on, e.g. some iPhone photos). Returns null if it can't decode.
+async function decodeImage(file: File): Promise<{ width: number; height: number; source: CanvasImageSource; done: () => void } | null> {
   try {
     const bmp = await createImageBitmap(file)
-    const scale = Math.min(1, maxDim / Math.max(bmp.width, bmp.height))
-    const w = Math.max(1, Math.round(bmp.width * scale))
-    const h = Math.max(1, Math.round(bmp.height * scale))
-    const canvas = document.createElement('canvas')
-    canvas.width = w; canvas.height = h
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return file
-    ctx.drawImage(bmp, 0, 0, w, h)
-    bmp.close?.()
-    // WebP keeps transparency and compresses well; fall back to JPEG if unsupported.
-    let type = 'image/webp'
-    let blob: Blob | null = await new Promise(r => canvas.toBlob(r, type, quality))
-    if (!blob) { type = 'image/jpeg'; blob = await new Promise(r => canvas.toBlob(r, type, quality)) }
-    if (!blob || blob.size >= file.size) return file
-    const ext = type === 'image/webp' ? 'webp' : 'jpg'
-    return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.' + ext, { type })
-  } catch { return file }
+    if (bmp.width > 0) return { width: bmp.width, height: bmp.height, source: bmp, done: () => bmp.close?.() }
+  } catch { /* fall through */ }
+  try {
+    const url = URL.createObjectURL(file)
+    const img = document.createElement('img')
+    await new Promise<void>((resolve, reject) => { img.onload = () => resolve(); img.onerror = () => reject(new Error('decode')); img.src = url })
+    if (img.naturalWidth > 0) return { width: img.naturalWidth, height: img.naturalHeight, source: img, done: () => URL.revokeObjectURL(url) }
+    URL.revokeObjectURL(url)
+  } catch { /* give up */ }
+  return null
+}
+
+// Shrink photos in the browser before upload — the serverless upload route caps
+// the request body (~4.5 MB), so a full-size phone photo would otherwise fail.
+// SVGs and already-tiny files pass through untouched.
+async function downscaleImage(file: File, maxDim = 1600, quality = 0.82): Promise<File> {
+  if (!file.type.startsWith('image/') || file.type === 'image/svg+xml') return file
+  if (file.size < 400_000) return file
+  const img = await decodeImage(file)
+  if (!img) return file
+  const scale = Math.min(1, maxDim / Math.max(img.width, img.height))
+  const w = Math.max(1, Math.round(img.width * scale))
+  const h = Math.max(1, Math.round(img.height * scale))
+  const canvas = document.createElement('canvas')
+  canvas.width = w; canvas.height = h
+  const ctx = canvas.getContext('2d')
+  if (!ctx) { img.done(); return file }
+  ctx.drawImage(img.source, 0, 0, w, h)
+  img.done()
+  // WebP keeps transparency and compresses well; fall back to JPEG if unsupported.
+  let type = 'image/webp'
+  let blob: Blob | null = await new Promise(r => canvas.toBlob(r, type, quality))
+  if (!blob) { type = 'image/jpeg'; blob = await new Promise(r => canvas.toBlob(r, type, quality)) }
+  if (!blob) return file
+  const ext = type === 'image/webp' ? 'webp' : 'jpg'
+  return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.' + ext, { type })
 }
 
 export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: logo0, brandColor: brand0, stampIcon: icon0, cardBackgroundUrl: bg0, stampBgColor: panel0, cardFrontUrl: front0 = '', cardFrontHeadline: fhl0 = '', cardFrontSubtext: fsub0 = '', cardBackMessage: bmsg0 = '', cardFrontTextColor: ftc0 = '', cardBackTextColor: btc0 = '', stampColor: stampcol0 = '' }: Props) {
@@ -246,7 +263,7 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
                 </div>
                 <p className="text-sm font-semibold text-black/55">{logoUploading ? 'Uploading…' : logoUrl ? 'Replace logo' : 'Upload logo'}</p>
               </div>
-              <input ref={logoRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" className="hidden" onChange={onLogo} />
+              <input ref={logoRef} type="file" accept="image/*" className="hidden" onChange={onLogo} />
             </Field>
 
             {/* Card colour */}
@@ -283,7 +300,7 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
                 </button>
                 {cardBgUrl && <button type="button" onClick={() => setCardBgUrl('')} className="text-sm text-black/40 hover:text-black/70">Remove</button>}
               </div>
-              <input ref={bgRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={onBg} />
+              <input ref={bgRef} type="file" accept="image/*" className="hidden" onChange={onBg} />
             </Field>
           </Section>
 
@@ -301,7 +318,7 @@ export default function ProgramEditor({ vendorId, vendorName, program, logoUrl: 
                 </button>
                 {cardFrontUrl && <button type="button" onClick={() => setCardFrontUrl('')} className="text-sm text-black/40 hover:text-black/70">Remove</button>}
               </div>
-              <input ref={frontRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={onFront} />
+              <input ref={frontRef} type="file" accept="image/*" className="hidden" onChange={onFront} />
             </Field>
             <Field label="Headline" hint="Top of the front. Defaults to your store name.">
               <input value={frontHeadline} onChange={e => setFrontHeadline(e.target.value)} maxLength={40} placeholder={vendorName || 'Your Store'} className="w-full dark-input" />

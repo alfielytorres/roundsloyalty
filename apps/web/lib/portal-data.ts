@@ -21,7 +21,23 @@ export type ProgramShape = {
   reward_name: string; reward_description: string | null
 } | null
 
-export const getPortalData = cache(async () => {
+const VENDOR_COLS = 'id, business_name, description, category, status, brand_color, join_token, address, logo_url, stamp_icon, card_background_url, stamp_bg_color, card_front_url, card_front_headline, card_front_subtext, card_back_message, card_front_text_color, card_back_text_color, stamp_color, phone, lat, lng'
+
+// Owners/managers must finish onboarding (a program + address + phone) before
+// the rest of the portal opens.
+async function onboardingComplete(vendor: VendorShape, supabase: ReturnType<typeof createServerClient>) {
+  if (!vendor.address || !vendor.phone) return false
+  const { count } = await supabase
+    .from('loyalty_programs')
+    .select('id', { count: 'exact', head: true })
+    .eq('vendor_id', vendor.id)
+    .eq('status', 'active')
+  return (count ?? 0) > 0
+}
+
+// Pass { allowIncomplete: true } from the setup wizard itself so it doesn't
+// redirect to itself; every other portal page leaves it off and is gated.
+export const getPortalData = cache(async (opts?: { allowIncomplete?: boolean }) => {
   const cookieStore = await cookies()
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,30 +48,41 @@ export const getPortalData = cache(async () => {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/')
 
+  let vendor: VendorShape | null = null
+  let role = 'owner'
+
   // Try staff record first (handles both owner and staff users)
   const { data: staffRecord } = await supabase
     .from('vendor_staff')
-    .select('vendor_id, role, vendors(id, business_name, description, category, status, brand_color, join_token, address, logo_url, stamp_icon, card_background_url, stamp_bg_color, card_front_url, card_front_headline, card_front_subtext, card_back_message, card_front_text_color, card_back_text_color, stamp_color, phone, lat, lng)')
+    .select(`vendor_id, role, vendors(${VENDOR_COLS})`)
     .eq('user_id', user.id)
     .eq('status', 'active')
     .limit(1)
     .maybeSingle()
 
   if (staffRecord?.vendors) {
-    const vendor = staffRecord.vendors as unknown as VendorShape
-    return { user, vendor, role: staffRecord.role as string, supabase }
+    vendor = staffRecord.vendors as unknown as VendorShape
+    role = staffRecord.role as string
+  } else {
+    // Fallback: user is owner but staff record missing (rare)
+    const { data: ownedVendor } = await supabase
+      .from('vendors')
+      .select(VENDOR_COLS)
+      .eq('owner_id', user.id)
+      .limit(1)
+      .maybeSingle()
+    if (!ownedVendor) redirect('/onboarding')
+    vendor = ownedVendor as VendorShape
+    role = 'owner'
   }
 
-  // Fallback: user is owner but staff record missing (rare)
-  const { data: ownedVendor } = await supabase
-    .from('vendors')
-    .select('id, business_name, description, category, status, brand_color, join_token, address, logo_url, stamp_icon, card_background_url, stamp_bg_color, card_front_url, card_front_headline, card_front_subtext, card_back_message, card_front_text_color, card_back_text_color, stamp_color, phone, lat, lng')
-    .eq('owner_id', user.id)
-    .limit(1)
-    .maybeSingle()
+  // Onboarding lock: owners/managers can't use the portal until they've set up a
+  // program, an address, and a phone. Staff are never gated.
+  if (!opts?.allowIncomplete && (role === 'owner' || role === 'manager')) {
+    if (!(await onboardingComplete(vendor, supabase))) redirect('/setup')
+  }
 
-  if (!ownedVendor) redirect('/onboarding')
-  return { user, vendor: ownedVendor as VendorShape, role: 'owner', supabase }
+  return { user, vendor, role, supabase }
 })
 
 export async function fetchProgram(vendorId: string, supabase: ReturnType<typeof createServerClient>) {
