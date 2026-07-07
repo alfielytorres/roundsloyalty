@@ -242,6 +242,10 @@ export default function CardPreview(props: Props) {
       await inlineImages(node)
       // One more paint so the freshly-inlined images are committed before capture.
       await new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())))
+      // html-to-image's first pass reliably misses images (they land in its cache
+      // during that pass); a warm-up render makes the real one include them — this
+      // is why the export used to only work on the second press.
+      await toPng(node, { pixelRatio: 2 })
       // PNG with a transparent background so the rounded corners stay clean.
       const dataUrl = await toPng(node, { pixelRatio: 2 })
       const blob = await (await fetch(dataUrl)).blob()

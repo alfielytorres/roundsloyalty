@@ -384,9 +384,17 @@ function ColorPicker({ value, hex, onChange, placeholder, onReset }: {
   value: string; hex: string; onChange: (v: string) => void; placeholder?: string; onReset?: () => void
 }) {
   const nativeRef = useRef<HTMLInputElement>(null)
-  // iOS Safari doesn't reliably fire React's synthetic onChange for a colour
-  // input (the native sheet opens but the value never propagates), so bind the
-  // DOM input/change events directly.
+  const safeHex = HEX6.test(hex) ? hex.toLowerCase() : '#1d1d1f'
+  // The colour input is UNCONTROLLED: a controlled value={hex} fights the native
+  // picker (React reverts the value mid-pick because brandHex only catches up a
+  // tick later, and the case differs), which is why picks never landed. Instead
+  // we sync the swatch via the ref only when the colour changes elsewhere
+  // (typing, preset swatches) and it isn't the active element.
+  useEffect(() => {
+    const el = nativeRef.current
+    if (el && document.activeElement !== el) el.value = safeHex
+  }, [safeHex])
+  // Bind the DOM events directly too — belt and suspenders for Safari.
   useEffect(() => {
     const el = nativeRef.current
     if (!el) return
@@ -398,9 +406,10 @@ function ColorPicker({ value, hex, onChange, placeholder, onReset }: {
   return (
     <div>
       <div className="flex items-center gap-2">
-        {/* A real, visible native colour input — mobile Safari won't commit a
-            change on a hidden colour input, so it must stay on-screen. */}
-        <input ref={nativeRef} type="color" aria-label="Pick a colour" value={hex}
+        {/* A real, visible native colour input (uncontrolled) — mobile Safari won't
+            commit a change on a hidden colour input, so it must stay on-screen. */}
+        <input ref={nativeRef} type="color" aria-label="Pick a colour" defaultValue={safeHex}
+          onInput={e => onChange((e.target as HTMLInputElement).value)}
           onChange={e => onChange(e.target.value)} className="color-swatch" />
         <input value={value} onChange={e => onChange(e.target.value)} inputMode="text" autoCapitalize="characters"
           placeholder={placeholder ?? '#1D1D1F'} className="flex-1 dark-input font-mono" />
