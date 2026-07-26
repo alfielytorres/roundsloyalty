@@ -19,7 +19,7 @@ async function requireAdmin() {
 const service = () =>
   createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!)
 
-// A redirect must be empty (= default Rounds behaviour) or a real http(s) URL.
+// A redirect must be empty (= default Weekends Club behaviour) or a real http(s) URL.
 function cleanRedirect(v: unknown): string | null {
   const s = typeof v === 'string' ? v.trim() : ''
   if (!s) return null

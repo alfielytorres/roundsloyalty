@@ -5,7 +5,7 @@ import { SignQR, PrintButton } from './SignParts'
 
 // A print-ready counter sign for a store, generated the moment they onboard.
 // The QR encodes the /j/<token> URL so it works two ways: a native phone
-// camera opens the landing page (download the app), and the Rounds app's
+// camera opens the landing page (download the app), and the Weekends Club app's
 // in-app scanner recognises the URL and awards a round directly.
 export const dynamic = 'force-dynamic'
 
@@ -71,15 +71,15 @@ export default async function StoreSignPage({ params }: { params: Promise<{ toke
 
           <div className="flex flex-col gap-3 text-left text-[19px] leading-snug text-[#1D1D1F] font-medium">
             <p><span className="font-black">1.</span> Scan the code with your phone camera</p>
-            <p><span className="font-black">2.</span> Get the Rounds app &amp; join {vendor.business_name}</p>
+            <p><span className="font-black">2.</span> Get the Weekends Club app &amp; join {vendor.business_name}</p>
             <p><span className="font-black">3.</span> Scan in the app each visit to earn rounds</p>
           </div>
         </div>
 
-        {/* Rounds footer */}
+        {/* Weekends Club footer */}
         <div className="w-full flex items-center justify-center gap-2.5 pb-10">
-          <Image src="/logo.svg" alt="Rounds" width={30} height={30} unoptimized className="rounded-lg" />
-          <span className="font-black text-[#1D1D1F] text-lg tracking-tight">Rounds</span>
+          <Image src="/logo.svg" alt="Weekends Club" width={30} height={30} unoptimized className="rounded-lg" />
+          <span className="font-black text-[#1D1D1F] text-lg tracking-tight">Weekends Club</span>
           <span className="text-black/30 text-lg">·</span>
           <span className="text-black/40 text-lg">loyalty that comes around</span>
         </div>

@@ -33,8 +33,8 @@ export default function SignUpPage() {
     <main className="min-h-screen flex flex-col items-center justify-center px-6 bg-[#F5F5F7]">
       <div className="w-full max-w-xs">
         <div className="flex flex-col items-center mb-8">
-          <Image src="/logo.svg" alt="Rounds" width={56} height={56} unoptimized priority className="mb-4" />
-          <p className="text-base font-bold tracking-tight text-black/30 mb-1.5">Rounds</p>
+          <Image src="/logo.svg" alt="Weekends Club" width={56} height={56} unoptimized priority className="mb-4" />
+          <p className="text-base font-bold tracking-tight text-black/30 mb-1.5">Weekends Club</p>
           <h1 className="text-2xl font-bold text-[#1D1D1F]">Create account</h1>
           <p className="text-black/40 mt-0.5 text-sm">Set up your vendor portal</p>
         </div>

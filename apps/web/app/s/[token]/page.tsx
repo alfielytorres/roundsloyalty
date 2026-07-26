@@ -48,17 +48,17 @@ export default async function NfcTagPage({ params }: { params: Promise<{ token: 
   return (
     <main className="min-h-screen flex flex-col items-center justify-center px-6 bg-[#F5F5F7]">
       <div className="w-full max-w-xs flex flex-col items-center text-center">
-        <Image src="/logo.svg" alt="Rounds" width={56} height={56} unoptimized className="mb-4" />
-        <p className="text-base font-bold tracking-tight text-black/30 mb-1.5">Rounds</p>
+        <Image src="/logo.svg" alt="Weekends Club" width={56} height={56} unoptimized className="mb-4" />
+        <p className="text-base font-bold tracking-tight text-black/30 mb-1.5">Weekends Club</p>
 
         {active && device ? (
           <>
             <h1 className="text-2xl font-bold text-[#1D1D1F]">{device.businessName}</h1>
-            <p className="text-black/45 mt-1 text-sm">Tap with the Rounds app to collect your round.</p>
+            <p className="text-black/45 mt-1 text-sm">Tap with the Weekends Club app to collect your round.</p>
 
             <div className="mt-7 w-full bg-white/70 backdrop-blur-xl rounded-3xl border border-white/90 shadow-sm p-5 text-left">
               <ol className="text-sm text-black/60 flex flex-col gap-3">
-                <li><span className="font-semibold text-[#1D1D1F]">1.</span> Open the Rounds app and sign in.</li>
+                <li><span className="font-semibold text-[#1D1D1F]">1.</span> Open the Weekends Club app and sign in.</li>
                 <li><span className="font-semibold text-[#1D1D1F]">2.</span> Go to <span className="font-semibold text-[#1D1D1F]">My QR Code</span> and press <span className="font-semibold text-[#1D1D1F]">Tap to stamp</span>.</li>
                 <li><span className="font-semibold text-[#1D1D1F]">3.</span> Hold your phone here again to collect your round.</li>
               </ol>
@@ -67,7 +67,7 @@ export default async function NfcTagPage({ params }: { params: Promise<{ token: 
             <a href="roundsloyalty://stamp"
               className="mt-5 w-full text-white font-semibold py-3 rounded-2xl transition-opacity hover:opacity-90 text-sm"
               style={{ backgroundColor: device.brandColor }}>
-              Open Rounds app
+              Open Weekends Club app
             </a>
             <p className="text-center text-xs text-black/25 mt-3">
               Don&apos;t have the app yet? Ask a staff member to help you join.

@@ -28,7 +28,7 @@ export default function QRDisplay() {
   return (
     <div className="flex flex-col items-center gap-8">
       <p className="text-black/40 text-sm text-center">
-        Show this QR code to customers so they can earn stamps on the Rounds app
+        Show this QR code to customers so they can earn stamps on the Weekends Club app
       </p>
 
       <div className="bg-white rounded-3xl p-8  border border-black/10 flex items-center justify-center min-h-[300px]">

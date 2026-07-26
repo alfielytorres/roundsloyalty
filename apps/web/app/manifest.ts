@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Rounds',
-    short_name: 'Rounds',
+    name: 'Weekends Club',
+    short_name: 'Weekends',
     description: 'Manage your loyalty program and reward your customers',
     start_url: '/dashboard',
     scope: '/',

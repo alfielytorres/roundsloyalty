@@ -258,7 +258,7 @@ export default function WinbackClient({ vendorId, vendorName }: { vendorId: stri
         )}
 
         <p className="text-[11px] text-black/30 mt-4 leading-relaxed">
-          Win-backs are sent as a push to the customer&apos;s Rounds app. We count it as recovered if they come back within 7 days.
+          Win-backs are sent as a push to the customer&apos;s Weekends Club app. We count it as recovered if they come back within 7 days.
         </p>
       </div>
 

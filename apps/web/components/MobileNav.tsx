@@ -92,8 +92,8 @@ export default function MobileNav() {
             {/* Header */}
             <div className="flex items-center justify-between px-5 pt-14 pb-5 border-b border-black/5">
               <div className="flex items-center gap-3">
-                <Image src="/logo.svg" alt="Rounds" width={22} height={22} unoptimized className="rounded-md" />
-                <p className="font-black text-[#111] tracking-tight text-base leading-none">Rounds</p>
+                <Image src="/logo.svg" alt="Weekends Club" width={22} height={22} unoptimized className="rounded-md" />
+                <p className="font-black text-[#111] tracking-tight text-base leading-none">Weekends Club</p>
               </div>
               <button onClick={() => setOpen(false)}
                 className="w-8 h-8 flex items-center justify-center rounded-full bg-black/5 hover:bg-black/10 transition-colors">
@@ -150,7 +150,7 @@ export default function MobileNav() {
             )}
 
             <div className="px-5 py-5 border-t border-black/5 pb-safe">
-              <p className="text-xs text-black/25 font-medium">© {new Date().getFullYear()} Rounds</p>
+              <p className="text-xs text-black/25 font-medium">© {new Date().getFullYear()} Weekends Club</p>
             </div>
           </div>
         </div>

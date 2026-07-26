@@ -102,7 +102,7 @@ export default function CampaignsClient({ vendorId, vendorName }: { vendorId: st
     <>
       <div className="flex items-start justify-between mb-7">
         <div>
-          <p className="text-sm tracking-tight text-black/30 font-bold mb-0.5">Rounds</p>
+          <p className="text-sm tracking-tight text-black/30 font-bold mb-0.5">Weekends Club</p>
           <h1 className="text-2xl font-bold text-[#1D1D1F]">Campaigns</h1>
           <p className="text-black/40 text-sm mt-0.5">Run bonus round events to reward loyal customers</p>
         </div>

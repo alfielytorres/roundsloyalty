@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 // Public resolver for a QR/NFC stand. The printed code always points here; the
 // ops admin decides where "here" goes:
 //   * redirect_url set  -> straight to that URL (anywhere the admin wants)
-//   * otherwise         -> the assigned store's Rounds landing (get the app /
+//   * otherwise         -> the assigned store's Weekends Club landing (get the app /
 //                          join), i.e. the default loyalty behaviour.
 export const dynamic = 'force-dynamic'
 
@@ -29,6 +29,6 @@ export default async function StandRedirect({ params }: { params: Promise<{ toke
     if (v?.join_token) redirect(`/j/${v.join_token}`)
   }
 
-  // Unassigned stand → generic Rounds home.
+  // Unassigned stand → generic Weekends Club home.
   redirect('/')
 }

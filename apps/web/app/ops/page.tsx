@@ -48,7 +48,7 @@ export default async function OpsPage() {
       <div className="max-w-4xl mx-auto">
         <OpsNav />
         <div className="mb-7">
-          <p className="text-black/35 text-xs font-semibold tracking-widest uppercase mb-0.5">Rounds · Ops</p>
+          <p className="text-black/35 text-xs font-semibold tracking-widest uppercase mb-0.5">Weekends Club · Ops</p>
           <h1 className="text-2xl font-bold text-[#1D1D1F]">Store signs</h1>
           <p className="text-black/40 text-sm mt-0.5">
             {vendors.length} store{vendors.length === 1 ? '' : 's'} · {activeCount} active — print a counter sign and ship it.

@@ -219,7 +219,7 @@ export default function OnboardingForm({ error: initialError, defaultBusinessNam
     <main className="min-h-screen flex flex-col items-center justify-center px-6 bg-black/5">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
-          <h1 className="text-2xl font-bold tracking-tight text-[#1D1D1F] text-center">Welcome to Rounds</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[#1D1D1F] text-center">Welcome to Weekends Club</h1>
           <p className="text-black/40 mt-1.5 text-center text-sm">Are you setting up a new store or joining an existing one?</p>
         </div>
 

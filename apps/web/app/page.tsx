@@ -32,8 +32,8 @@ export default function RootPage() {
     <main className="min-h-screen flex flex-col items-center justify-center px-6 bg-[#F5F5F7]">
       <div className="w-full max-w-xs">
         <div className="flex flex-col items-center mb-8">
-          <Image src="/logo.svg" alt="Rounds" width={56} height={56} unoptimized priority className="mb-4" />
-          <p className="text-base font-bold tracking-tight text-black/30 mb-1.5">Rounds</p>
+          <Image src="/logo.svg" alt="Weekends Club" width={56} height={56} unoptimized priority className="mb-4" />
+          <p className="text-base font-bold tracking-tight text-black/30 mb-1.5">Weekends Club</p>
           <h1 className="text-2xl font-bold text-[#1D1D1F]">Welcome back</h1>
           <p className="text-black/40 mt-0.5 text-sm">Sign in to your vendor portal</p>
         </div>
@@ -67,7 +67,7 @@ export default function RootPage() {
           <Link href="/sign-up" className="font-semibold text-black/60 hover:text-black">Create one free</Link>
         </p>
         <p className="text-center text-xs text-black/20 mt-1.5">
-          Customers — use the <span className="text-black/35 font-medium">Rounds</span> mobile app
+          Customers — use the <span className="text-black/35 font-medium">Weekends Club</span> mobile app
         </p>
       </div>
     </main>

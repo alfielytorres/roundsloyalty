@@ -77,11 +77,11 @@ export default function StandsClient({ initialStands, vendors }: { initialStands
                       </span>
                     ) : stand.vendor_id ? (
                       <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-black/55 bg-black/5 rounded-full px-2.5 py-1">
-                        <Store size={11} /> Rounds · {vendorName(stand.vendor_id) ?? 'store'}
+                        <Store size={11} /> Weekends Club · {vendorName(stand.vendor_id) ?? 'store'}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-black/35 bg-black/5 rounded-full px-2.5 py-1">
-                        Rounds home (no store set)
+                        Weekends Club home (no store set)
                       </span>
                     )}
                   </div>
@@ -159,14 +159,14 @@ function EditStand({ stand, vendors, onClose, onSaved, onError }: {
             <label className="text-xs font-bold tracking-widest uppercase text-black/35 mb-1.5 block">Custom link (optional)</label>
             <input value={redirect} onChange={e => setRedirect(e.target.value)} placeholder="https://…  — leave empty for default" className="dark-input" />
             <p className="text-[11px] text-black/35 mt-1.5 leading-relaxed">
-              Set a link to send scans anywhere (a review page, menu, promo). Leave empty to use the Rounds default below.
+              Set a link to send scans anywhere (a review page, menu, promo). Leave empty to use the Weekends Club default below.
             </p>
           </div>
 
           <div className={redirect.trim() ? 'opacity-40 pointer-events-none' : ''}>
-            <label className="text-xs font-bold tracking-widest uppercase text-black/35 mb-1.5 block">Default store (Rounds)</label>
+            <label className="text-xs font-bold tracking-widest uppercase text-black/35 mb-1.5 block">Default store (Weekends Club)</label>
             <select value={vendorId} onChange={e => setVendorId(e.target.value)} className="dark-input">
-              <option value="">Rounds home (no store)</option>
+              <option value="">Weekends Club home (no store)</option>
               {vendors.map(v => <option key={v.id} value={v.id}>{v.business_name}</option>)}
             </select>
             <p className="text-[11px] text-black/35 mt-1.5">Where a scan goes when no custom link is set — the store&apos;s join / get-the-app page.</p>

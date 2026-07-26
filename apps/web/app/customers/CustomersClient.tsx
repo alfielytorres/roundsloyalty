@@ -167,7 +167,7 @@ export default function CustomersClient({ vendorId, vendorName }: { vendorId: st
                 })}
               </div>
             ) : (
-              <p className="text-sm text-black/40">Customers can add their birthday in the Rounds app — once they do, their age range shows up here.</p>
+              <p className="text-sm text-black/40">Customers can add their birthday in the Weekends Club app — once they do, their age range shows up here.</p>
             )}
           </div>
         )}

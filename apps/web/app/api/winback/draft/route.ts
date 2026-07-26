@@ -39,7 +39,7 @@ async function aiDraft(
 ): Promise<{ title: string; body: string } | null> {
   const first = firstNameOf(customerName)
   const system =
-    'You write short, warm re-engagement push notifications for a coffee/retail loyalty app called Rounds. ' +
+    'You write short, warm re-engagement push notifications for a coffee/retail loyalty app called Weekends Club. ' +
     'Customers earn "rounds" (loyalty stamps) on each visit. Bring a lapsed customer back without being pushy or salesy. ' +
     'Return ONLY strict JSON: {"title": string, "body": string}. ' +
     'title <= 6 words, no emoji spam (one tasteful emoji max). body <= 180 characters, friendly, first-person from the store, ' +

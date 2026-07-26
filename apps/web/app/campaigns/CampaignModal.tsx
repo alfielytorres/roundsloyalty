@@ -200,7 +200,7 @@ function NotifPreviewCard({ title, body }: { title: string; body: string }) {
         <Image src="/logo.svg" alt="" width={36} height={36} unoptimized className="rounded-lg shrink-0 self-start" />
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
-            <span className="text-[11px] font-bold tracking-tight text-black/45 uppercase">Rounds</span>
+            <span className="text-[11px] font-bold tracking-tight text-black/45 uppercase">Weekends Club</span>
             <span className="text-[11px] text-black/30 shrink-0">now</span>
           </div>
           <p className="font-semibold text-[#1D1D1F] text-sm leading-snug mt-0.5 break-words">{title}</p>

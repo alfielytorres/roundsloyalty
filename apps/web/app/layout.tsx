@@ -12,9 +12,9 @@ const sans = DM_Sans({ subsets: ['latin'], variable: '--font-sans', display: 'sw
 const display = Space_Grotesk({ subsets: ['latin'], variable: '--font-display', display: 'swap' })
 
 export const metadata: Metadata = {
-  title: 'Rounds — Vendor Portal',
+  title: 'Weekends Club — Vendor Portal',
   description: 'Manage your loyalty program and reward your customers',
-  appleWebApp: { capable: true, title: 'Rounds', statusBarStyle: 'default' },
+  appleWebApp: { capable: true, title: 'Weekends Club', statusBarStyle: 'default' },
 }
 
 export const viewport: Viewport = {

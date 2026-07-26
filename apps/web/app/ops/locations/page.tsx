@@ -49,7 +49,7 @@ export default async function OpsLocationsPage() {
       <div className="max-w-4xl mx-auto">
         <OpsNav />
         <div className="mb-7">
-          <p className="text-black/35 text-xs font-semibold tracking-widest uppercase mb-0.5">Rounds · Ops</p>
+          <p className="text-black/35 text-xs font-semibold tracking-widest uppercase mb-0.5">Weekends Club · Ops</p>
           <h1 className="text-2xl font-bold text-[#1D1D1F]">Locations</h1>
           <p className="text-black/40 text-sm mt-0.5">
             {totalLocations} map location{totalLocations === 1 ? '' : 's'}{unpinned > 0 ? ` · ${unpinned} missing coordinates` : ''} — fix an address or drop lat/lng by hand.

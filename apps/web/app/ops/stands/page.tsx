@@ -31,10 +31,10 @@ export default async function StandsPage() {
       <div className="max-w-4xl mx-auto">
         <OpsNav />
         <div className="mb-7">
-          <p className="text-black/35 text-xs font-semibold tracking-widest uppercase mb-0.5">Rounds · Ops</p>
+          <p className="text-black/35 text-xs font-semibold tracking-widest uppercase mb-0.5">Weekends Club · Ops</p>
           <h1 className="text-2xl font-bold text-[#1D1D1F]">QR stands</h1>
           <p className="text-black/40 text-sm mt-0.5">
-            Each stand&apos;s code points at Rounds. Leave it default to send people to the store&apos;s join page, or set a link to send them anywhere.
+            Each stand&apos;s code points at Weekends Club. Leave it default to send people to the store&apos;s join page, or set a link to send them anywhere.
           </p>
         </div>
         <StandsClient
