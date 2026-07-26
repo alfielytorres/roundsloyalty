@@ -50,7 +50,7 @@ struct SplashView: View {
 
             VStack {
                 Spacer()
-                Text("Rounds")
+                Text("Weekends Club")
                     .font(.system(size: 26, weight: .bold, design: .rounded))
                     .foregroundColor(.primaryText)
                     .opacity(appeared ? 1 : 0)

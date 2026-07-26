@@ -18,7 +18,7 @@ struct SignInView: View {
                     // Header
                     VStack(spacing: 8) {
                         RoundsLogoMark(size: 56)
-                        Text("Rounds")
+                        Text("Weekends Club")
                             .font(.largeTitle.bold())
                             .kerning(-0.5)
                             .foregroundColor(.black)

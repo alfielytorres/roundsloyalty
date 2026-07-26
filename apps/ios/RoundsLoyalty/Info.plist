@@ -11,7 +11,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleDisplayName</key>
-	<string>Rounds</string>
+	<string>Weekends Club</string>
 	<key>CFBundleName</key>
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
@@ -23,11 +23,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Rounds uses your camera to scan QR codes at stores to earn stamps.</string>
+	<string>Weekends Club uses your camera to scan QR codes at stores to earn stamps.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Rounds uses your location to show nearby stores on the map.</string>
+	<string>Weekends Club uses your location to show nearby stores on the map.</string>
 	<key>NFCReaderUsageDescription</key>
-	<string>Rounds reads the store's NFC tag to add your stamp.</string>
+	<string>Weekends Club reads the store's NFC tag to add your stamp.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
